@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to Kirafix Professional Services</title>
+<link rel="stylesheet" href="des.css">
+</head>
+
+<body>
+
+<div class="logo">Kirafix</div>
+
+<form class="login" id="loginForm">
+
+  <div class="input-box">
+    <img src="مستخدم.png" class="icon" alt="user icon">
+    <input type="email" placeholder="Email" id="email" required>
+  </div>
+
+  <div class="input-box">
+    <img src="free-privacy-icon-XEipJc_qROTI-512x512.png" class="icon" alt="password icon">
+    <input type="password" placeholder="Password" id="password" required>
+  </div>
+
+  <button type="button" id="loginBtn">Log In</button>
+
+  <div class="login-link">
+    Don't have an account? <a href="https://kirafix-a0ed2.web.app/">Sign Up</a>
+  </div>
+
+  <div class="creator">Kirafix Creator</div>
+
+</form>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
+  authDomain: "kirafix-a0ed2.firebaseapp.com",
+  projectId: "kirafix-a0ed2",
+  storageBucket: "kirafix-a0ed2.firebasestorage.app",
+  messagingSenderId: "1038377831293",
+  appId: "1:103837103837:web:c4763c6157addb25a1da14"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const storage = getStorage(app);
+
+const loginForm = document.getElementById("loginForm");
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    window.location.href = "master.html";
+  } else {
+    document.body.style.display = "flex"; // عرض الصفحة بعد التأكد
+  }
+});
+
+const btn = document.getElementById("loginBtn");
+
+btn.addEventListener("click", async function() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    try {
+      const url = await getDownloadURL(ref(storage, `profilePics/${user.uid}.jpg`));
+      localStorage.setItem("profilePicUrl", url);
+    } catch {
+      localStorage.setItem("profilePicUrl", "af80e23deeb127837d30554452546196.jpg");
+    }
+
+    window.location.href = "master.html";
+
+  } catch (error) {
+    alert("Email or Password incorrect!");
+  }
+});
+</script>
+
+</body>
+</html>

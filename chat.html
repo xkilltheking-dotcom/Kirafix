@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirafix - Chat</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #f0f2f5;
+            --sidebar-bg: #ffffff;
+            --chat-bg: #e5ddd5; /* لون خلفية الواتساب الشهير */
+            --text-color: #1c1e21;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* الهيدر العلوي */
+        .chat-header {
+            background: #1f2937;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .chat-header h2 { margin: 0; font-size: 20px; }
+        .chat-header a { color: white; text-decoration: none; font-size: 14px; border: 1px solid #4b5563; padding: 5px 12px; border-radius: 8px; }
+
+        /* حاوية الشات الرئيسية */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* قائمة المستخدمين */
+        .sidebar {
+            width: 300px;
+            background: var(--sidebar-bg);
+            border-left: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-search { padding: 15px; border-bottom: 1px solid #f3f4f6; }
+        .sidebar-search input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            background: #f3f4f6;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .users-list { flex: 1; overflow-y: auto; }
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            border-bottom: 1px solid #f9fafb;
+        }
+        .user-item:hover { background: #f3f4f6; }
+        .user-item img { width: 45px; height: 45px; border-radius: 50%; margin-left: 12px; }
+        .user-info .name { font-weight: bold; color: var(--text-color); display: block; }
+        .user-info .status { font-size: 12px; color: #65676b; }
+
+        /* منطقة المحادثة */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f0f2f5;
+            position: relative;
+        }
+
+        /* الهيدر الخاص بالشخص اللي بتكلمه */
+        .active-user-header {
+            padding: 10px 20px;
+            background: white;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .active-user-header img { width: 40px; height: 40px; border-radius: 50%; margin-left: 10px; }
+
+        /* منطقة الرسائل */
+        .messages-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: linear-gradient(135deg, #f0f2f5, #e5e7eb);
+        }
+
+        /* تصميم فقاعة الرسالة */
+        .msg {
+            max-width: 70%;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 15px;
+            position: relative;
+            line-height: 1.4;
+        }
+        .msg.sent {
+            align-self: flex-start;
+            background: #dcf8c6;
+            color: #000;
+            border-top-right-radius: 2px;
+        }
+        .msg.received {
+            align-self: flex-end;
+            background: #fff;
+            color: #000;
+            border-top-left-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .msg-time { font-size: 10px; color: #888; margin-top: 5px; text-align: left; }
+
+        /* منطقة الإدخال */
+        .input-area {
+            padding: 15px;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 1px solid #fff;
+            outline: none;
+            font-size: 15px;
+        }
+        .input-area button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.3s;
+        }
+        .input-area button:hover { transform: scale(1.1); }
+
+        /* رسالة "اختار مستخدم" في البداية */
+        .no-chat-selected {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #65676b;
+        }
+    </style>
+</head>
+<body>
+
+<header class="chat-header">
+    <div class="right">
+        <a href="master.html">← العودة للرئيسية</a>
+    </div>
+    <div class="center"><h2>Kirafix Chat</h2></div>
+    <div class="left">
+        <span id="my-name">جاري التحميل...</span>
+    </div>
+</header>
+
+<div class="main-container">
+    <aside class="sidebar">
+        <div class="sidebar-search">
+            <input type="text" placeholder="بحث عن صديق...">
+        </div>
+        <div class="users-list" id="usersList">
+            <div class="user-item">
+                <img src="https://ui-avatars.com/api/?name=User" alt="Avatar">
+                <div class="user-info">
+                    <span class="name">تحميل المستخدمين...</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="chat-area">
+        <div id="activeChat" style="display: none; flex-direction: column; height: 100%;">
+            <div class="active-user-header">
+                <img id="activeUserImg" src="https://ui-avatars.com/api/?name=?" alt="">
+                <strong id="activeUserName">اسم المستخدم</strong>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                </div>
+
+            <div class="input-area">
+                <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا...">
+                <button id="sendBtn">➤</button>
+            </div>
+        </div>
+
+        <div class="no-chat-selected" id="noChatMsg">
+            <h3>مرحباً بك في شات Kirafix</h3>
+            <p>اختار مستخدم من القائمة لبدء المحادثة</p>
+        </div>
+    </main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+// --- التعديل هنا: إضافة الأدوات الناقصة ---
+import { 
+    getFirestore, collection, addDoc, query, where, 
+    onSnapshot, orderBy, getDocs, serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+// ----------------------------------------
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
+  authDomain: "kirafix-a0ed2.firebaseapp.com",
+  projectId: "kirafix-a0ed2",
+  storageBucket: "kirafix-a0ed2.firebasestorage.app",
+  messagingSenderId: "1038377831293",
+  appId: "1:103837103837:web:c4763c6157addb25a1da14"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let senderId = null;
+let receiverId = null;
+let unsubscribeMessages = null;
+
+const usersList = document.getElementById("usersList");
+const messagesContainer = document.getElementById("messagesContainer");
+const messageInput = document.getElementById("messageInput");
+const sendBtn = document.getElementById("sendBtn");
+const activeChat = document.getElementById("activeChat");
+const noChatMsg = document.getElementById("noChatMsg");
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        senderId = user.uid;
+        document.getElementById("my-name").textContent = user.email.split('@')[0];
+        loadUsers();
+    } else {
+        window.location.href = "Kirafix.html";
+    }
+});
+
+async function loadUsers() {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    usersList.innerHTML = "";
+    querySnapshot.forEach((doc) => {
+        const userData = doc.data();
+        if (doc.id !== senderId) {
+            let div = document.createElement("div");
+            div.className = "user-item";
+            div.innerHTML = `
+                <img src="${userData.photoURL}">
+                <div class="user-info">
+                    <span class="name">${userData.name}</span>
+                </div>
+            `;
+            div.onclick = () => openChat(doc.id, userData);
+            usersList.appendChild(div);
+        }
+    });
+}
+
+function openChat(id, userData) {
+    receiverId = id;
+    activeChat.style.display = "flex";
+    noChatMsg.style.display = "none";
+    document.getElementById("activeUserName").textContent = userData.name;
+    document.getElementById("activeUserImg").src = userData.photoURL;
+
+    if (unsubscribeMessages) unsubscribeMessages();
+
+    const q = query(
+        collection(db, "messages"),
+        where("chatId", "in", [senderId + "_" + receiverId, receiverId + "_" + senderId]),
+        orderBy("timestamp", "asc")
+    );
+
+    unsubscribeMessages = onSnapshot(q, (snapshot) => {
+        messagesContainer.innerHTML = "";
+        snapshot.forEach((doc) => {
+            const msg = doc.data();
+            const type = msg.senderId === senderId ? "sent" : "received";
+            const time = msg.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) || "الآن";
+            
+            let div = document.createElement("div");
+            div.className = "msg " + type;
+            div.innerHTML = `${msg.text} <div class="msg-time">${time}</div>`;
+            messagesContainer.appendChild(div);
+        });
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    });
+}
+
+async function sendMessage() {
+    let text = messageInput.value.trim();
+    if (!text || !receiverId) return;
+
+    await addDoc(collection(db, "messages"), {
+        chatId: senderId + "_" + receiverId,
+        senderId: senderId,
+        receiverId: receiverId,
+        text: text,
+        timestamp: serverTimestamp()
+    });
+    messageInput.value = "";
+}
+
+sendBtn.onclick = sendMessage;
+messageInput.onkeypress = (e) => { if (e.key === "Enter") sendMessage(); };
+// كود تشغيل البحث (بيفلتر الأسماء وأنت بتكتب)
+// 1. كود البحث (بيشتغل وأنت بتكتب + لما تدوس Enter)
+const searchInput = document.querySelector('.sidebar-search input');
+
+// وظيفة الفلترة
+function filterUsers() {
+    const term = searchInput.value.toLowerCase().trim();
+    const items = document.querySelectorAll('.user-item');
+    let found = false;
+
+    items.forEach(item => {
+        const name = item.querySelector('.name').textContent.toLowerCase();
+        if (name.includes(term)) {
+            item.style.display = "flex";
+            found = true;
+        } else {
+            item.style.display = "none";
+        }
+    });
+
+    if (!found && term !== "") {
+        console.log("مفيش حد بالاسم ده حالياً");
+    }
+}
+
+// تشغيل الفلترة وأنت بتكتب (أسرع وأسهل)
+searchInput.addEventListener('input', filterUsers);
+
+// تشغيل الفلترة لما تدوس Enter ومنع الصفحة إنها تـ Refresh
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault(); // بيمنع الصفحة إنها تقفل وتفتح تاني
+        filterUsers();
+    }
+});
+</script>
+</body>

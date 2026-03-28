@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta name="google-site-verification" content="JXzcyBmzUjljC3t9a7IpIrffA31XH4WjhkOn50RY-7I" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Kirafix Professional Services</title>
+    <link rel="stylesheet" href="auth.css">
+    <style>
+        /* ضمان توسيط الفورم في نصف الشاشة بالضبط */
+        body {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5; /* لون خلفية اختياري */
+        }
+        #signupForm {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="logo" style="position: absolute; top: 20px;">Kirafix</div>
+
+    <form class="login" id="signupForm" style="opacity: 0; transition: opacity 0.5s;">
+        <div class="input-box">
+            <img src="مستخدم.png" class="icon">
+            <input type="email" placeholder="Email" id="email" required>
+        </div>
+
+        <div class="input-box">
+            <img src="free-privacy-icon-XEipJc_qROTI-512x512.png" class="icon">
+            <input type="password" placeholder="Password" id="password" required>
+        </div>
+
+        <div class="input-box">
+            <span>Upload profile picture</span>
+            <label class="file-label">
+                <span class="plus">+</span>
+                <input type="file" id="profilePic" accept="image/*">
+            </label>
+        </div>
+
+        <button type="button" id="sign">Sign Up</button>
+        <div class="login-link">
+            Already have an account? 
+            <a href="Kirafix.html">Log In</a>
+        </div>
+        <div class="creator">Kirafix Creator</div>
+    </form>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+    // --- التعديل هنا فقط ---
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    // -----------------------
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
+        authDomain: "kirafix-a0ed2.firebaseapp.com",
+        projectId: "kirafix-a0ed2",
+        storageBucket: "kirafix-a0ed2.firebasestorage.app",
+        messagingSenderId: "1038377831293",
+        appId: "1:103837103837:web:c4763c6157addb25a1da14"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app); // تعريف الداتابيز
+
+    const signupForm = document.getElementById("signupForm");
+    const btn = document.getElementById("sign");
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            window.location.replace("master.html");
+        } else {
+            signupForm.style.opacity = "1";
+        }
+    });
+
+    btn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const file = document.getElementById("profilePic").files[0];
+        const fullName = email.split('@')[0]; // استخدام أول جزء من الإيميل كاسم
+
+        if (!email || !password) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // --- التعديل هنا: حفظ بيانات المستخدم في Firestore ---
+            await setDoc(doc(db, "users", user.uid), {
+                name: fullName,
+                uid: user.uid,
+                photoURL: `https://ui-avatars.com/api/?name=${fullName}`
+            });
+            // --------------------------------------------------
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    localStorage.setItem("userProfilePic", e.target.result);
+                    window.location.replace("master.html");
+                };
+                reader.readAsDataURL(file);
+            } else {
+                window.location.replace("master.html");
+            }
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+</script>
+</body>
+</html>
