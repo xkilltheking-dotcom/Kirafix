@@ -3,159 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirafix - Profile</title>
+    <title>Kirafix - Global Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1a73e8;
-            --bg: #f8f9fa;
+            --bg-color: #e5ddd5; /* لون خلفية شات كلاسيك */
+            --header-bg: #ffffff;
+            --primary: #075e54;
+            --text-main: #303030;
             --white: #ffffff;
-            --border: #dadce0;
-            --text-dark: #202124;
-            --text-gray: #5f6368;
+            --border: #e0e0e0;
         }
 
         body {
             margin: 0;
             font-family: 'Cairo', sans-serif;
-            background: var(--bg);
-            color: var(--text-dark);
-        }
-
-        /* Header Classic Design */
-        .profile-header {
-            background: var(--white);
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 30px;
-        }
-
-        .cover {
-            height: 180px;
-            background: #e8eaed; /* لون هادي بدل التدرجات الفاقعة */
-            border-bottom: 1px solid var(--border);
-        }
-
-        .profile-main-info {
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-            padding: 0 20px;
+            background-color: #f0f2f5;
+            height: 100vh;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
         }
 
-        .profile-pic-container {
-            position: relative;
-            margin-top: -80px;
-        }
-
-        .profile-pic {
-            width: 140px;
-            height: 140px;
-            border-radius: 8px; /* كلاسيك أكتر من الدائرة الكاملة */
-            border: 4px solid var(--white);
-            background: #fff;
-            object-fit: cover;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .profile-info { text-align: center; margin-top: 15px; }
-        .profile-info h2 { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-dark); }
-        .profile-info p#handle { color: var(--primary); margin: 5px 0; font-size: 14px; font-weight: 600; }
-        .profile-info p#bio { color: var(--text-gray); font-size: 15px; max-width: 450px; margin: 10px auto; line-height: 1.5; }
-
-        /* Stats Section */
-        .stats {
-            display: flex;
-            gap: 30px;
-            margin: 20px 0;
-        }
-        .stats div { text-align: center; }
-        .stats span { font-weight: 700; font-size: 18px; display: block; }
-        .stats p { margin: 0; color: var(--text-gray); font-size: 13px; }
-
-        /* Actions */
-        .actions { display: flex; gap: 10px; margin-top: 10px; }
-        .btn {
-            padding: 8px 20px;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid var(--border);
-            font-family: 'Cairo';
-        }
-        .btn-edit { background: var(--white); color: var(--text-dark); }
-        .btn-edit:hover { background: #f1f3f4; }
-        .btn-primary { background: var(--primary); color: white; border: none; }
-        .btn-primary:hover { background: #1765cc; }
-
-        /* Posts Section */
-        .container { max-width: 600px; margin: 30px auto; padding: 0 15px; }
-        .post {
+        /* حاوية الشات الرئيسية */
+        .chat-container {
+            width: 100%;
+            max-width: 900px;
+            height: 95vh;
             background: var(--white);
-            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
+            overflow: hidden;
         }
-        .post p { margin: 0 0 15px; font-size: 16px; line-height: 1.6; }
 
-        /* Modal - Classic */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 30px; width: 90%; max-width: 400px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
-        .modal-content h3 { margin-top: 0; margin-bottom: 20px; }
-        .modal-content input, .modal-content textarea { width: 100%; margin-bottom: 15px; padding: 10px; border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; font-family: 'Cairo'; }
-        .save-btn { background: var(--primary); color: white; width: 100%; padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        /* الهيدر */
+        .chat-header {
+            padding: 15px 20px;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h2 { margin: 0; font-size: 18px; color: var(--text-main); }
+        .back-btn { text-decoration: none; color: var(--primary); font-weight: bold; font-size: 14px; }
+
+        /* منطقة الرسائل */
+        #chatBox {
+            flex: 1;
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* خلفية واتساب الشهيرة */
+            background-color: var(--bg-color);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* تصميم الرسالة */
+        .msg-wrapper { display: flex; width: 100%; margin-bottom: 5px; }
+        .mine { justify-content: flex-start; flex-direction: row-reverse; }
+        .theirs { justify-content: flex-start; }
+
+        .msg-bubble {
+            max-width: 70%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .mine .msg-bubble { background: #dcf8c6; color: #303030; border-top-left-radius: 0; }
+        .theirs .msg-bubble { background: var(--white); color: #303030; border-top-right-radius: 0; }
+
+        .sender-name {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #075e54;
+        }
+
+        .chat-img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 8px;
+            background: #ccc;
+            object-fit: cover;
+        }
+
+        /* منطقة الإدخال */
+        .input-bar {
+            padding: 15px;
+            background: #f0f2f5;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 20px;
+            outline: none;
+            font-family: 'Cairo';
+            font-size: 14px;
+        }
+
+        #sendBtn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        #sendBtn:hover { transform: scale(1.05); }
+
     </style>
 </head>
 <body>
 
-    <div class="profile-header">
-        <div class="cover"></div>
-        <div class="profile-main-info">
-            <div class="profile-pic-container">
-                <img id="profilePic" class="profile-pic" src="https://via.placeholder.com/150?text=Kirafix">
-            </div>
-            <div class="profile-info">
-                <h2 id="username">تحميل...</h2>
-                <p id="handle">@handle</p>
-                <p id="bio">جارٍ تحميل الوصف الشخصي الخاص بك...</p>
-                
-                <div class="stats">
-                    <div><span id="postsCount">0</span><p>منشور</p></div>
-                    <div><span id="followersCount">0</span><p>متابع</p></div>
-                    <div><span id="followingCount">0</span><p>أتابع</p></div>
-                </div>
+    <div class="chat-container">
+        <header class="chat-header">
+            <a href="Kirafix.html" class="back-btn">← رجوع</a>
+            <h2>غرفة الدردشة العامة</h2>
+            <div style="width:30px"></div>
+        </header>
 
-                <div class="actions">
-                    <button class="btn btn-edit" onclick="openEdit()">تعديل الملف</button>
-                    <button class="btn btn-primary" onclick="window.location.href='Kirafix.html'">الرئيسية</button>
-                </div>
-            </div>
+        <div id="chatBox">
+            <p style="text-align: center; color: #555; font-size: 13px;">جارٍ تحميل المحادثات الكلاسيكية...</p>
         </div>
-    </div>
 
-    <div class="container" id="postsContainer"></div>
-
-    <div class="modal" id="editModal">
-        <div class="modal-content">
-            <h3>تعديل البيانات</h3>
-            <input type="text" id="newName" placeholder="الاسم الجديد">
-            <textarea id="newBio" rows="3" placeholder="اكتب نبذة عنك..."></textarea>
-            <label style="font-size: 13px; color: gray;">تغيير الصورة:</label>
-            <input type="file" id="newImage" accept="image/*">
-            <button class="save-btn" id="saveBtn" onclick="saveProfile()">حفظ التغييرات</button>
-            <button style="background:none; border:none; color:gray; width:100%; margin-top:10px; cursor:pointer;" onclick="closeEdit()">إلغاء</button>
+        <div class="input-bar">
+            <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا...">
+            <button id="sendBtn">➤</button>
         </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc, collection, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, limit } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -170,88 +173,64 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUserId = null;
+    let currentUser = null;
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            currentUserId = user.uid;
-            await loadUser();
-            loadUserPosts(user.email);
+            currentUser = user;
+            loadMessages();
         } else {
             window.location.href = "Kirafix.html";
         }
     });
 
-    async function loadUser() {
-        const ref = doc(db, "users", currentUserId);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-            const data = snap.data();
-            document.getElementById("username").innerText = data.name || "مستخدم كرافيكس";
-            document.getElementById("handle").innerText = "@" + (data.username || "user");
-            document.getElementById("bio").innerText = data.bio || "لا يوجد وصف حالياً.";
-            // حل مشكلة الصورة: التأكد من وجود الرابط
-            if (data.image) {
-                document.getElementById("profilePic").src = data.image;
-            }
-            document.getElementById("followersCount").innerText = (data.followers || []).length;
-            document.getElementById("followingCount").innerText = (data.following || []).length;
-        }
+    async function sendMessage() {
+        const input = document.getElementById("messageInput");
+        const text = input.value.trim();
+        if (!text || !currentUser) return;
+
+        input.value = "";
+        try {
+            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+            const userData = userDoc.data();
+
+            await addDoc(collection(db, "messages"), {
+                text: text,
+                uid: currentUser.uid,
+                userName: userData?.name || "مستخدم",
+                userImage: userData?.image || "https://via.placeholder.com/50",
+                createdAt: serverTimestamp()
+            });
+        } catch (e) { console.error(e); }
     }
 
-    function loadUserPosts(email) {
-        const q = query(collection(db, "posts"), where("email", "==", email), orderBy("createdAt", "desc"));
+    document.getElementById("sendBtn").onclick = sendMessage;
+    document.getElementById("messageInput").onkeypress = (e) => { if (e.key === "Enter") sendMessage(); };
+
+    function loadMessages() {
+        const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(60));
         onSnapshot(q, (snapshot) => {
-            const container = document.getElementById("postsContainer");
-            container.innerHTML = "";
-            document.getElementById("postsCount").innerText = snapshot.size;
-            snapshot.forEach((docSnap) => {
-                const post = docSnap.data();
-                container.innerHTML += `
-                    <div class="post">
-                        <p>${post.text || ""}</p>
-                        ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:4px; margin-top:10px;">` : ""}
-                    </div>`;
+            const chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML = "";
+            const docs = snapshot.docs.reverse();
+
+            docs.forEach((docSnap) => {
+                const msg = docSnap.data();
+                const isMine = msg.uid === currentUser.uid;
+
+                chatBox.innerHTML += `
+                    <div class="msg-wrapper ${isMine ? 'mine' : 'theirs'}">
+                        <img src="${msg.userImage}" class="chat-img">
+                        <div class="msg-bubble">
+                            <span class="sender-name">${msg.userName}</span>
+                            ${msg.text}
+                        </div>
+                    </div>
+                `;
             });
+            chatBox.scrollTop = chatBox.scrollHeight;
         });
     }
-
-    window.openEdit = () => document.getElementById("editModal").style.display = "flex";
-    window.closeEdit = () => document.getElementById("editModal").style.display = "none";
-
-    window.saveProfile = async () => {
-        const name = document.getElementById("newName").value.trim();
-        const bio = document.getElementById("newBio").value.trim();
-        const file = document.getElementById("newImage").files[0];
-        const btn = document.getElementById("saveBtn");
-
-        btn.innerText = "جاري الحفظ...";
-        btn.disabled = true;
-
-        let updateData = {};
-        if (name) updateData.name = name;
-        if (bio) updateData.bio = bio;
-
-        if (file) {
-            const formData = new FormData();
-            formData.append("image", file);
-            const res = await fetch("https://api.imgbb.com/1/upload?key=a870d9c05acad152564a134e6f4228c9", {
-                method: "POST",
-                body: formData
-            });
-            const imgRes = await res.json();
-            if (imgRes.success) updateData.image = imgRes.data.url;
-        }
-
-        if (Object.keys(updateData).length > 0) {
-            await updateDoc(doc(db, "users", currentUserId), updateData);
-            location.reload();
-        } else {
-            closeEdit();
-            btn.innerText = "حفظ التغييرات";
-            btn.disabled = false;
-        }
-    };
 </script>
 </body>
 </html>
