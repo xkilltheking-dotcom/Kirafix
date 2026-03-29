@@ -28,21 +28,13 @@ body {
 
 /* صغر اللوجو شوية عشان ميزقش الهيدر */
 .header .left h2 {
-    font-size: 24px; /* كانت 30 وده كبير شوية */
+    font-size: 30px; /* كانت 30 وده كبير شوية */
     font-weight: 700;
     color: white;
     margin: 0;
 }
 
 /* صورة البروفايل خليها 40 بكسل عشان تكون متناسقة مع ارتفاع 65 */
-#navProfilePic {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid white;
-}
-
 /* ================= LINKS ================= */
 .links {
     display: flex;
@@ -249,11 +241,49 @@ body {
     align-items: center;
     gap: 10px;
 }
+/* ================= PROFILE IMAGE ================= */
+#navProfilePic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* هوفر */
+#navProfilePic:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(96,165,250,0.7);
+    border-color: #60a5fa;
+}
+
+/* عند الضغط */
+#navProfilePic:active {
+    transform: scale(0.95);
+}
+
+
+/* ================= SETTINGS ICON ================= */
 #ht {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     background: white;
-    padding: 5px;
+    padding: 6px;
     cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* هوفر */
+#ht:hover {
+    transform: rotate(90deg) scale(1.1);
+    background: #60a5fa;
+    box-shadow: 0 0 12px rgba(96,165,250,0.6);
+}
+
+/* عند الضغط */
+#ht:active {
+    transform: scale(0.9) rotate(180deg);
 }
