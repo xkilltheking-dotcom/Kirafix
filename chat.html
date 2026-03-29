@@ -77,6 +77,16 @@
         if (user) { currentUser = user; loadMessages(); }
         else { window.location.href = "Kirafix.html"; }
     });
+    // كود تفعيل الوضع المظلم فور فتح الصفحة
+const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+if (savedDark) {
+    document.body.classList.add('dark-mode');
+}
+
+// كود تفعيل اللغة المختارة
+const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
+// (اختياري) ممكن تضيف دالة الترجمة هنا برضه لو عايز كلام الشات يتغير
 
     // إرسال رسالة
     async function sendMessage() {
