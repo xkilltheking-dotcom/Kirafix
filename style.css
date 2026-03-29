@@ -287,44 +287,82 @@ body {
 #ht:active {
     transform: scale(0.9) rotate(180deg);
 }
-/* سيطرة كاملة للوضع المظلم */
+/* =============================================
+   النظام الموحد للوضع المظلم - Kirafix Final Dark Mode
+   ============================================= */
+
 body.dark-mode {
-    background-color: #18191a !important;
-    color: #ffffff !important; /* كل الخطوط تبقى أبيض */
+    background-color: #111212 !important; /* خلفية الصفحة الغامقة */
+    color: #ffffff !important; /* اللون الأساسي للنصوص */
 }
 
-/* تلوين كل العناصر النصية بالأبيض في الوضع المظلم */
+/* 1. الحاويات الرئيسية (البوستات، الكروت، المودال) */
+body.dark-mode .chat-container, 
+body.dark-mode .profile-header, 
+body.dark-mode .post, 
+body.dark-mode .composer,
+body.dark-mode .modal-content,
+body.dark-mode .setting-card,
+body.dark-mode .profile-card {
+    background-color: #1c1e21 !important;
+    border-color: #3e4042 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+}
+
+/* 2. الهيدر وبار الإدخال */
+body.dark-mode .header,
+body.dark-mode .chat-header, 
+body.dark-mode .input-bar {
+    background-color: #242526 !important;
+    border-bottom: 1px solid #3e4042 !important;
+    color: #ffffff !important;
+}
+
+/* 3. النصوص العامة (عناوين، فقرات، سبان) */
 body.dark-mode h1, 
 body.dark-mode h2, 
 body.dark-mode h3, 
 body.dark-mode p, 
 body.dark-mode span, 
 body.dark-mode div,
-body.dark-mode a {
+body.dark-mode label,
+body.dark-mode small {
     color: #ffffff !important;
 }
 
-/* تلوين الخلفيات للشات والبروفايل والبوستات */
-body.dark-mode .header, 
-body.dark-mode .post, 
-body.dark-mode .composer,
-body.dark-mode .profile-card, /* كلاس البروفايل */
-body.dark-mode .chat-box,     /* كلاس الشات */
-body.dark-mode .message {      /* فقاعات الشات */
-    background-color: #242526 !important;
-    border-color: #3e4042 !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
-}
-
-/* تلوين حقول الكتابة */
-body.dark-mode textarea, 
-body.dark-mode input {
+/* 4. حقول الكتابة (Input, Textarea, Select) */
+body.dark-mode #messageInput, 
+body.dark-mode #tex,
+body.dark-mode input, 
+body.dark-mode textarea,
+body.dark-mode select {
     background-color: #3a3b3c !important;
     color: #ffffff !important;
     border: 1px solid #4e4f50 !important;
 }
 
-/* استثناء بسيط: الروابط اللي لونها أزرق ممكن نسيبها أو نفتحها شوية */
+/* 5. فقاعات الشات (رسائل الآخرين) */
+body.dark-mode .theirs .msg-bubble {
+    background-color: #3a3b3c !important;
+    color: #ffffff !important;
+}
+
+/* 6. الروابط والاستثناءات (لألوان مريحة للعين) */
 body.dark-mode a {
-    color: #4da3ff !important; 
+    color: #4da3ff !important; /* أزرق فاتح مريح في الضلمة */
+}
+
+body.dark-mode #handle, 
+body.dark-mode .post-footer small,
+body.dark-mode .post-time,
+body.dark-mode .del-hint {
+    color: #b0b3b8 !important; /* رمادي فاتح للنصوص الثانوية */
+}
+
+/* 7. الأزرار في الوضع المظلم (اختياري لتحسين الشكل) */
+body.dark-mode .btn-edit, 
+body.dark-mode .upload-btns button {
+    background-color: #4e4f50 !important;
+    color: #ffffff !important;
 }
