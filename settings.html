@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirafix - Settings</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #1c1e21;
+            --primary-blue: #2563eb;
+        }
+
+        /* ستايل وضع الظلام */
+        body.dark-mode {
+            --bg-color: #18191a;
+            --card-bg: #242526;
+            --text-color: #e4e6eb;
+        }
+
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: 0.3s;
+        }
+
+        .settings-container { max-width: 600px; margin: 30px auto; padding: 20px; }
+        .setting-card { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-bottom: 15px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        select, .toggle-btn {
+            padding: 8px 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: var(--primary-blue);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="">
+
+<div class="settings-container">
+    <a href="index.html" class="back-btn" id="lang-back">← العودة للرئيسية</a>
+    <h2 id="lang-title">الإعدادات</h2>
+
+    <div class="setting-card">
+        <div>
+            <h3 id="lang-label-language">لغة التطبيق</h3>
+            <p style="font-size: 12px; color: gray;" id="lang-desc-language">اختر اللغة المفضلة لواجهة المستخدم</p>
+        </div>
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+            <option value="zh">中文 (Chinese)</option>
+        </select>
+    </div>
+
+    <div class="setting-card">
+        <div>
+            <h3 id="lang-label-theme">المظهر (Dark Mode)</h3>
+            <p style="font-size: 12px; color: gray;" id="lang-desc-theme">تبديل بين الوضع الفاتح والمظلم</p>
+        </div>
+        <button class="toggle-btn" id="darkModeBtn">تفعيل</button>
+    </div>
+
+    <div class="setting-card">
+        <div>
+            <h3 id="lang-label-notif">الإشعارات</h3>
+            <p style="font-size: 12px; color: gray;" id="lang-desc-notif">تلقي تنبيهات عند التفاعل مع بوستاتك</p>
+        </div>
+        <input type="checkbox" checked>
+    </div>
+</div>
+
+<script>
+    // قاموس اللغات
+    const translations = {
+        ar: {
+            title: "الإعدادات",
+            back: "← العودة للرئيسية",
+            labelLang: "لغة التطبيق",
+            descLang: "اختر اللغة المفضلة لواجهة المستخدم",
+            labelTheme: "المظهر (Dark Mode)",
+            descTheme: "تبديل بين الوضع الفاتح والمظلم",
+            labelNotif: "الإشعارات",
+            descNotif: "تلقي تنبيهات عند التفاعل مع بوستاتك",
+            btnDark: "تبديل الوضع"
+        },
+        en: {
+            title: "Settings",
+            back: "← Back to Home",
+            labelLang: "App Language",
+            descLang: "Choose your preferred interface language",
+            labelTheme: "Appearance (Dark Mode)",
+            descTheme: "Switch between light and dark themes",
+            labelNotif: "Notifications",
+            descNotif: "Receive alerts for interactions",
+            btnDark: "Toggle Theme"
+        },
+        fr: {
+            title: "Paramètres",
+            back: "← Retour à l'accueil",
+            labelLang: "Langue de l'application",
+            descLang: "Choisissez votre langue d'interface",
+            labelTheme: "Apparence (Mode Sombre)",
+            descTheme: "Basculer entre les thèmes",
+            labelNotif: "Notifications",
+            descNotif: "Recevoir des alertes",
+            btnDark: "Changer le mode"
+        },
+        es: {
+            title: "Ajustes",
+            back: "← Volver al inicio",
+            labelLang: "Idioma de la aplicación",
+            descLang: "Elige tu idioma preferido",
+            labelTheme: "Apariencia (Modo Oscuro)",
+            descTheme: "Cambiar entre temas",
+            labelNotif: "Notificaciones",
+            descNotif: "Recibir alertas",
+            btnDark: "Cambiar modo"
+        },
+        zh: {
+            title: "设置",
+            back: "← 回到首页",
+            labelLang: "应用语言",
+            descLang: "选择您的界面语言",
+            labelTheme: "外观 (深色模式)",
+            descTheme: "切换主题",
+            labelNotif: "通知",
+            descNotif: "接收提醒",
+            btnDark: "切换模式"
+        }
+    };
+
+    const langSelect = document.getElementById('languageSelect');
+    const darkBtn = document.getElementById('darkModeBtn');
+
+    // وظيفة تغيير اللغة
+    function applyLanguage(lang) {
+        const t = translations[lang];
+        document.getElementById('lang-title').textContent = t.title;
+        document.getElementById('lang-back').textContent = t.back;
+        document.getElementById('lang-label-language').textContent = t.labelLang;
+        document.getElementById('lang-desc-language').textContent = t.descLang;
+        document.getElementById('lang-label-theme').textContent = t.labelTheme;
+        document.getElementById('lang-desc-theme').textContent = t.descTheme;
+        document.getElementById('lang-label-notif').textContent = t.labelNotif;
+        document.getElementById('lang-desc-notif').textContent = t.descNotif;
+        
+        // تغيير اتجاه الصفحة (RTL للعربي و LTR للباقي)
+        document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+        localStorage.setItem('kirafix-lang', lang);
+    }
+
+    langSelect.onchange = (e) => applyLanguage(e.target.value);
+
+    // وظيفة وضع الظلام
+    darkBtn.onclick = () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('kirafix-dark', isDark);
+    };
+
+    // تحميل الإعدادات المحفوظة عند فتح الصفحة
+    window.onload = () => {
+        const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+        const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+
+        langSelect.value = savedLang;
+        applyLanguage(savedLang);
+
+        if (savedDark) document.body.classList.add('dark-mode');
+    };
+</script>
+</body>
+</html>
