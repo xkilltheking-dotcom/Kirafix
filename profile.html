@@ -7,115 +7,108 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1877f2;
-            --bg: #f0f2f5;
+            --primary: #1a73e8;
+            --bg: #f8f9fa;
             --white: #ffffff;
-            --text: #1c1e21;
+            --border: #dadce0;
+            --text-dark: #202124;
+            --text-gray: #5f6368;
         }
 
         body {
             margin: 0;
             font-family: 'Cairo', sans-serif;
             background: var(--bg);
-            color: var(--text);
+            color: var(--text-dark);
         }
 
-        /* Header & Cover */
+        /* Header Classic Design */
         .profile-header {
             background: var(--white);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 30px;
         }
 
         .cover {
-            height: 200px;
-            background: linear-gradient(45deg, #1877f2, #00c6ff);
+            height: 180px;
+            background: #e8eaed; /* لون هادي بدل التدرجات الفاقعة */
+            border-bottom: 1px solid var(--border);
         }
 
         .profile-main-info {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
             position: relative;
             padding: 0 20px;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .profile-pic-container {
+            position: relative;
+            margin-top: -80px;
         }
 
         .profile-pic {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 5px solid var(--white);
-            margin-top: -75px;
-            background: #eee;
+            width: 140px;
+            height: 140px;
+            border-radius: 8px; /* كلاسيك أكتر من الدائرة الكاملة */
+            border: 4px solid var(--white);
+            background: #fff;
             object-fit: cover;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .profile-info h2 { margin: 10px 0 0; font-size: 28px; }
-        .profile-info p#handle { color: #65676b; margin: 0; font-weight: bold; }
-        .profile-info p#bio { margin: 15px auto; max-width: 500px; color: #4b4b4b; }
+        .profile-info { text-align: center; margin-top: 15px; }
+        .profile-info h2 { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-dark); }
+        .profile-info p#handle { color: var(--primary); margin: 5px 0; font-size: 14px; font-weight: 600; }
+        .profile-info p#bio { color: var(--text-gray); font-size: 15px; max-width: 450px; margin: 10px auto; line-height: 1.5; }
 
-        /* Stats */
+        /* Stats Section */
         .stats {
             display: flex;
-            justify-content: center;
-            gap: 40px;
+            gap: 30px;
             margin: 20px 0;
-            border-top: 1px solid #eee;
-            padding-top: 15px;
         }
-
         .stats div { text-align: center; }
-        .stats span { display: block; font-weight: bold; font-size: 18px; }
-        .stats p { margin: 0; color: #65676b; font-size: 14px; }
+        .stats span { font-weight: 700; font-size: 18px; display: block; }
+        .stats p { margin: 0; color: var(--text-gray); font-size: 13px; }
 
-        /* Buttons */
-        .actions { display: flex; justify-content: center; gap: 10px; }
-        button {
-            padding: 8px 25px;
-            border: none;
-            border-radius: 6px;
+        /* Actions */
+        .actions { display: flex; gap: 10px; margin-top: 10px; }
+        .btn {
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid var(--border);
             font-family: 'Cairo';
-            transition: 0.3s;
         }
-
-        .btn-edit { background: #e4e6eb; color: #050505; }
-        .btn-edit:hover { background: #d8dadf; }
-        .btn-follow { background: var(--primary); color: white; }
-        .btn-follow:hover { opacity: 0.9; }
+        .btn-edit { background: var(--white); color: var(--text-dark); }
+        .btn-edit:hover { background: #f1f3f4; }
+        .btn-primary { background: var(--primary); color: white; border: none; }
+        .btn-primary:hover { background: #1765cc; }
 
         /* Posts Section */
-        .container { max-width: 700px; margin: 20px auto; padding: 0 15px; }
+        .container { max-width: 600px; margin: 30px auto; padding: 0 15px; }
         .post {
             background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
             padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
+        .post p { margin: 0 0 15px; font-size: 16px; line-height: 1.6; }
 
-        .post p { line-height: 1.6; }
-        .post-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 10px; }
-        
-        /* Modal */
-        .modal {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.6); z-index: 1000;
-            justify-content: center; align-items: center;
-        }
-
-        .modal-content {
-            background: white; padding: 25px; width: 90%; max-width: 400px;
-            border-radius: 12px; position: relative;
-        }
-
-        .modal-content input, .modal-content textarea {
-            width: 100%; margin-bottom: 15px; padding: 10px;
-            border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: 'Cairo';
-        }
-
-        .save-btn { background: var(--primary); color: white; width: 100%; }
+        /* Modal - Classic */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; width: 90%; max-width: 400px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .modal-content h3 { margin-top: 0; margin-bottom: 20px; }
+        .modal-content input, .modal-content textarea { width: 100%; margin-bottom: 15px; padding: 10px; border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; font-family: 'Cairo'; }
+        .save-btn { background: var(--primary); color: white; width: 100%; padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -123,10 +116,13 @@
     <div class="profile-header">
         <div class="cover"></div>
         <div class="profile-main-info">
-            <img id="profilePic" class="profile-pic" src="https://via.placeholder.com/150">
+            <div class="profile-pic-container">
+                <img id="profilePic" class="profile-pic" src="https://via.placeholder.com/150?text=Kirafix">
+            </div>
             <div class="profile-info">
-                <h2 id="username">جاري التحميل...</h2>
+                <h2 id="username">تحميل...</h2>
                 <p id="handle">@handle</p>
+                <p id="bio">جارٍ تحميل الوصف الشخصي الخاص بك...</p>
                 
                 <div class="stats">
                     <div><span id="postsCount">0</span><p>منشور</p></div>
@@ -134,35 +130,32 @@
                     <div><span id="followingCount">0</span><p>أتابع</p></div>
                 </div>
 
-                <p id="bio">اكتب وصفك هنا...</p>
-
                 <div class="actions">
-                    <button class="btn-edit" onclick="openEdit()">تعديل الملف</button>
-                    <button id="followBtn" class="btn-follow" style="display:none">متابعة</button>
+                    <button class="btn btn-edit" onclick="openEdit()">تعديل الملف</button>
+                    <button class="btn btn-primary" onclick="window.location.href='Kirafix.html'">الرئيسية</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="container" id="postsContainer">
-        </div>
+    <div class="container" id="postsContainer"></div>
 
     <div class="modal" id="editModal">
         <div class="modal-content">
-            <h3>تعديل الملف الشخصي</h3>
+            <h3>تعديل البيانات</h3>
             <input type="text" id="newName" placeholder="الاسم الجديد">
-            <textarea id="newBio" placeholder="الوصف الشخصي (Bio)"></textarea>
-            <label>صورة البروفايل:</label>
+            <textarea id="newBio" rows="3" placeholder="اكتب نبذة عنك..."></textarea>
+            <label style="font-size: 13px; color: gray;">تغيير الصورة:</label>
             <input type="file" id="newImage" accept="image/*">
-            <button class="save-btn" onclick="saveProfile()">حفظ التغييرات</button>
-            <button style="background:none; color:gray; width:100%" onclick="closeEdit()">إلغاء</button>
+            <button class="save-btn" id="saveBtn" onclick="saveProfile()">حفظ التغييرات</button>
+            <button style="background:none; border:none; color:gray; width:100%; margin-top:10px; cursor:pointer;" onclick="closeEdit()">إلغاء</button>
         </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, collection, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -178,13 +171,12 @@
     const db = getFirestore(app);
 
     let currentUserId = null;
-    let userData = null;
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUserId = user.uid;
             await loadUser();
-            loadUserPosts();
+            loadUserPosts(user.email);
         } else {
             window.location.href = "Kirafix.html";
         }
@@ -193,34 +185,22 @@
     async function loadUser() {
         const ref = doc(db, "users", currentUserId);
         const snap = await getDoc(ref);
-
-        if (!snap.exists()) {
-            userData = {
-                name: "مستخدم جديد",
-                username: "user" + Math.floor(Math.random()*10000),
-                bio: "أهلاً بك في كرافيكس!",
-                image: "https://via.placeholder.com/150",
-                followers: [],
-                following: []
-            };
-            await setDoc(ref, userData);
-        } else {
-            userData = snap.data();
+        if (snap.exists()) {
+            const data = snap.data();
+            document.getElementById("username").innerText = data.name || "مستخدم كرافيكس";
+            document.getElementById("handle").innerText = "@" + (data.username || "user");
+            document.getElementById("bio").innerText = data.bio || "لا يوجد وصف حالياً.";
+            // حل مشكلة الصورة: التأكد من وجود الرابط
+            if (data.image) {
+                document.getElementById("profilePic").src = data.image;
+            }
+            document.getElementById("followersCount").innerText = (data.followers || []).length;
+            document.getElementById("followingCount").innerText = (data.following || []).length;
         }
-        renderProfile();
     }
 
-    function renderProfile() {
-        document.getElementById("username").innerText = userData.name;
-        document.getElementById("handle").innerText = "@" + userData.username;
-        document.getElementById("bio").innerText = userData.bio || "لا يوجد وصف";
-        document.getElementById("profilePic").src = userData.image || "https://via.placeholder.com/150";
-        document.getElementById("followersCount").innerText = (userData.followers || []).length;
-        document.getElementById("followingCount").innerText = (userData.following || []).length;
-    }
-
-    function loadUserPosts() {
-        const q = query(collection(db, "posts"), where("email", "==", auth.currentUser.email), orderBy("createdAt", "desc"));
+    function loadUserPosts(email) {
+        const q = query(collection(db, "posts"), where("email", "==", email), orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
             const container = document.getElementById("postsContainer");
             container.innerHTML = "";
@@ -229,18 +209,13 @@
                 const post = docSnap.data();
                 container.innerHTML += `
                     <div class="post">
-                        <p>${post.text || post.content}</p>
-                        ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:8px">` : ""}
-                        <div class="post-footer">
-                            <small>👍 ${Object.keys(post.likes || {}).length} إعجاب</small>
-                            <small>${post.createdAt?.toDate().toLocaleDateString('ar-EG') || "الآن"}</small>
-                        </div>
+                        <p>${post.text || ""}</p>
+                        ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:4px; margin-top:10px;">` : ""}
                     </div>`;
             });
         });
     }
 
-    // Modal Control
     window.openEdit = () => document.getElementById("editModal").style.display = "flex";
     window.closeEdit = () => document.getElementById("editModal").style.display = "none";
 
@@ -248,15 +223,15 @@
         const name = document.getElementById("newName").value.trim();
         const bio = document.getElementById("newBio").value.trim();
         const file = document.getElementById("newImage").files[0];
-        const saveBtn = document.querySelector(".save-btn");
+        const btn = document.getElementById("saveBtn");
 
-        saveBtn.innerText = "جاري الحفظ...";
-        saveBtn.disabled = true;
+        btn.innerText = "جاري الحفظ...";
+        btn.disabled = true;
 
         let updateData = {};
         if (name) updateData.name = name;
         if (bio) updateData.bio = bio;
-        
+
         if (file) {
             const formData = new FormData();
             formData.append("image", file);
@@ -268,8 +243,14 @@
             if (imgRes.success) updateData.image = imgRes.data.url;
         }
 
-        await updateDoc(doc(db, "users", currentUserId), updateData);
-        location.reload(); // ريفريش بسيط لتحديث البيانات
+        if (Object.keys(updateData).length > 0) {
+            await updateDoc(doc(db, "users", currentUserId), updateData);
+            location.reload();
+        } else {
+            closeEdit();
+            btn.innerText = "حفظ التغييرات";
+            btn.disabled = false;
+        }
     };
 </script>
 </body>
