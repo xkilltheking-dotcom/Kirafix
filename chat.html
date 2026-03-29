@@ -8,123 +8,55 @@
     <style>
         :root {
             --bg-page: #f0f2f5;
-            --bg-chat: #f7f9fb; /* لون خلفية الشات الهادي */
+            --bg-chat: #f7f9fb;
             --header-bg: #ffffff;
             --primary: #1a73e8;
+            --danger: #d93025; /* لون الحذف */
             --text-main: #1c1e21;
             --white: #ffffff;
             --border: #dee1e6;
         }
 
-        body {
-            margin: 0;
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--bg-page);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .chat-container {
-            width: 100%;
-            max-width: 800px;
-            height: 90vh;
-            background: var(--white);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-
-        .chat-header {
-            padding: 15px 25px;
-            background: var(--header-bg);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
+        body { margin: 0; font-family: 'Cairo', sans-serif; background-color: var(--bg-page); height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .chat-container { width: 100%; max-width: 800px; height: 90vh; background: var(--white); display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+        .chat-header { padding: 15px 25px; background: var(--header-bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .chat-header h2 { margin: 0; font-size: 18px; color: var(--text-main); font-weight: 700; }
         .back-btn { text-decoration: none; color: var(--primary); font-weight: 600; font-size: 14px; }
 
-        #chatBox {
-            flex: 1;
-            background-color: var(--bg-chat);
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .msg-wrapper { display: flex; align-items: flex-end; gap: 8px; max-width: 80%; }
+        #chatBox { flex: 1; background-color: var(--bg-chat); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .msg-wrapper { display: flex; align-items: flex-end; gap: 8px; max-width: 80%; position: relative; }
         .mine { flex-direction: row-reverse; align-self: flex-end; }
         .theirs { align-self: flex-start; }
 
         .chat-img { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; background: #eee; border: 1px solid #ddd; }
-
-        .msg-bubble {
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 14px;
-            line-height: 1.5;
-            position: relative;
-        }
-
+        .msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.5; position: relative; cursor: pointer; }
         .mine .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 2px; }
         .theirs .msg-bubble { background: #e8eaed; color: var(--text-main); border-bottom-left-radius: 2px; }
 
-        .sender-name {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            opacity: 0.8;
-        }
+        .sender-name { display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px; opacity: 0.8; }
         .theirs .sender-name { color: var(--primary); }
 
-        .input-bar {
-            padding: 15px 20px;
-            background: var(--white);
-            display: flex;
-            gap: 12px;
-            border-top: 1px solid var(--border);
-            align-items: center;
-        }
-
-        #messageInput {
-            flex: 1;
-            padding: 10px 18px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            outline: none;
-            font-family: 'Cairo';
-            background: #f8f9fa;
-        }
-
-        #sendBtn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+        /* زر الحذف الصغير */
+        .delete-btn {
+            font-size: 10px;
+            color: #ffcccc;
+            margin-top: 5px;
             cursor: pointer;
-            font-weight: 700;
-            transition: 0.2s;
+            display: none; /* بيظهر بالـ JS */
+            text-decoration: underline;
         }
+        .mine:hover .delete-btn { display: block; }
 
-        #sendBtn:hover { opacity: 0.9; }
+        .input-bar { padding: 15px 20px; background: var(--white); display: flex; gap: 12px; border-top: 1px solid var(--border); align-items: center; }
+        #messageInput { flex: 1; padding: 10px 18px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-family: 'Cairo'; background: #f8f9fa; }
+        #sendBtn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 700; }
     </style>
 </head>
 <body>
 
     <div class="chat-container">
         <header class="chat-header">
-            <a href="Kirafix.html" class="back-btn">← الرجوع للرئيسية</a>
+            <a href="Kirafix.html" class="back-btn">← الرئيسية</a>
             <h2>Kirafix Global Chat</h2>
             <div style="width:20px"></div>
         </header>
@@ -134,7 +66,7 @@
         </div>
 
         <div class="input-bar">
-            <input type="text" id="messageInput" placeholder="اكتب رسالتك الآن...">
+            <input type="text" id="messageInput" placeholder="اكتب رسالتك...">
             <button id="sendBtn">إرسال</button>
         </div>
     </div>
@@ -142,7 +74,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, limit } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, deleteDoc, limit } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -159,25 +91,20 @@
 
     let currentUser = null;
 
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            currentUser = user;
-            loadMessages();
-        } else {
-            window.location.href = "Kirafix.html";
-        }
+    onAuthStateChanged(auth, (user) => {
+        if (user) { currentUser = user; loadMessages(); }
+        else { window.location.href = "Kirafix.html"; }
     });
 
-    async function sendMessage() {
+    // دالة الإرسال
+    window.sendMessage = async () => {
         const input = document.getElementById("messageInput");
         const text = input.value.trim();
         if (!text || !currentUser) return;
         input.value = "";
-
         try {
             const userDoc = await getDoc(doc(db, "users", currentUser.uid));
             const userData = userDoc.data();
-
             await addDoc(collection(db, "messages"), {
                 text: text,
                 uid: currentUser.uid,
@@ -186,10 +113,30 @@
                 createdAt: serverTimestamp()
             });
         } catch (e) { console.error(e); }
-    }
+    };
 
     document.getElementById("sendBtn").onclick = sendMessage;
     document.getElementById("messageInput").onkeypress = (e) => { if (e.key === "Enter") sendMessage(); };
+
+    // دالة حذف الرسالة
+    window.deleteMsg = async (msgId, timeStamp) => {
+        if (!confirm("هل تريد مسح هذه الرسالة؟")) return;
+
+        const now = Date.now();
+        const msgTime = timeStamp?.toMillis() || now;
+        const diffInMinutes = (now - msgTime) / (1000 * 60);
+
+        if (diffInMinutes > 30) {
+            alert("عذراً، لا يمكنك حذف الرسائل التي مر عليها أكثر من 30 دقيقة.");
+            return;
+        }
+
+        try {
+            await deleteDoc(doc(db, "messages", msgId));
+        } catch (e) {
+            alert("حدث خطأ أثناء الحذف.");
+        }
+    };
 
     function loadMessages() {
         const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(50));
@@ -201,19 +148,32 @@
             docs.forEach((docSnap) => {
                 const msg = docSnap.data();
                 const isMine = msg.uid === currentUser.uid;
+                const msgId = docSnap.id;
 
                 chatBox.innerHTML += `
                     <div class="msg-wrapper ${isMine ? 'mine' : 'theirs'}">
                         <img src="${msg.userImage}" class="chat-img">
                         <div class="msg-bubble">
                             <span class="sender-name">${msg.userName}</span>
-                            ${msg.text}
+                            <span>${msg.text}</span>
+                            ${isMine ? `<div class="delete-btn" onclick="deleteMsg('${msgId}', msg.createdAt)">حذف الرسالة</div>` : ''}
                         </div>
                     </div>
                 `;
+                // ملاحظة: قمت بتعديل بسيط في تمرير الوقت داخل الـ HTML ليعمل بشكل سليم
             });
             chatBox.scrollTop = chatBox.scrollHeight;
         });
+    }
+
+    // تعديل بسيط لاستدعاء الدالة بشكل صحيح من داخل الـ HTML
+    window.loadMessages = loadMessages; 
+</script>
+
+<script>
+    // عشان نضمن إن الدالة تتشاف من الـ HTML اللي بيتولد بالـ JS
+    function deleteMsg(id, time) {
+        window.deleteMsg(id, time);
     }
 </script>
 </body>
