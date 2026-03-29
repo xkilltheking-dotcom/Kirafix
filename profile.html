@@ -185,7 +185,7 @@
         if (user) {
             currentUserId = user.uid;
             await loadUser();
-            loadUserPosts();
+            loadUserPosts(); // دي اللي هتشغل العدادات
         } else {
             window.location.href = "Kirafix.html";
         }
@@ -215,52 +215,52 @@
     }
 
     function renderProfile() {
-        document.getElementById("username").innerText = userData.name;
-        document.getElementById("handle").innerText = "@" + userData.username;
+        document.getElementById("username").innerText = userData.name || "مستخدم";
+        document.getElementById("handle").innerText = "@" + (userData.username || "user");
         document.getElementById("bio").innerText = userData.bio || "لا يوجد وصف";
         document.getElementById("profilePic").src = userData.image || "https://via.placeholder.com/150";
         document.getElementById("followersCount").innerText = (userData.followers || []).length;
+        // القيمة الافتراضية لـ "أتابع" قبل ما يحسب اللايكات
         document.getElementById("followingCount").innerText = (userData.following || []).length;
     }
 
     function loadUserPosts() {
-        // الاستعلام عن بوستات المستخدم الحالي فقط
+        // بنجيب البوستات اللي صاحبها هو المستخدم الحالي
         const q = query(collection(db, "posts"), where("uid", "==", auth.currentUser.uid), orderBy("createdAt", "desc"));
         
         onSnapshot(q, (snapshot) => {
             const container = document.getElementById("postsContainer");
             container.innerHTML = "";
             
-            let totalLikes = 0; // عداد اللايكات الإجمالي
+            let totalLikes = 0; 
             
-            // تحديث عدد المنشورات
+            // 1. تحديث عداد المنشورات فوراً
             document.getElementById("postsCount").innerText = snapshot.size;
 
             snapshot.forEach((docSnap) => {
                 const post = docSnap.data();
-                
-                // حساب اللايكات لكل بوست وجمعها في الإجمالي
-                const postLikes = Object.keys(post.likes || {}).length;
-                totalLikes += postLikes;
+                const likesArr = Object.keys(post.likes || {});
+                totalLikes += likesArr.length;
 
                 container.innerHTML += `
                     <div class="post">
-                        <p>${post.text || post.content || ""}</p>
-                        ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:8px">` : ""}
+                        <p>${post.text || ""}</p>
+                        ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:8px; margin-top:10px;">` : ""}
                         <div class="post-footer">
-                            <small>👍 ${postLikes} إعجاب</small>
+                            <small>👍 ${likesArr.length} إعجاب</small>
                             <small>${post.createdAt?.toDate().toLocaleDateString('ar-EG') || "الآن"}</small>
                         </div>
                     </div>`;
             });
 
-            // تحديث عداد "أتابع" ليظهر إجمالي اللايكات بدلاً من الصفر (أو يمكنك استخدامه في مكان آخر)
-            // بما أن الـ HTML عندك فيه "متابع" و "أتابع"، ممكن تستخدم "أتابع" لعرض إجمالي اللايكات مؤقتاً 
-            // أو لو حابب تسيبها زي ما هي، الكود ده حدث الـ totalLikes وتقدر تربطه بأي ID.
+            // 2. تحديث إجمالي اللايكات (حطيته مكان 'أتابع' عشان مفيش خانة لايكات في الـ HTML بتاعك)
+            const followingLabel = document.querySelector('div div p:nth-child(2)'); // بيحاول يوصل للكلمة نفسها
+            document.getElementById("followingCount").innerText = totalLikes;
+            // اختياري: لو عايز تغير كلمة "أتابع" لـ "إعجاب" برمجياً:
+            // document.querySelectorAll(".stats p")[2].innerText = "إعجاب كلي";
         });
     }
 
-    // Modal Control
     window.openEdit = () => document.getElementById("editModal").style.display = "flex";
     window.closeEdit = () => document.getElementById("editModal").style.display = "none";
 
@@ -291,7 +291,6 @@
         await updateDoc(doc(db, "users", currentUserId), updateData);
         location.reload(); 
     };
-</script>
 </script>
 </body>
 </html>
