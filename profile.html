@@ -129,11 +129,6 @@
                 <h2 id="username">جاري التحميل...</h2>
                 <p id="handle">@handle</p>
                 
-                <div class="stats">
-                    <div><span id="postsCount">0</span><p>منشور</p></div>
-                    <div><span id="followersCount">0</span><p>متابع</p></div>
-                    <div><span id="followingCount">0</span><p>أتابع</p></div>
-                </div>
 
                 <p id="bio">اكتب وصفك هنا...</p>
 
@@ -185,7 +180,7 @@
         if (user) {
             currentUserId = user.uid;
             await loadUser();
-            loadUserPosts(); // دي اللي هتشغل العدادات
+            loadUserPosts();
         } else {
             window.location.href = "Kirafix.html";
         }
@@ -215,49 +210,37 @@
     }
 
     function renderProfile() {
-        document.getElementById("username").innerText = userData.name || "مستخدم";
+        document.getElementById("username").innerText = userData.name || "مستخدم كيرفيكس";
         document.getElementById("handle").innerText = "@" + (userData.username || "user");
         document.getElementById("bio").innerText = userData.bio || "لا يوجد وصف";
         document.getElementById("profilePic").src = userData.image || "https://via.placeholder.com/150";
-        document.getElementById("followersCount").innerText = (userData.followers || []).length;
-        // القيمة الافتراضية لـ "أتابع" قبل ما يحسب اللايكات
-        document.getElementById("followingCount").innerText = (userData.following || []).length;
+        
+        // تصفير العدادات يدوياً عشان متبقاش شكلها وحش
+        document.getElementById("postsCount").innerText = "0";
+        document.getElementById("followersCount").innerText = "0";
+        document.getElementById("followingCount").innerText = "0";
     }
 
     function loadUserPosts() {
-        // بنجيب البوستات اللي صاحبها هو المستخدم الحالي
+        // عرض بوستات المستخدم الحالي فقط مرتبة من الأحدث
         const q = query(collection(db, "posts"), where("uid", "==", auth.currentUser.uid), orderBy("createdAt", "desc"));
         
         onSnapshot(q, (snapshot) => {
             const container = document.getElementById("postsContainer");
             container.innerHTML = "";
             
-            let totalLikes = 0; 
-            
-            // 1. تحديث عداد المنشورات فوراً
-            document.getElementById("postsCount").innerText = snapshot.size;
-
             snapshot.forEach((docSnap) => {
                 const post = docSnap.data();
-                const likesArr = Object.keys(post.likes || {});
-                totalLikes += likesArr.length;
-
                 container.innerHTML += `
                     <div class="post">
                         <p>${post.text || ""}</p>
                         ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:8px; margin-top:10px;">` : ""}
                         <div class="post-footer">
-                            <small>👍 ${likesArr.length} إعجاب</small>
+                            <small>👍 ${Object.keys(post.likes || {}).length} Like</small>
                             <small>${post.createdAt?.toDate().toLocaleDateString('ar-EG') || "الآن"}</small>
                         </div>
                     </div>`;
             });
-
-            // 2. تحديث إجمالي اللايكات (حطيته مكان 'أتابع' عشان مفيش خانة لايكات في الـ HTML بتاعك)
-            const followingLabel = document.querySelector('div div p:nth-child(2)'); // بيحاول يوصل للكلمة نفسها
-            document.getElementById("followingCount").innerText = totalLikes;
-            // اختياري: لو عايز تغير كلمة "أتابع" لـ "إعجاب" برمجياً:
-            // document.querySelectorAll(".stats p")[2].innerText = "إعجاب كلي";
         });
     }
 
