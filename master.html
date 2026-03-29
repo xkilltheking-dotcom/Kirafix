@@ -174,48 +174,42 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
 
-    // جلب بيانات البروفايل
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists()) {
         currentUserData = userDoc.data();
         
-        // --- الجزء الجديد هنا ---
-        // لو المستخدم عنده صورة في البروفايل، حطها في الـ Header
-        if (currentUserData.image) {
-            document.getElementById("navProfilePic").src = currentUserData.image;
-        }
-        // -----------------------
+        // تحديث الصور في الهيدر وفي بوكس الكتابة (Composer)
+        const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
+        document.getElementById("navProfilePic").src = userImg;
+        const compImg = document.querySelector(".composer-header img");
+        if(compImg) compImg.src = userImg;
     }
-// --- نظام الإعدادات (اللغات والوضع المظلم) ---
-const savedDark = localStorage.getItem('kirafix-dark') === 'true';
-if (savedDark) {
-    document.body.classList.add('dark-mode');
-}
 
-const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
-applyMainLanguage(savedLang);
+    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+    if (savedDark) {
+        document.body.classList.add('dark-mode');
+    }
 
-function applyMainLanguage(lang) {
-    const dict = {
-        ar: { home: "الرئيسية", profile: "البروفايل", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر" },
-        en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post" },
-        fr: { home: "Accueil", profile: "Profil", ai: "Kirafix AI✨", placeholder: "À quoi pensez-vous?", postBtn: "Publier" },
-        es: { home: "Inicio", profile: "Perfil", ai: "Kirafix AI✨", placeholder: "¿En qué piensas?", postBtn: "Publicar" },
-        zh: { home: "首页", profile: "个人资料", ai: "Kirafix AI✨", placeholder: "你在想什么？", postBtn: "发布" }
-    };
+    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+    applyMainLanguage(savedLang);
 
-    const t = dict[lang];
-    // تحديث النصوص في الصفحة
-    const links = document.querySelectorAll('.links a');
-    links[0].textContent = t.home;
-    links[1].textContent = t.profile;
-    links[2].textContent = t.ai;
-    document.getElementById('tex').placeholder = t.placeholder;
-    document.getElementById('se').textContent = t.postBtn;
-
-    // تغيير اتجاه الصفحة
-    document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-}
+    function applyMainLanguage(lang) {
+        const dict = {
+            ar: { home: "الرئيسية", profile: "البروفايل", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر" },
+            en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post" },
+            fr: { home: "Accueil", profile: "Profil", ai: "Kirafix AI✨", placeholder: "À quoi pensez-vous?", postBtn: "Publier" },
+            es: { home: "Inicio", profile: "Perfil", ai: "Kirafix AI✨", placeholder: "¿En qué piensas?", postBtn: "Publicar" },
+            zh: { home: "首页", profile: "个人资料", ai: "Kirafix AI✨", placeholder: "你在想什么？", postBtn: "发布" }
+        };
+        const t = dict[lang];
+        const links = document.querySelectorAll('.links a');
+        links[0].textContent = t.home;
+        links[1].textContent = t.profile;
+        links[2].textContent = t.ai;
+        document.getElementById('tex').placeholder = t.placeholder;
+        document.getElementById('se').textContent = t.postBtn;
+        document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+    }
 
     document.getElementById("user-name-display").textContent = currentUserData?.name || user.email.split("@")[0];
     
@@ -225,13 +219,11 @@ function applyMainLanguage(lang) {
     }, 2000);
 });
 
-/* إظهار وإخفاء بوكس الكتابة */
 document.getElementById("but").onclick = () => {
     const box = document.getElementById("composerBox");
     box.style.display = box.style.display === "none" ? "block" : "none";
 };
 
-// --- التعامل مع المرفقات (صور/فيديو) ---
 const imgInput = document.getElementById("imgInput");
 const videoInput = document.getElementById("videoInput");
 const mediaPreview = document.getElementById("mediaPreview");
@@ -249,19 +241,15 @@ imgInput.onchange = (e) => {
     }
 };
 
-// --- دالة النشر النهائية ---
 document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
-    
     if (!text && !selectedImage) {
         alert("اكتب حاجة أو اختار صورة يا أحمد!");
         return;
     }
-
     btn.disabled = true; 
     btn.innerText = "جاري النشر...";
-
     try {
         let imageUrl = null;
         if (selectedImage) {
@@ -274,21 +262,17 @@ document.getElementById("se").onclick = async () => {
             const imgData = await imgRes.json();
             if (imgData.success) imageUrl = imgData.data.url;
         }
-
-        // حفظ البوست مع ربطه ببيانات البروفايل
         await addDoc(collection(db, "posts"), {
             text: text,
             email: auth.currentUser.email,
             uid: auth.currentUser.uid,
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
-            userImage: currentUserData?.image || "https://via.placeholder.com/150",
+            userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
             createdAt: serverTimestamp(),
             likes: {},
             views: {},
             image: imageUrl
         });
-
-        // ريست للفورم
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = "";
         mediaPreview.style.display = "none";
@@ -296,16 +280,13 @@ document.getElementById("se").onclick = async () => {
         btn.disabled = false; 
         btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
-
     } catch (error) {
-        console.error("Error:", error);
         alert("حصلت مشكلة في النشر");
         btn.disabled = false;
         btn.innerText = "نشر";
     }
 };
 
-// --- دوال التفاعل (لايك ومشاهدة) ---
 window.toggleLike = async (id) => {
     const postRef = doc(db, "posts", id);
     const snap = await getDoc(postRef);
@@ -337,7 +318,6 @@ function timeAgo(timestamp) {
     return "الآن";
 }
 
-// --- عرض المنشورات لحظياً ---
 onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
     const container = document.getElementById("postsContainer");
     container.innerHTML = "";
@@ -348,28 +328,30 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
         const viewsCount = Object.keys(post.views || {}).length;
         const isLiked = post.likes && post.likes[auth.currentUser.uid] ? "active-like" : "";
 
+        // ملاحظة: شيلنا style="background:white" عشان الـ CSS الخارجي بتاع الدارك مود يشتغل صح
         container.innerHTML += `
-        <div class="post" onclick="addView('${id}')" style="background:white; border-radius:12px; padding:15px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+        <div class="post" onclick="addView('${id}')">
             <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                <img src="${post.userImage || 'https://via.placeholder.com/150'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+                <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                 <div class="user-info">
-                    <div class="username" style="font-weight:bold; color:#1c1e21;">${post.userName || post.email.split("@")[0]}</div>
-                    <div class="post-time" style="font-size:12px; color:#65676b;">${timeAgo(post.createdAt)}</div>
+                    <div class="username" style="font-weight:bold;">${post.userName || post.email.split("@")[0]}</div>
+                    <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
                 </div>
             </div>
             <div class="post-text" style="margin-bottom:12px; line-height:1.5;">${post.text || ""}</div>
             ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
-            <div class="post-stats" style="font-size:13px; color:#65676b; border-top:1px solid #f0f2f5; padding-top:10px; display:flex; gap:15px;">
+            <div class="post-stats" style="font-size:13px; border-top:1px solid #f0f2f5; padding-top:10px; display:flex; gap:15px;">
                 <span>👍 ${likesCount} Like</span>
                 <span>👁️ ${viewsCount} View</span>
             </div>
             <div class="post-actions" style="display:flex; justify-content:space-around; margin-top:10px;">
-                <button onclick="event.stopPropagation(); toggleLike('${id}')" style="background:none; border:none; color:${isLiked ? '#1877f2' : '#65676b'}; cursor:pointer; font-weight:bold;">👍 Like</button>
-                <button style="background:none; border:none; color:#65676b; cursor:pointer; font-weight:bold;">💬 Comment</button>
+                <button onclick="event.stopPropagation(); toggleLike('${id}')" style="background:none; border:none; color:${isLiked ? '#1877f2' : ''}; cursor:pointer; font-weight:bold;">👍 Like</button>
+                <button style="background:none; border:none; cursor:pointer; font-weight:bold;">💬 Comment</button>
             </div>
         </div>`;
     });
 });
 </script>
+
 </body>
 </html>
