@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirafix - Global Chat</title>
+    <title>Kirafix - Profile</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -17,109 +17,152 @@
             margin: 0;
             font-family: 'Cairo', sans-serif;
             background: var(--bg);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+            color: var(--text);
         }
 
-        /* Header */
-        .chat-header {
+        /* Header & Cover */
+        .profile-header {
             background: var(--white);
-            padding: 15px 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
+            padding-bottom: 20px;
         }
 
-        .chat-header h2 { margin: 0; font-size: 20px; color: var(--primary); }
-        .back-link { text-decoration: none; color: #65676b; font-weight: bold; }
-
-        /* Chat Area */
-        #chatBox {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .cover {
+            height: 200px;
+            background: linear-gradient(45deg, #1877f2, #00c6ff);
         }
 
-        /* Message Styling */
-        .msg-row { display: flex; gap: 10px; max-width: 85%; }
-        .mine { flex-direction: row-reverse; align-self: flex-end; }
-        .theirs { align-self: flex-start; }
-
-        .chat-img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; background: #ddd; }
-        
-        .msg-content { 
-            padding: 10px 15px; 
-            border-radius: 18px; 
-            position: relative; 
-            font-size: 15px;
-            line-height: 1.4;
-        }
-
-        .mine .msg-content { background: var(--primary); color: white; border-bottom-right-radius: 2px; }
-        .theirs .msg-content { background: var(--white); color: var(--text); border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-
-        .chat-name { font-size: 11px; font-weight: bold; display: block; margin-bottom: 4px; }
-        .theirs .chat-name { color: var(--primary); }
-        .mine .chat-name { color: #dbeafe; text-align: left; }
-
-        /* Input Area */
-        .input-area {
-            background: var(--white);
-            padding: 15px;
-            display: flex;
-            gap: 10px;
-            border-top: 1px solid #ddd;
-        }
-
-        #messageInput {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            outline: none;
-            font-family: 'Cairo';
-        }
-
-        #sendBtn {
-            background: var(--primary);
-            color: white;
-            border: none;
+        .profile-main-info {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
             padding: 0 20px;
-            border-radius: 25px;
+            text-align: center;
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid var(--white);
+            margin-top: -75px;
+            background: #eee;
+            object-fit: cover;
+        }
+
+        .profile-info h2 { margin: 10px 0 0; font-size: 28px; }
+        .profile-info p#handle { color: #65676b; margin: 0; font-weight: bold; }
+        .profile-info p#bio { margin: 15px auto; max-width: 500px; color: #4b4b4b; }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 20px 0;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .stats div { text-align: center; }
+        .stats span { display: block; font-weight: bold; font-size: 18px; }
+        .stats p { margin: 0; color: #65676b; font-size: 14px; }
+
+        /* Buttons */
+        .actions { display: flex; justify-content: center; gap: 10px; }
+        button {
+            padding: 8px 25px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: bold;
+            font-family: 'Cairo';
             transition: 0.3s;
         }
 
-        #sendBtn:hover { opacity: 0.9; }
+        .btn-edit { background: #e4e6eb; color: #050505; }
+        .btn-edit:hover { background: #d8dadf; }
+        .btn-follow { background: var(--primary); color: white; }
+        .btn-follow:hover { opacity: 0.9; }
+
+        /* Posts Section */
+        .container { max-width: 700px; margin: 20px auto; padding: 0 15px; }
+        .post {
+            background: var(--white);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .post p { line-height: 1.6; }
+        .post-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 10px; }
+        
+        /* Modal */
+        .modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+
+        .modal-content {
+            background: white; padding: 25px; width: 90%; max-width: 400px;
+            border-radius: 12px; position: relative;
+        }
+
+        .modal-content input, .modal-content textarea {
+            width: 100%; margin-bottom: 15px; padding: 10px;
+            border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: 'Cairo';
+        }
+
+        .save-btn { background: var(--primary); color: white; width: 100%; }
     </style>
 </head>
 <body>
 
-    <header class="chat-header">
-        <a href="Kirafix.html" class="back-link">← رجوع</a>
-        <h2>شات Kirafix العام ✨</h2>
-        <div style="width: 40px;"></div> </header>
+    <div class="profile-header">
+        <div class="cover"></div>
+        <div class="profile-main-info">
+            <img id="profilePic" class="profile-pic" src="https://via.placeholder.com/150">
+            <div class="profile-info">
+                <h2 id="username">جاري التحميل...</h2>
+                <p id="handle">@handle</p>
+                
+                <div class="stats">
+                    <div><span id="postsCount">0</span><p>منشور</p></div>
+                    <div><span id="followersCount">0</span><p>متابع</p></div>
+                    <div><span id="followingCount">0</span><p>أتابع</p></div>
+                </div>
 
-    <div id="chatBox">
-        <p style="text-align: center; color: gray;">جاري تحميل الرسائل...</p>
+                <p id="bio">اكتب وصفك هنا...</p>
+
+                <div class="actions">
+                    <button class="btn-edit" onclick="openEdit()">تعديل الملف</button>
+                    <button id="followBtn" class="btn-follow" style="display:none">متابعة</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="input-area">
-        <input type="text" id="messageInput" placeholder="اكتب رسالة للجميع...">
-        <button id="sendBtn">إرسال</button>
+    <div class="container" id="postsContainer">
+        </div>
+
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3>تعديل الملف الشخصي</h3>
+            <input type="text" id="newName" placeholder="الاسم الجديد">
+            <textarea id="newBio" placeholder="الوصف الشخصي (Bio)"></textarea>
+            <label>صورة البروفايل:</label>
+            <input type="file" id="newImage" accept="image/*">
+            <button class="save-btn" onclick="saveProfile()">حفظ التغييرات</button>
+            <button style="background:none; color:gray; width:100%" onclick="closeEdit()">إلغاء</button>
+        </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, limit } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -134,78 +177,100 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUser = null;
+    let currentUserId = null;
+    let userData = null;
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            currentUser = user;
-            loadMessages();
+            currentUserId = user.uid;
+            await loadUser();
+            loadUserPosts();
         } else {
             window.location.href = "Kirafix.html";
         }
     });
 
-    // دالة الإرسال
-    async function sendMessage() {
-        const input = document.getElementById("messageInput");
-        const text = input.value.trim();
+    async function loadUser() {
+        const ref = doc(db, "users", currentUserId);
+        const snap = await getDoc(ref);
 
-        if (!text || !currentUser) return;
-
-        input.value = ""; // مسح الخانة فوراً لتجربة سريعة
-
-        try {
-            // جلب بيانات الراسل من كولكشن users
-            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-            const userData = userDoc.data();
-
-            await addDoc(collection(db, "messages"), {
-                text: text,
-                uid: currentUser.uid,
-                userName: userData?.name || currentUser.email.split("@")[0],
-                userImage: userData?.image || "https://via.placeholder.com/150",
-                createdAt: serverTimestamp()
-            });
-        } catch (e) {
-            console.error("Error sending message:", e);
+        if (!snap.exists()) {
+            userData = {
+                name: "مستخدم جديد",
+                username: "user" + Math.floor(Math.random()*10000),
+                bio: "أهلاً بك في كرافيكس!",
+                image: "https://via.placeholder.com/150",
+                followers: [],
+                following: []
+            };
+            await setDoc(ref, userData);
+        } else {
+            userData = snap.data();
         }
+        renderProfile();
     }
 
-    // ربط الأزرار
-    document.getElementById("sendBtn").onclick = sendMessage;
-    document.getElementById("messageInput").onkeypress = (e) => {
-        if (e.key === "Enter") sendMessage();
-    };
+    function renderProfile() {
+        document.getElementById("username").innerText = userData.name;
+        document.getElementById("handle").innerText = "@" + userData.username;
+        document.getElementById("bio").innerText = userData.bio || "لا يوجد وصف";
+        document.getElementById("profilePic").src = userData.image || "https://via.placeholder.com/150";
+        document.getElementById("followersCount").innerText = (userData.followers || []).length;
+        document.getElementById("followingCount").innerText = (userData.following || []).length;
+    }
 
-    // تحميل الرسائل لحظياً
-    function loadMessages() {
-        // بنجيب آخر 50 رسالة بس عشان السرعة
-        const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(50));
-        
+    function loadUserPosts() {
+        const q = query(collection(db, "posts"), where("email", "==", auth.currentUser.email), orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
-            const chatBox = document.getElementById("chatBox");
-            chatBox.innerHTML = "";
-            
-            // بنعكس النتائج عشان orderBy desc بيجيب الجديد فوق، وإحنا عايزينه تحت
-            const docs = snapshot.docs.reverse();
-
-            docs.forEach((docSnap) => {
-                const msg = docSnap.data();
-                const isMine = msg.uid === currentUser.uid;
-
-                chatBox.innerHTML += `
-                    <div class="msg-row ${isMine ? 'mine' : 'theirs'}">
-                        <img src="${msg.userImage}" class="chat-img">
-                        <div class="msg-content">
-                            <span class="chat-name">${msg.userName}</span>
-                            <p style="margin:0;">${msg.text}</p>
+            const container = document.getElementById("postsContainer");
+            container.innerHTML = "";
+            document.getElementById("postsCount").innerText = snapshot.size;
+            snapshot.forEach((docSnap) => {
+                const post = docSnap.data();
+                container.innerHTML += `
+                    <div class="post">
+                        <p>${post.text || post.content}</p>
+                        ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:8px">` : ""}
+                        <div class="post-footer">
+                            <small>👍 ${Object.keys(post.likes || {}).length} إعجاب</small>
+                            <small>${post.createdAt?.toDate().toLocaleDateString('ar-EG') || "الآن"}</small>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
-            chatBox.scrollTop = chatBox.scrollHeight;
         });
     }
+
+    // Modal Control
+    window.openEdit = () => document.getElementById("editModal").style.display = "flex";
+    window.closeEdit = () => document.getElementById("editModal").style.display = "none";
+
+    window.saveProfile = async () => {
+        const name = document.getElementById("newName").value.trim();
+        const bio = document.getElementById("newBio").value.trim();
+        const file = document.getElementById("newImage").files[0];
+        const saveBtn = document.querySelector(".save-btn");
+
+        saveBtn.innerText = "جاري الحفظ...";
+        saveBtn.disabled = true;
+
+        let updateData = {};
+        if (name) updateData.name = name;
+        if (bio) updateData.bio = bio;
+        
+        if (file) {
+            const formData = new FormData();
+            formData.append("image", file);
+            const res = await fetch("https://api.imgbb.com/1/upload?key=a870d9c05acad152564a134e6f4228c9", {
+                method: "POST",
+                body: formData
+            });
+            const imgRes = await res.json();
+            if (imgRes.success) updateData.image = imgRes.data.url;
+        }
+
+        await updateDoc(doc(db, "users", currentUserId), updateData);
+        location.reload(); // ريفريش بسيط لتحديث البيانات
+    };
 </script>
 </body>
 </html>
