@@ -177,8 +177,6 @@ onAuthStateChanged(auth, async (user) => {
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists()) {
         currentUserData = userDoc.data();
-        
-        // تحديث الصور في الهيدر وفي بوكس الكتابة (Composer)
         const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
         document.getElementById("navProfilePic").src = userImg;
         const compImg = document.querySelector(".composer-header img");
@@ -198,7 +196,7 @@ onAuthStateChanged(auth, async (user) => {
             ar: { home: "الرئيسية", profile: "البروفايل", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر" },
             en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post" },
             fr: { home: "Accueil", profile: "Profil", ai: "Kirafix AI✨", placeholder: "À quoi pensez-vous?", postBtn: "Publier" },
-            es: { home: "Inicio", profile: "Perfil", ai: "Kirafix AI✨", placeholder: "¿En qué piensas?", postBtn: "Publicar" },
+            es: { home: "Inicio", profile: "Perfil", ai: "Kirafix AI✨", placeholder: "¿En qué piensas?", postBtn: "Publicار" },
             zh: { home: "首页", profile: "个人资料", ai: "Kirafix AI✨", placeholder: "你在想什么？", postBtn: "发布" }
         };
         const t = dict[lang];
@@ -245,7 +243,7 @@ document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
     if (!text && !selectedImage) {
-        alert("اكتب حاجة أو اختار صورة يا أحمد!");
+        alert("اكتب حاجة أو اختار صورة!");
         return;
     }
     btn.disabled = true; 
@@ -307,6 +305,37 @@ window.addView = async (id) => {
     }
 };
 
+// --- وظائف التعليقات الجديدة ---
+window.toggleCommentBox = (id) => {
+    const box = document.getElementById(`comment-section-${id}`);
+    box.style.display = box.style.display === "none" ? "block" : "none";
+};
+
+window.sendComment = async (postId) => {
+    const input = document.getElementById(`comment-input-${postId}`);
+    const text = input.value.trim();
+    if (!text) return;
+    try {
+        await addDoc(collection(db, "posts", postId, "comments"), {
+            text: text,
+            userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
+            createdAt: serverTimestamp()
+        });
+        input.value = "";
+    } catch (e) { console.error(e); }
+};
+
+function loadComments(postId) {
+    const list = document.getElementById(`comments-list-${postId}`);
+    onSnapshot(query(collection(db, "posts", postId, "comments"), orderBy("createdAt", "asc")), (snap) => {
+        list.innerHTML = "";
+        snap.forEach((doc) => {
+            const c = doc.data();
+            list.innerHTML += `<div style="margin-bottom:5px; font-size:13px;"><b>${c.userName}:</b> ${c.text}</div>`;
+        });
+    });
+}
+
 function timeAgo(timestamp) {
     if (!timestamp) return "الآن";
     const seconds = Math.floor((new Date() - timestamp.toDate()) / 1000);
@@ -328,9 +357,8 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
         const viewsCount = Object.keys(post.views || {}).length;
         const isLiked = post.likes && post.likes[auth.currentUser.uid] ? "active-like" : "";
 
-        // ملاحظة: شيلنا style="background:white" عشان الـ CSS الخارجي بتاع الدارك مود يشتغل صح
         container.innerHTML += `
-        <div class="post" onclick="addView('${id}')">
+        <div class="post" onclick="addView('${id}')" style="border-radius:12px; padding:15px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
             <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                 <div class="user-info">
@@ -346,9 +374,17 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
             </div>
             <div class="post-actions" style="display:flex; justify-content:space-around; margin-top:10px;">
                 <button onclick="event.stopPropagation(); toggleLike('${id}')" style="background:none; border:none; color:${isLiked ? '#1877f2' : ''}; cursor:pointer; font-weight:bold;">👍 Like</button>
-                <button style="background:none; border:none; cursor:pointer; font-weight:bold;">💬 Comment</button>
+                <button onclick="event.stopPropagation(); toggleCommentBox('${id}')" style="background:none; border:none; cursor:pointer; font-weight:bold;">💬 Comment</button>
+            </div>
+            <div id="comment-section-${id}" style="display:none; margin-top:10px; border-top: 1px solid #f0f2f5; padding-top:10px;">
+                <div id="comments-list-${id}" style="max-height: 100px; overflow-y: auto; margin-bottom: 10px;"></div>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="comment-input-${id}" placeholder="اكتب تعليقاً..." style="flex:1; border-radius:15px; border:1px solid #ddd; padding:5px 12px;" onclick="event.stopPropagation()">
+                    <button onclick="event.stopPropagation(); sendComment('${id}')" style="background:#2563eb; color:white; border:none; border-radius:50%; width:30px; height:30px;">➤</button>
+                </div>
             </div>
         </div>`;
+        loadComments(id);
     });
 });
 </script>
