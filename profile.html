@@ -116,6 +116,18 @@
         }
 
         .save-btn { background: var(--primary); color: white; width: 100%; }
+        .msg-row { display: flex; gap: 10px; margin-bottom: 15px; max-width: 80%; }
+.mine { flex-direction: row-reverse; align-self: flex-end; margin-left: auto; }
+.theirs { align-self: flex-start; }
+
+.chat-img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+.msg-content { padding: 10px 15px; border-radius: 15px; position: relative; }
+
+.mine .msg-content { background: #1877f2; color: white; border-bottom-right-radius: 2px; }
+.theirs .msg-content { background: #e4e6eb; color: #050505; border-bottom-left-radius: 2px; }
+
+.chat-name { font-size: 11px; font-weight: bold; display: block; margin-bottom: 4px; }
+.mine .chat-name { text-align: left; color: #dbeafe; }
     </style>
 </head>
 <body>
@@ -162,7 +174,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -177,100 +189,77 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUserId = null;
-    let userData = null;
+    let currentUser = null;
 
+    // 1. التأكد من تسجيل الدخول وجلب بيانات المستخدم
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            currentUserId = user.uid;
-            await loadUser();
-            loadUserPosts();
+            currentUser = user;
+            loadMessages(); // ابدأ تحميل الرسائل
         } else {
             window.location.href = "Kirafix.html";
         }
     });
 
-    async function loadUser() {
-        const ref = doc(db, "users", currentUserId);
-        const snap = await getDoc(ref);
+    // 2. دالة إرسال الرسالة
+    window.sendMessage = async () => {
+        const msgInput = document.getElementById("messageInput");
+        const messageText = msgInput.value.trim();
 
-        if (!snap.exists()) {
-            userData = {
-                name: "مستخدم جديد",
-                username: "user" + Math.floor(Math.random()*10000),
-                bio: "أهلاً بك في كرافيكس!",
-                image: "https://via.placeholder.com/150",
-                followers: [],
-                following: []
-            };
-            await setDoc(ref, userData);
-        } else {
-            userData = snap.data();
-        }
-        renderProfile();
-    }
+        if (messageText === "") return;
 
-    function renderProfile() {
-        document.getElementById("username").innerText = userData.name;
-        document.getElementById("handle").innerText = "@" + userData.username;
-        document.getElementById("bio").innerText = userData.bio || "لا يوجد وصف";
-        document.getElementById("profilePic").src = userData.image || "https://via.placeholder.com/150";
-        document.getElementById("followersCount").innerText = (userData.followers || []).length;
-        document.getElementById("followingCount").innerText = (userData.following || []).length;
-    }
+        try {
+            // هنجيب بيانات البروفايل عشان نحط صورة واسم اللي بيبعت
+            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+            const userData = userDoc.data();
 
-    function loadUserPosts() {
-        const q = query(collection(db, "posts"), where("email", "==", auth.currentUser.email), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const container = document.getElementById("postsContainer");
-            container.innerHTML = "";
-            document.getElementById("postsCount").innerText = snapshot.size;
-            snapshot.forEach((docSnap) => {
-                const post = docSnap.data();
-                container.innerHTML += `
-                    <div class="post">
-                        <p>${post.text || post.content}</p>
-                        ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:8px">` : ""}
-                        <div class="post-footer">
-                            <small>👍 ${Object.keys(post.likes || {}).length} إعجاب</small>
-                            <small>${post.createdAt?.toDate().toLocaleDateString('ar-EG') || "الآن"}</small>
-                        </div>
-                    </div>`;
+            await addDoc(collection(db, "messages"), {
+                text: messageText,
+                uid: currentUser.uid,
+                userName: userData?.name || currentUser.email.split("@")[0],
+                userImage: userData?.image || "https://via.placeholder.com/150",
+                createdAt: serverTimestamp()
             });
+
+            msgInput.value = ""; // فضي الخانة بعد الارسال
+            msgInput.focus();
+        } catch (error) {
+            console.error("خطأ في الإرسال:", error);
+        }
+    };
+
+    // 3. دالة عرض الرسائل (لحظياً)
+    function loadMessages() {
+        const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
+        
+        onSnapshot(q, (snapshot) => {
+            const chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML = ""; // امسح القديم
+
+            snapshot.forEach((doc) => {
+                const msg = doc.data();
+                const isMine = msg.uid === currentUser.uid;
+
+                chatBox.innerHTML += `
+                    <div class="msg-row ${isMine ? 'mine' : 'theirs'}">
+                        <img src="${msg.userImage}" class="chat-img">
+                        <div class="msg-content">
+                            <span class="chat-name">${msg.userName}</span>
+                            <p class="chat-text">${msg.text}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // سكرول لتحت تلقائي عند وصول رسالة جديدة
+            chatBox.scrollTop = chatBox.scrollHeight;
         });
     }
 
-    // Modal Control
-    window.openEdit = () => document.getElementById("editModal").style.display = "flex";
-    window.closeEdit = () => document.getElementById("editModal").style.display = "none";
-
-    window.saveProfile = async () => {
-        const name = document.getElementById("newName").value.trim();
-        const bio = document.getElementById("newBio").value.trim();
-        const file = document.getElementById("newImage").files[0];
-        const saveBtn = document.querySelector(".save-btn");
-
-        saveBtn.innerText = "جاري الحفظ...";
-        saveBtn.disabled = true;
-
-        let updateData = {};
-        if (name) updateData.name = name;
-        if (bio) updateData.bio = bio;
-        
-        if (file) {
-            const formData = new FormData();
-            formData.append("image", file);
-            const res = await fetch("https://api.imgbb.com/1/upload?key=a870d9c05acad152564a134e6f4228c9", {
-                method: "POST",
-                body: formData
-            });
-            const imgRes = await res.json();
-            if (imgRes.success) updateData.image = imgRes.data.url;
-        }
-
-        await updateDoc(doc(db, "users", currentUserId), updateData);
-        location.reload(); // ريفريش بسيط لتحديث البيانات
-    };
+    // دعم زرار Enter للإرسال
+    document.getElementById("messageInput")?.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendMessage();
+    });
 </script>
 </body>
 </html>
