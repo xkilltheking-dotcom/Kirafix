@@ -77,16 +77,25 @@
         if (user) { currentUser = user; loadMessages(); }
         else { window.location.href = "Kirafix.html"; }
     });
-    // كود تفعيل الوضع المظلم فور فتح الصفحة
-const savedDark = localStorage.getItem('kirafix-dark') === 'true';
-if (savedDark) {
-    document.body.classList.add('dark-mode');
-}
-
-// كود تفعيل اللغة المختارة
+// نظام اللغة في الشات
 const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
 document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
-// (اختياري) ممكن تضيف دالة الترجمة هنا برضه لو عايز كلام الشات يتغير
+
+function translateChat(lang) {
+    const dict = {
+        ar: { title: "غرفة الدردشة العالمية", back: "← الرئيسية", placeholder: "اكتب رسالتك...", send: "إرسال" },
+        en: { title: "Global Chat Room", back: "← Home", placeholder: "Type a message...", send: "Send" },
+        fr: { title: "Chat Global", back: "← Accueil", placeholder: "Écrire...", send: "Envoyer" },
+        es: { title: "Chat Global", back: "← Inicio", placeholder: "Escribir...", send: "Enviar" },
+        zh: { title: "全球聊天室", back: "← 首页", placeholder: "写消息...", send: "发送" }
+    };
+    const t = dict[lang];
+    document.querySelector('.chat-header h2').textContent = t.title;
+    document.querySelector('.back-btn').textContent = t.back;
+    document.getElementById('messageInput').placeholder = t.placeholder;
+    document.getElementById('sendBtn').textContent = t.send;
+}
+translateChat(savedLang);
 
     // إرسال رسالة
     async function sendMessage() {
