@@ -7,14 +7,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-page: #f0f2f5;
-            --bg-chat: #f7f9fb;
-            --header-bg: #ffffff;
-            --primary: #1a73e8;
-            --danger: #d93025; /* لون الحذف */
-            --text-main: #1c1e21;
-            --white: #ffffff;
-            --border: #dee1e6;
+            --bg-page: #f0f2f5; --bg-chat: #f7f9fb; --header-bg: #ffffff;
+            --primary: #1a73e8; --danger: #d93025; --text-main: #1c1e21;
+            --white: #ffffff; --border: #dee1e6;
         }
 
         body { margin: 0; font-family: 'Cairo', sans-serif; background-color: var(--bg-page); height: 100vh; display: flex; justify-content: center; align-items: center; }
@@ -24,28 +19,19 @@
         .back-btn { text-decoration: none; color: var(--primary); font-weight: 600; font-size: 14px; }
 
         #chatBox { flex: 1; background-color: var(--bg-chat); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .msg-wrapper { display: flex; align-items: flex-end; gap: 8px; max-width: 80%; position: relative; }
+        .msg-wrapper { display: flex; align-items: flex-end; gap: 8px; max-width: 80%; }
         .mine { flex-direction: row-reverse; align-self: flex-end; }
         .theirs { align-self: flex-start; }
 
         .chat-img { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; background: #eee; border: 1px solid #ddd; }
-        .msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.5; position: relative; cursor: pointer; }
-        .mine .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 2px; }
+        .msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.5; position: relative; transition: 0.2s; }
+        .mine .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 2px; cursor: pointer; }
         .theirs .msg-bubble { background: #e8eaed; color: var(--text-main); border-bottom-left-radius: 2px; }
 
         .sender-name { display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px; opacity: 0.8; }
         .theirs .sender-name { color: var(--primary); }
 
-        /* زر الحذف الصغير */
-        .delete-btn {
-            font-size: 10px;
-            color: #ffcccc;
-            margin-top: 5px;
-            cursor: pointer;
-            display: none; /* بيظهر بالـ JS */
-            text-decoration: underline;
-        }
-        .mine:hover .delete-btn { display: block; }
+        .del-hint { font-size: 9px; display: block; margin-top: 5px; opacity: 0.7; text-align: left; }
 
         .input-bar { padding: 15px 20px; background: var(--white); display: flex; gap: 12px; border-top: 1px solid var(--border); align-items: center; }
         #messageInput { flex: 1; padding: 10px 18px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-family: 'Cairo'; background: #f8f9fa; }
@@ -60,11 +46,7 @@
             <h2>Kirafix Global Chat</h2>
             <div style="width:20px"></div>
         </header>
-
-        <div id="chatBox">
-            <p style="text-align: center; color: #999; font-size: 12px;">جاري تأمين الاتصال...</p>
-        </div>
-
+        <div id="chatBox"></div>
         <div class="input-bar">
             <input type="text" id="messageInput" placeholder="اكتب رسالتك...">
             <button id="sendBtn">إرسال</button>
@@ -96,8 +78,8 @@
         else { window.location.href = "Kirafix.html"; }
     });
 
-    // دالة الإرسال
-    window.sendMessage = async () => {
+    // إرسال رسالة
+    async function sendMessage() {
         const input = document.getElementById("messageInput");
         const text = input.value.trim();
         if (!text || !currentUser) return;
@@ -113,31 +95,11 @@
                 createdAt: serverTimestamp()
             });
         } catch (e) { console.error(e); }
-    };
-
+    }
     document.getElementById("sendBtn").onclick = sendMessage;
     document.getElementById("messageInput").onkeypress = (e) => { if (e.key === "Enter") sendMessage(); };
 
-    // دالة حذف الرسالة
-    window.deleteMsg = async (msgId, timeStamp) => {
-        if (!confirm("هل تريد مسح هذه الرسالة؟")) return;
-
-        const now = Date.now();
-        const msgTime = timeStamp?.toMillis() || now;
-        const diffInMinutes = (now - msgTime) / (1000 * 60);
-
-        if (diffInMinutes > 30) {
-            alert("عذراً، لا يمكنك حذف الرسائل التي مر عليها أكثر من 30 دقيقة.");
-            return;
-        }
-
-        try {
-            await deleteDoc(doc(db, "messages", msgId));
-        } catch (e) {
-            alert("حدث خطأ أثناء الحذف.");
-        }
-    };
-
+    // تحميل الرسائل
     function loadMessages() {
         const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(50));
         onSnapshot(q, (snapshot) => {
@@ -149,32 +111,43 @@
                 const msg = docSnap.data();
                 const isMine = msg.uid === currentUser.uid;
                 const msgId = docSnap.id;
+                // تحويل وقت فايربيز لـ Milliseconds عشان نحسبه
+                const timeInMs = msg.createdAt ? msg.createdAt.toMillis() : Date.now();
 
-                chatBox.innerHTML += `
-                    <div class="msg-wrapper ${isMine ? 'mine' : 'theirs'}">
-                        <img src="${msg.userImage}" class="chat-img">
-                        <div class="msg-bubble">
-                            <span class="sender-name">${msg.userName}</span>
-                            <span>${msg.text}</span>
-                            ${isMine ? `<div class="delete-btn" onclick="deleteMsg('${msgId}', msg.createdAt)">حذف الرسالة</div>` : ''}
-                        </div>
+                const msgDiv = document.createElement("div");
+                msgDiv.className = `msg-wrapper ${isMine ? 'mine' : 'theirs'}`;
+                msgDiv.innerHTML = `
+                    <img src="${msg.userImage}" class="chat-img">
+                    <div class="msg-bubble" ${isMine ? `onclick="window.handleDelete('${msgId}', ${timeInMs})"` : ''}>
+                        <span class="sender-name">${msg.userName}</span>
+                        <span>${msg.text}</span>
+                        ${isMine ? '<span class="del-hint">اضغط للحذف</span>' : ''}
                     </div>
                 `;
-                // ملاحظة: قمت بتعديل بسيط في تمرير الوقت داخل الـ HTML ليعمل بشكل سليم
+                chatBox.appendChild(msgDiv);
             });
             chatBox.scrollTop = chatBox.scrollHeight;
         });
     }
 
-    // تعديل بسيط لاستدعاء الدالة بشكل صحيح من داخل الـ HTML
-    window.loadMessages = loadMessages; 
-</script>
+    // وظيفة الحذف وربطها بـ window
+    window.handleDelete = async (id, timeSent) => {
+        const now = Date.now();
+        const diffInMinutes = (now - timeSent) / (1000 * 60);
 
-<script>
-    // عشان نضمن إن الدالة تتشاف من الـ HTML اللي بيتولد بالـ JS
-    function deleteMsg(id, time) {
-        window.deleteMsg(id, time);
-    }
+        if (diffInMinutes > 30) {
+            alert("⚠️ لا يمكنك حذف رسالة مر عليها أكثر من 30 دقيقة.");
+            return;
+        }
+
+        if (confirm("هل أنت متأكد من حذف هذه الرسالة نهائياً؟")) {
+            try {
+                await deleteDoc(doc(db, "messages", id));
+            } catch (e) {
+                alert("فشل الحذف، حاول مرة أخرى.");
+            }
+        }
+    };
 </script>
 </body>
 </html>
