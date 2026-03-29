@@ -366,3 +366,7 @@ body.dark-mode .upload-btns button {
     background-color: #4e4f50 !important;
     color: #ffffff !important;
 }
+body.dark-mode #but {
+    color: #1c1e21 !important; /* أو أي لون تحبه يظهر بوضوح جوه الدائرة الصفراء/البيضاء */
+    background-color: #ffffff !important; /* لو عايز الدائرة نفسها تفضل فاتحة */
+}
