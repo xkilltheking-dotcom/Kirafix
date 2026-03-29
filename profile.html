@@ -190,25 +190,9 @@
             window.location.href = "Kirafix.html";
         }
     });
-// نظام اللغة في الشات
-const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
-document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
 
-function translateChat(lang) {
-    const dict = {
-        ar: { title: "غرفة الدردشة العالمية", back: "← الرئيسية", placeholder: "اكتب رسالتك...", send: "إرسال" },
-        en: { title: "Global Chat Room", back: "← Home", placeholder: "Type a message...", send: "Send" },
-        fr: { title: "Chat Global", back: "← Accueil", placeholder: "Écrire...", send: "Envoyer" },
-        es: { title: "Chat Global", back: "← Inicio", placeholder: "Escribir...", send: "Enviar" },
-        zh: { title: "全球聊天室", back: "← 首页", placeholder: "写消息...", send: "发送" }
-    };
-    const t = dict[lang];
-    document.querySelector('.chat-header h2').textContent = t.title;
-    document.querySelector('.back-btn').textContent = t.back;
-    document.getElementById('messageInput').placeholder = t.placeholder;
-    document.getElementById('sendBtn').textContent = t.send;
-}
-translateChat(savedLang);
+    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+    document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
 
     async function loadUser() {
         const ref = doc(db, "users", currentUserId);
@@ -240,23 +224,39 @@ translateChat(savedLang);
     }
 
     function loadUserPosts() {
-        const q = query(collection(db, "posts"), where("email", "==", auth.currentUser.email), orderBy("createdAt", "desc"));
+        // الاستعلام عن بوستات المستخدم الحالي فقط
+        const q = query(collection(db, "posts"), where("uid", "==", auth.currentUser.uid), orderBy("createdAt", "desc"));
+        
         onSnapshot(q, (snapshot) => {
             const container = document.getElementById("postsContainer");
             container.innerHTML = "";
+            
+            let totalLikes = 0; // عداد اللايكات الإجمالي
+            
+            // تحديث عدد المنشورات
             document.getElementById("postsCount").innerText = snapshot.size;
+
             snapshot.forEach((docSnap) => {
                 const post = docSnap.data();
+                
+                // حساب اللايكات لكل بوست وجمعها في الإجمالي
+                const postLikes = Object.keys(post.likes || {}).length;
+                totalLikes += postLikes;
+
                 container.innerHTML += `
                     <div class="post">
-                        <p>${post.text || post.content}</p>
+                        <p>${post.text || post.content || ""}</p>
                         ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:8px">` : ""}
                         <div class="post-footer">
-                            <small>👍 ${Object.keys(post.likes || {}).length} إعجاب</small>
+                            <small>👍 ${postLikes} إعجاب</small>
                             <small>${post.createdAt?.toDate().toLocaleDateString('ar-EG') || "الآن"}</small>
                         </div>
                     </div>`;
             });
+
+            // تحديث عداد "أتابع" ليظهر إجمالي اللايكات بدلاً من الصفر (أو يمكنك استخدامه في مكان آخر)
+            // بما أن الـ HTML عندك فيه "متابع" و "أتابع"، ممكن تستخدم "أتابع" لعرض إجمالي اللايكات مؤقتاً 
+            // أو لو حابب تسيبها زي ما هي، الكود ده حدث الـ totalLikes وتقدر تربطه بأي ID.
         });
     }
 
@@ -289,8 +289,9 @@ translateChat(savedLang);
         }
 
         await updateDoc(doc(db, "users", currentUserId), updateData);
-        location.reload(); // ريفريش بسيط لتحديث البيانات
+        location.reload(); 
     };
+</script>
 </script>
 </body>
 </html>
