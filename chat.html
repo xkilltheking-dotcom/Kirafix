@@ -7,40 +7,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #e5ddd5; /* لون خلفية شات كلاسيك */
+            --bg-page: #f0f2f5;
+            --bg-chat: #f7f9fb; /* لون خلفية الشات الهادي */
             --header-bg: #ffffff;
-            --primary: #075e54;
-            --text-main: #303030;
+            --primary: #1a73e8;
+            --text-main: #1c1e21;
             --white: #ffffff;
-            --border: #e0e0e0;
+            --border: #dee1e6;
         }
 
         body {
             margin: 0;
             font-family: 'Cairo', sans-serif;
-            background-color: #f0f2f5;
+            background-color: var(--bg-page);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* حاوية الشات الرئيسية */
         .chat-container {
             width: 100%;
-            max-width: 900px;
-            height: 95vh;
+            max-width: 800px;
+            height: 90vh;
             background: var(--white);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-radius: 12px;
             overflow: hidden;
+            border: 1px solid var(--border);
         }
 
-        /* الهيدر */
         .chat-header {
-            padding: 15px 20px;
+            padding: 15px 25px;
             background: var(--header-bg);
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -48,110 +48,94 @@
             align-items: center;
         }
 
-        .chat-header h2 { margin: 0; font-size: 18px; color: var(--text-main); }
-        .back-btn { text-decoration: none; color: var(--primary); font-weight: bold; font-size: 14px; }
+        .chat-header h2 { margin: 0; font-size: 18px; color: var(--text-main); font-weight: 700; }
+        .back-btn { text-decoration: none; color: var(--primary); font-weight: 600; font-size: 14px; }
 
-        /* منطقة الرسائل */
         #chatBox {
             flex: 1;
-            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* خلفية واتساب الشهيرة */
-            background-color: var(--bg-color);
+            background-color: var(--bg-chat);
             padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
-        /* تصميم الرسالة */
-        .msg-wrapper { display: flex; width: 100%; margin-bottom: 5px; }
-        .mine { justify-content: flex-start; flex-direction: row-reverse; }
-        .theirs { justify-content: flex-start; }
+        .msg-wrapper { display: flex; align-items: flex-end; gap: 8px; max-width: 80%; }
+        .mine { flex-direction: row-reverse; align-self: flex-end; }
+        .theirs { align-self: flex-start; }
+
+        .chat-img { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; background: #eee; border: 1px solid #ddd; }
 
         .msg-bubble {
-            max-width: 70%;
-            padding: 8px 12px;
-            border-radius: 8px;
-            position: relative;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-            font-size: 15px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
             line-height: 1.5;
+            position: relative;
         }
 
-        .mine .msg-bubble { background: #dcf8c6; color: #303030; border-top-left-radius: 0; }
-        .theirs .msg-bubble { background: var(--white); color: #303030; border-top-right-radius: 0; }
+        .mine .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 2px; }
+        .theirs .msg-bubble { background: #e8eaed; color: var(--text-main); border-bottom-left-radius: 2px; }
 
         .sender-name {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             margin-bottom: 4px;
-            color: #075e54;
+            opacity: 0.8;
         }
+        .theirs .sender-name { color: var(--primary); }
 
-        .chat-img {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            margin: 0 8px;
-            background: #ccc;
-            object-fit: cover;
-        }
-
-        /* منطقة الإدخال */
         .input-bar {
-            padding: 15px;
-            background: #f0f2f5;
+            padding: 15px 20px;
+            background: var(--white);
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            border-top: 1px solid var(--border);
             align-items: center;
         }
 
         #messageInput {
             flex: 1;
-            padding: 12px 15px;
-            border: none;
-            border-radius: 20px;
+            padding: 10px 18px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
             outline: none;
             font-family: 'Cairo';
-            font-size: 14px;
+            background: #f8f9fa;
         }
 
         #sendBtn {
             background: var(--primary);
             color: white;
             border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: 0.3s;
+            font-weight: 700;
+            transition: 0.2s;
         }
 
-        #sendBtn:hover { transform: scale(1.05); }
-
+        #sendBtn:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
 
     <div class="chat-container">
         <header class="chat-header">
-            <a href="Kirafix.html" class="back-btn">← رجوع</a>
-            <h2>غرفة الدردشة العامة</h2>
-            <div style="width:30px"></div>
+            <a href="Kirafix.html" class="back-btn">← الرجوع للرئيسية</a>
+            <h2>Kirafix Global Chat</h2>
+            <div style="width:20px"></div>
         </header>
 
         <div id="chatBox">
-            <p style="text-align: center; color: #555; font-size: 13px;">جارٍ تحميل المحادثات الكلاسيكية...</p>
+            <p style="text-align: center; color: #999; font-size: 12px;">جاري تأمين الاتصال...</p>
         </div>
 
         <div class="input-bar">
-            <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا...">
-            <button id="sendBtn">➤</button>
+            <input type="text" id="messageInput" placeholder="اكتب رسالتك الآن...">
+            <button id="sendBtn">إرسال</button>
         </div>
     </div>
 
@@ -188,8 +172,8 @@
         const input = document.getElementById("messageInput");
         const text = input.value.trim();
         if (!text || !currentUser) return;
-
         input.value = "";
+
         try {
             const userDoc = await getDoc(doc(db, "users", currentUser.uid));
             const userData = userDoc.data();
@@ -208,7 +192,7 @@
     document.getElementById("messageInput").onkeypress = (e) => { if (e.key === "Enter") sendMessage(); };
 
     function loadMessages() {
-        const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(60));
+        const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(50));
         onSnapshot(q, (snapshot) => {
             const chatBox = document.getElementById("chatBox");
             chatBox.innerHTML = "";
