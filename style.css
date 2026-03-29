@@ -287,3 +287,25 @@ body {
 #ht:active {
     transform: scale(0.9) rotate(180deg);
 }
+/* الألوان الأساسية للوضع المظلم */
+body.dark-mode {
+    background-color: #18191a !important;
+    color: #e4e6eb !important;
+}
+
+body.dark-mode .header, 
+body.dark-mode .post, 
+body.dark-mode .composer {
+    background-color: #242526 !important;
+    color: #e4e6eb !important;
+    border-color: #3e4042 !important;
+}
+
+body.dark-mode #tex {
+    background-color: #3a3b3c !important;
+    color: #e4e6eb !important;
+}
+
+body.dark-mode .username {
+    color: #e4e6eb !important;
+}
