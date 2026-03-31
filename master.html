@@ -168,11 +168,28 @@ const db = getFirestore(app);
 const loader = document.getElementById("loadingScreen");
 let currentUserData = null;
 
+// وظيفة لإضافة شريط التحميل برمجياً لو مش موجود
+const setupProgressUI = () => {
+    const composer = document.getElementById("composerBox");
+    if (composer && !document.getElementById("uploadProgressContainer")) {
+        const progressHTML = `
+            <div id="uploadProgressContainer" style="display:none; width:100%; background:#e5e7eb; border-radius:10px; height:8px; margin:10px 0; overflow:hidden;">
+                <div id="uploadProgressBar" style="width:0%; background:#2563eb; height:100%; transition: width 0.3s;"></div>
+            </div>
+            <small id="progressText" style="display:none; color:#2563eb; font-weight:bold; margin-bottom:10px; display:block; text-align:center;">جاري الرفع: 0%</small>
+        `;
+        const target = document.querySelector(".composer-actions");
+        if(target) target.insertAdjacentHTML('beforebegin', progressHTML);
+    }
+};
+
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.href = "index.html";
         return;
     }
+    
+    setupProgressUI(); // تفعيل واجهة التحميل
 
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists()) {
@@ -201,9 +218,11 @@ onAuthStateChanged(auth, async (user) => {
         };
         const t = dict[lang];
         const links = document.querySelectorAll('.links a');
-        links[0].textContent = t.home;
-        links[1].textContent = t.profile;
-        links[2].textContent = t.ai;
+        if(links.length >= 3) {
+            links[0].textContent = t.home;
+            links[1].textContent = t.profile;
+            links[2].textContent = t.ai;
+        }
         document.getElementById('tex').placeholder = t.placeholder;
         document.getElementById('se').textContent = t.postBtn;
         document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
@@ -212,8 +231,10 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("user-name-display").textContent = currentUserData?.name || user.email.split("@")[0];
     
     setTimeout(() => {
-        loader.style.opacity = "0";
-        setTimeout(() => loader.style.display = "none", 600);
+        if(loader) {
+            loader.style.opacity = "0";
+            setTimeout(() => loader.style.display = "none", 600);
+        }
     }, 2000);
 });
 
@@ -250,9 +271,13 @@ videoInput.onchange = (e) => {
     }
 };
 
+// --- دالة النشر المعدلة (Progress Bar + Cloudinary لكل الميديا) ---
 document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
+    const bar = document.getElementById("uploadProgressBar");
+    const container = document.getElementById("uploadProgressContainer");
+    const txt = document.getElementById("progressText");
 
     if (!text && !selectedFile) {
         alert("اكتب حاجة أو اختار ميديا!");
@@ -260,50 +285,46 @@ document.getElementById("se").onclick = async () => {
     }
 
     btn.disabled = true; 
-    btn.innerText = "جاري النشر...";
-    console.log("بدأ عملية النشر...");
+    btn.innerText = "...";
 
     try {
         let fileUrl = null;
         
         if (selectedFile) {
-            console.log("جاري رفع الملف: ", fileType);
-            if (fileType === 'image') {
-                const formData = new FormData();
-                formData.append("image", selectedFile);
-                const imgRes = await fetch("https://api.imgbb.com/1/upload?key=a870d9c05acad152564a134e6f4228c9", {
-                    method: "POST",
-                    body: formData
-                });
-                const imgData = await imgRes.json();
-                if (imgData.success) fileUrl = imgData.data.url;
-                console.log("تم رفع الصورة: ", fileUrl);
-            } else if (fileType === 'video') {
-                const cloudName = "dno9n87sc"; 
-                const uploadPreset = "kirafix_posts"; 
-                
-                const formData = new FormData();
-                formData.append("file", selectedFile);
-                formData.append("upload_preset", uploadPreset);
+            if(container) container.style.display = "block";
+            if(txt) txt.style.display = "block";
 
-                // استدعاء fetch لرفع الفيديو لـ Cloudinary
-                const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
-                    method: "POST",
-                    body: formData
-                });
-                const data = await res.json();
-                
-                if (data.secure_url) {
-                    fileUrl = data.secure_url;
-                    console.log("تم رفع الفيديو بنجاح: ", fileUrl);
-                } else {
-                    console.error("خطأ Cloudinary:", data);
-                    throw new Error(data.error?.message || "فشل رفع الفيديو");
-                }
-            }
+            const cloudName = "dno9n87sc"; 
+            const uploadPreset = "kirafix_posts"; 
+            // هنرفع كله على Cloudinary عشان نستفيد من الضغط والـ Progress Bar
+            const url = `https://api.cloudinary.com/v1_1/${cloudName}/${fileType}/upload`;
+
+            fileUrl = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", url);
+
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable && bar && txt) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        bar.style.width = percent + "%";
+                        txt.innerText = `جاري الرفع: ${percent}%`;
+                    }
+                };
+
+                xhr.onload = () => {
+                    const res = JSON.parse(xhr.responseText);
+                    res.secure_url ? resolve(res.secure_url) : reject(res.error?.message || "فشل الرفع");
+                };
+
+                xhr.onerror = () => reject("خطأ في الاتصال");
+
+                const fd = new FormData();
+                fd.append("file", selectedFile);
+                fd.append("upload_preset", uploadPreset);
+                xhr.send(fd);
+            });
         }
 
-        console.log("جاري حفظ البيانات في Firestore...");
         await addDoc(collection(db, "posts"), {
             text: text,
             email: auth.currentUser.email,
@@ -317,24 +338,27 @@ document.getElementById("se").onclick = async () => {
             video: fileType === 'video' ? fileUrl : null
         });
 
+        // ريست للواجهة
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = "";
         mediaPreview.style.display = "none";
+        if(container) container.style.display = "none";
+        if(txt) txt.style.display = "none";
+        if(bar) bar.style.width = "0%";
         selectedFile = null;
         fileType = null;
         btn.disabled = false; 
         btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
-        console.log("تم النشر بنجاح!");
 
     } catch (error) {
-        console.error("حدث خطأ:", error);
         alert("حصلت مشكلة: " + error.message);
         btn.disabled = false;
         btn.innerText = "نشر";
     }
 };
 
+// --- باقي الوظائف كما هي تماماً دون أي تغيير ---
 window.toggleLike = async (id) => {
     const postRef = doc(db, "posts", id);
     const snap = await getDoc(postRef);
@@ -411,7 +435,7 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
             <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                 <div class="user-info">
-                    <div class="username" style="font-weight:bold;">${post.userName || post.email.split("@")[0]}</div>
+                    <div class="username" style="font-weight:bold;">${post.userName || post.email?.split("@")[0]}</div>
                     <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
                 </div>
             </div>
