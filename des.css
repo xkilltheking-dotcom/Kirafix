@@ -19,7 +19,7 @@ body{
 
 .login{
     position: relative;
-    background: rgba(255,255,255,0.1);
+    background-color:transparent;
     backdrop-filter: blur(25px);
     padding:40px;
     border-radius:15px;
