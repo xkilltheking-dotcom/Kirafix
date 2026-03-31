@@ -266,6 +266,7 @@ document.getElementById("se").onclick = async () => {
         
         if (selectedFile) {
             if (fileType === 'image') {
+                // رفع الصورة لـ ImgBB كما هي
                 const formData = new FormData();
                 formData.append("image", selectedFile);
                 const imgRes = await fetch("https://api.imgbb.com/1/upload?key=a870d9c05acad152564a134e6f4228c9", {
@@ -275,12 +276,13 @@ document.getElementById("se").onclick = async () => {
                 const imgData = await imgRes.json();
                 if (imgData.success) fileUrl = imgData.data.url;
             } else {
-                // تحويل الفيديو لـ Base64 لنشره مباشرة
-                fileUrl = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.readAsDataURL(selectedFile);
-                });
+                // رفع الفيديو لـ Firebase Storage
+                // ملاحظة: تأكد من استيراد getStorage و ref و uploadBytes و getDownloadURL في بداية السكربت
+                const { getStorage, ref, uploadBytes, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js");
+                const storage = getStorage(app);
+                const fileRef = ref(storage, 'videos/' + Date.now() + "_" + selectedFile.name);
+                await uploadBytes(fileRef, selectedFile);
+                fileUrl = await getDownloadURL(fileRef);
             }
         }
 
@@ -306,7 +308,8 @@ document.getElementById("se").onclick = async () => {
         btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
     } catch (error) {
-        alert("حصلت مشكلة في النشر");
+        console.error(error);
+        alert("حصلت مشكلة في النشر: " + error.message);
         btn.disabled = false;
         btn.innerText = "نشر";
     }
