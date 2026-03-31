@@ -276,14 +276,23 @@ document.getElementById("se").onclick = async () => {
                 const imgData = await imgRes.json();
                 if (imgData.success) fileUrl = imgData.data.url;
             } else {
-                // رفع الفيديو لـ Firebase Storage
-                // ملاحظة: تأكد من استيراد getStorage و ref و uploadBytes و getDownloadURL في بداية السكربت
-                const { getStorage, ref, uploadBytes, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js");
-                const storage = getStorage(app);
-                const fileRef = ref(storage, 'videos/' + Date.now() + "_" + selectedFile.name);
-                await uploadBytes(fileRef, selectedFile);
-                fileUrl = await getDownloadURL(fileRef);
-            }
+// استبدل الجزء الخاص برفع الفيديو في كود الـ "se" بهذا الكود:
+} else {
+    // الرفع لـ Cloudinary (بديل مجاني لـ Firebase Storage)
+    const cloudName = "dno9n87sc"; // حط هنا اسم السحابة بتاعتك
+    const uploadPreset = "kirafix_posts";  // حط هنا الـ Preset اللي عملته Unsigned
+    
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("upload_preset", uploadPreset);
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
+        method: "POST",
+        body: formData
+    });
+    const data = await res.json();
+    fileUrl = data.secure_url;
+}
         }
 
         await addDoc(collection(db, "posts"), {
