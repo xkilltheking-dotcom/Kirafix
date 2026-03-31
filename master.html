@@ -263,13 +263,14 @@ document.getElementById("se").onclick = async () => {
 
     btn.disabled = true; 
     btn.innerText = "جاري النشر...";
+    console.log("بدأ عملية النشر...");
 
     try {
         let fileUrl = null;
         
         if (selectedFile) {
+            console.log("جاري رفع الملف: ", fileType);
             if (fileType === 'image') {
-                // رفع الصورة لـ ImgBB
                 const formData = new FormData();
                 formData.append("image", selectedFile);
                 const imgRes = await fetch("https://api.imgbb.com/1/upload?key=a870d9c05acad152564a134e6f4228c9", {
@@ -278,8 +279,8 @@ document.getElementById("se").onclick = async () => {
                 });
                 const imgData = await imgRes.json();
                 if (imgData.success) fileUrl = imgData.data.url;
+                console.log("تم رفع الصورة: ", fileUrl);
             } else if (fileType === 'video') {
-                // الرفع لـ Cloudinary
                 const cloudName = "dno9n87sc"; 
                 const uploadPreset = "kirafix_posts"; 
                 
@@ -294,13 +295,15 @@ document.getElementById("se").onclick = async () => {
                 const data = await res.json();
                 if (data.secure_url) {
                     fileUrl = data.secure_url;
+                    console.log("تم رفع الفيديو: ", fileUrl);
                 } else {
-                    throw new Error("فشل رفع الفيديو");
+                    console.error("خطأ Cloudinary:", data);
+                    throw new Error(data.error?.message || "فشل رفع الفيديو");
                 }
             }
         }
 
-        // إضافة البوست لقاعدة البيانات
+        console.log("جاري حفظ البيانات في Firestore...");
         await addDoc(collection(db, "posts"), {
             text: text,
             email: auth.currentUser.email,
@@ -314,7 +317,7 @@ document.getElementById("se").onclick = async () => {
             video: fileType === 'video' ? fileUrl : null
         });
 
-        // إعادة ضبط الواجهة
+        // تنظيف الفورم بعد النجاح
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = "";
         mediaPreview.style.display = "none";
@@ -323,10 +326,11 @@ document.getElementById("se").onclick = async () => {
         btn.disabled = false; 
         btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
+        console.log("تم النشر بنجاح!");
 
     } catch (error) {
-        console.error(error);
-        alert("حصلت مشكلة في النشر: " + error.message);
+        console.error("حدث خطأ:", error);
+        alert("حصلت مشكلة: " + error.message);
         btn.disabled = false;
         btn.innerText = "نشر";
     }
