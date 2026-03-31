@@ -255,18 +255,21 @@ videoInput.onchange = (e) => {
 document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
+
     if (!text && !selectedFile) {
         alert("اكتب حاجة أو اختار ميديا!");
         return;
     }
+
     btn.disabled = true; 
     btn.innerText = "جاري النشر...";
+
     try {
         let fileUrl = null;
         
         if (selectedFile) {
             if (fileType === 'image') {
-                // رفع الصورة لـ ImgBB كما هي
+                // رفع الصورة لـ ImgBB
                 const formData = new FormData();
                 formData.append("image", selectedFile);
                 const imgRes = await fetch("https://api.imgbb.com/1/upload?key=a870d9c05acad152564a134e6f4228c9", {
@@ -275,26 +278,29 @@ document.getElementById("se").onclick = async () => {
                 });
                 const imgData = await imgRes.json();
                 if (imgData.success) fileUrl = imgData.data.url;
-            } else {
-// استبدل الجزء الخاص برفع الفيديو في كود الـ "se" بهذا الكود:
-} else {
-    // الرفع لـ Cloudinary (بديل مجاني لـ Firebase Storage)
-    const cloudName = "dno9n87sc"; // حط هنا اسم السحابة بتاعتك
-    const uploadPreset = "kirafix_posts";  // حط هنا الـ Preset اللي عملته Unsigned
-    
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    formData.append("upload_preset", uploadPreset);
+            } else if (fileType === 'video') {
+                // الرفع لـ Cloudinary
+                const cloudName = "dno9n87sc"; 
+                const uploadPreset = "kirafix_posts"; 
+                
+                const formData = new FormData();
+                formData.append("file", selectedFile);
+                formData.append("upload_preset", uploadPreset);
 
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
-        method: "POST",
-        body: formData
-    });
-    const data = await res.json();
-    fileUrl = data.secure_url;
-}
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.secure_url) {
+                    fileUrl = data.secure_url;
+                } else {
+                    throw new Error("فشل رفع الفيديو");
+                }
+            }
         }
 
+        // إضافة البوست لقاعدة البيانات
         await addDoc(collection(db, "posts"), {
             text: text,
             email: auth.currentUser.email,
@@ -308,6 +314,7 @@ document.getElementById("se").onclick = async () => {
             video: fileType === 'video' ? fileUrl : null
         });
 
+        // إعادة ضبط الواجهة
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = "";
         mediaPreview.style.display = "none";
@@ -316,6 +323,7 @@ document.getElementById("se").onclick = async () => {
         btn.disabled = false; 
         btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
+
     } catch (error) {
         console.error(error);
         alert("حصلت مشكلة في النشر: " + error.message);
