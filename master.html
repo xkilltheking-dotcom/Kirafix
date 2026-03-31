@@ -147,7 +147,7 @@
 </a>
 </section>
 
-<script type="module">
+    <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
@@ -229,37 +229,61 @@ const mediaPreview = document.getElementById("mediaPreview");
 document.getElementById("imgBtn").onclick = () => imgInput.click();
 document.getElementById("videoBtn").onclick = () => videoInput.click();
 
-let selectedImage = null;
+// متغيرات لتخزين الملف المختار ونوعه
+let selectedFile = null;
+let fileType = null;
 
 imgInput.onchange = (e) => {
-    selectedImage = e.target.files[0];
-    if(selectedImage) {
+    selectedFile = e.target.files[0];
+    fileType = 'image';
+    if(selectedFile) {
         mediaPreview.style.display = "block";
-        mediaPreview.innerHTML = `<img src="${URL.createObjectURL(selectedImage)}" style="width:100%; border-radius:10px;">`;
+        mediaPreview.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" style="width:100%; border-radius:10px;">`;
+    }
+};
+
+// تعديل حدث اختيار الفيديو
+videoInput.onchange = (e) => {
+    selectedFile = e.target.files[0];
+    fileType = 'video';
+    if(selectedFile) {
+        mediaPreview.style.display = "block";
+        mediaPreview.innerHTML = `<video src="${URL.createObjectURL(selectedFile)}" controls style="width:100%; border-radius:10px;"></video>`;
     }
 };
 
 document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
-    if (!text && !selectedImage) {
-        alert("اكتب حاجة أو اختار صورة!");
+    if (!text && !selectedFile) {
+        alert("اكتب حاجة أو اختار ميديا!");
         return;
     }
     btn.disabled = true; 
     btn.innerText = "جاري النشر...";
     try {
-        let imageUrl = null;
-        if (selectedImage) {
-            const formData = new FormData();
-            formData.append("image", selectedImage);
-            const imgRes = await fetch("https://api.imgbb.com/1/upload?key=a870d9c05acad152564a134e6f4228c9", {
-                method: "POST",
-                body: formData
-            });
-            const imgData = await imgRes.json();
-            if (imgData.success) imageUrl = imgData.data.url;
+        let fileUrl = null;
+        
+        if (selectedFile) {
+            if (fileType === 'image') {
+                const formData = new FormData();
+                formData.append("image", selectedFile);
+                const imgRes = await fetch("https://api.imgbb.com/1/upload?key=a870d9c05acad152564a134e6f4228c9", {
+                    method: "POST",
+                    body: formData
+                });
+                const imgData = await imgRes.json();
+                if (imgData.success) fileUrl = imgData.data.url;
+            } else {
+                // تحويل الفيديو لـ Base64 لنشره مباشرة
+                fileUrl = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(selectedFile);
+                });
+            }
         }
+
         await addDoc(collection(db, "posts"), {
             text: text,
             email: auth.currentUser.email,
@@ -269,12 +293,15 @@ document.getElementById("se").onclick = async () => {
             createdAt: serverTimestamp(),
             likes: {},
             views: {},
-            image: imageUrl
+            image: fileType === 'image' ? fileUrl : null,
+            video: fileType === 'video' ? fileUrl : null
         });
+
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = "";
         mediaPreview.style.display = "none";
-        selectedImage = null;
+        selectedFile = null;
+        fileType = null;
         btn.disabled = false; 
         btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
@@ -368,6 +395,7 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
             </div>
             <div class="post-text" style="margin-bottom:12px; line-height:1.5;">${post.text || ""}</div>
             ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
+            ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
             <div class="post-stats" style="font-size:13px; border-top:1px solid #f0f2f5; padding-top:10px; display:flex; gap:15px;">
                 <span>👍 ${likesCount} Like</span>
                 <span>👁️ ${viewsCount} View</span>
@@ -388,6 +416,8 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
     });
 });
 </script>
+
+               
 
 </body>
 </html>
