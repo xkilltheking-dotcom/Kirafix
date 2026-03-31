@@ -51,13 +51,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-const loginForm = document.getElementById("loginForm");
-
 onAuthStateChanged(auth, (user) => {
   if (user) {
     window.location.href = "master.html";
   } else {
-    document.body.style.display = "flex"; // عرض الصفحة بعد التأكد
+    document.body.style.display = "flex"; 
   }
 });
 
@@ -68,18 +66,9 @@ btn.addEventListener("click", async function() {
   const password = document.getElementById("password").value;
 
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    try {
-      const url = await getDownloadURL(ref(storage, `profilePics/${user.uid}.jpg`));
-      localStorage.setItem("profilePicUrl", url);
-    } catch {
-      localStorage.setItem("profilePicUrl", "af80e23deeb127837d30554452546196.jpg");
-    }
-
+    // تسجيل دخول فقط بدون تعديل أي بيانات في Firestore
+    await signInWithEmailAndPassword(auth, email, password);
     window.location.href = "master.html";
-
   } catch (error) {
     alert("Email or Password incorrect!");
   }
