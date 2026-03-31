@@ -117,9 +117,50 @@
         }
 
         .save-btn { background: var(--primary); color: white; width: 100%; }
+        /* تنسيق زر العودة للرئيسية */
+.back-home-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px; /* سيتغير تلقائياً حسب اتجاه الصفحة dir */
+    background: var(--white);
+    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+    border: 1px solid #ddd;
+}
+
+.back-home-btn:hover {
+    transform: translateY(-2px);
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* تعديل الاتجاه في حالة اللغة الإنجليزية */
+body[dir="ltr"] .back-home-btn {
+    right: auto;
+    left: 20px;
+}
+
+@media (max-width: 600px) {
+    .back-home-btn .text { display: none; } /* في الموبايل يظهر الأيقونة فقط */
+    .back-home-btn { padding: 10px; border-radius: 50%; }
+}
     </style>
 </head>
 <body>
+    <a href="Kirafix.html" class="back-home-btn" id="backHomeBtn">
+    <span class="icon">🏠</span>
+    <span class="text">الرئيسية</span>
+</a>
 
     <div class="profile-header">
         <div class="cover"></div>
@@ -129,11 +170,16 @@
                 <h2 id="username">جاري التحميل...</h2>
                 <p id="handle">@handle</p>
                 
+                <div class="stats">
+                    <div><span id="postsCount">0</span><p>منشور</p></div>
+                    <div><span id="followersCount">0</span><p>متابع</p></div>
+                    <div><span id="followingCount">0</span><p>أتابع</p></div>
+                </div>
 
                 <p id="bio">اكتب وصفك هنا...</p>
 
                 <div class="actions">
-                    <button class="btn-edit" onclick="openEdit()">Edit</button>
+                    <button class="btn-edit" onclick="openEdit()">تعديل الملف</button>
                     <button id="followBtn" class="btn-follow" style="display:none">متابعة</button>
                 </div>
             </div>
@@ -180,7 +226,7 @@
         if (user) {
             currentUserId = user.uid;
             await loadUser();
-            loadUserPosts();
+            loadUserPosts(); // دي اللي هتشغل العدادات
         } else {
             window.location.href = "Kirafix.html";
         }
@@ -210,37 +256,49 @@
     }
 
     function renderProfile() {
-        document.getElementById("username").innerText = userData.name || "مستخدم كيرفيكس";
+        document.getElementById("username").innerText = userData.name || "مستخدم";
         document.getElementById("handle").innerText = "@" + (userData.username || "user");
         document.getElementById("bio").innerText = userData.bio || "لا يوجد وصف";
         document.getElementById("profilePic").src = userData.image || "https://via.placeholder.com/150";
-        
-        // تصفير العدادات يدوياً عشان متبقاش شكلها وحش
-        document.getElementById("postsCount").innerText = "0";
-        document.getElementById("followersCount").innerText = "0";
-        document.getElementById("followingCount").innerText = "0";
+        document.getElementById("followersCount").innerText = (userData.followers || []).length;
+        // القيمة الافتراضية لـ "أتابع" قبل ما يحسب اللايكات
+        document.getElementById("followingCount").innerText = (userData.following || []).length;
     }
 
     function loadUserPosts() {
-        // عرض بوستات المستخدم الحالي فقط مرتبة من الأحدث
+        // بنجيب البوستات اللي صاحبها هو المستخدم الحالي
         const q = query(collection(db, "posts"), where("uid", "==", auth.currentUser.uid), orderBy("createdAt", "desc"));
         
         onSnapshot(q, (snapshot) => {
             const container = document.getElementById("postsContainer");
             container.innerHTML = "";
             
+            let totalLikes = 0; 
+            
+            // 1. تحديث عداد المنشورات فوراً
+            document.getElementById("postsCount").innerText = snapshot.size;
+
             snapshot.forEach((docSnap) => {
                 const post = docSnap.data();
+                const likesArr = Object.keys(post.likes || {});
+                totalLikes += likesArr.length;
+
                 container.innerHTML += `
                     <div class="post">
                         <p>${post.text || ""}</p>
                         ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:8px; margin-top:10px;">` : ""}
                         <div class="post-footer">
-                            <small>👍 ${Object.keys(post.likes || {}).length} Like</small>
+                            <small>👍 ${likesArr.length} إعجاب</small>
                             <small>${post.createdAt?.toDate().toLocaleDateString('ar-EG') || "الآن"}</small>
                         </div>
                     </div>`;
             });
+
+            // 2. تحديث إجمالي اللايكات (حطيته مكان 'أتابع' عشان مفيش خانة لايكات في الـ HTML بتاعك)
+            const followingLabel = document.querySelector('div div p:nth-child(2)'); // بيحاول يوصل للكلمة نفسها
+            document.getElementById("followingCount").innerText = totalLikes;
+            // اختياري: لو عايز تغير كلمة "أتابع" لـ "إعجاب" برمجياً:
+            // document.querySelectorAll(".stats p")[2].innerText = "إعجاب كلي";
         });
     }
 
@@ -274,6 +332,19 @@
         await updateDoc(doc(db, "users", currentUserId), updateData);
         location.reload(); 
     };
+    // حط الكود ده في آخر السكربت خالص قبل قفلة الـ 
+window.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+    const backBtn = document.getElementById("backHomeBtn");
+    
+    if (backBtn) {
+        document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
+        const btnText = backBtn.querySelector(".text");
+        if (btnText) {
+            btnText.innerText = (savedLang === 'ar') ? 'الرئيسية' : 'Home';
+        }
+    }
+});
 </script>
 </body>
 </html>
