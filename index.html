@@ -19,7 +19,8 @@
         #signupForm {
             width: 100%;
             max-width: 400px;
-            background: white;
+            background-color:transparent;
+            backdrop-filter: blur(25px);
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -61,9 +62,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-    // --- التعديل هنا فقط ---
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-    // -----------------------
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -76,7 +75,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app); // تعريف الداتابيز
+    const db = getFirestore(app);
 
     const signupForm = document.getElementById("signupForm");
     const btn = document.getElementById("sign");
@@ -94,7 +93,7 @@
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
         const file = document.getElementById("profilePic").files[0];
-        const fullName = email.split('@')[0]; // استخدام أول جزء من الإيميل كاسم
+        const fullName = email.split('@')[0];
 
         if (!email || !password) {
             alert("Please fill all fields");
@@ -105,13 +104,18 @@
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // --- التعديل هنا: حفظ بيانات المستخدم في Firestore ---
+            // --- حفظ البيانات الأساسية في Firestore لضمان عدم ظهور "مستخدم جديد" لاحقاً ---
             await setDoc(doc(db, "users", user.uid), {
                 name: fullName,
+                username: "user" + Math.floor(Math.random() * 10000),
+                email: email,
+                bio: "أهلاً بك في كيرفيكس!",
+                image: "af80e23deeb127837d30554452546196.jpg", 
+                followers: [],
+                following: [],
                 uid: user.uid,
-                photoURL: `https://ui-avatars.com/api/?name=${fullName}`
+                createdAt: serverTimestamp()
             });
-            // --------------------------------------------------
 
             if (file) {
                 const reader = new FileReader();
