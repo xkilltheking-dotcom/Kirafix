@@ -147,7 +147,7 @@
 </a>
 </section>
 
-    <script type="module">
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
@@ -229,7 +229,6 @@ const mediaPreview = document.getElementById("mediaPreview");
 document.getElementById("imgBtn").onclick = () => imgInput.click();
 document.getElementById("videoBtn").onclick = () => videoInput.click();
 
-// متغيرات لتخزين الملف المختار ونوعه
 let selectedFile = null;
 let fileType = null;
 
@@ -242,7 +241,6 @@ imgInput.onchange = (e) => {
     }
 };
 
-// تعديل حدث اختيار الفيديو
 videoInput.onchange = (e) => {
     selectedFile = e.target.files[0];
     fileType = 'video';
@@ -288,14 +286,16 @@ document.getElementById("se").onclick = async () => {
                 formData.append("file", selectedFile);
                 formData.append("upload_preset", uploadPreset);
 
+                // استدعاء fetch لرفع الفيديو لـ Cloudinary
                 const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
                     method: "POST",
                     body: formData
                 });
                 const data = await res.json();
+                
                 if (data.secure_url) {
                     fileUrl = data.secure_url;
-                    console.log("تم رفع الفيديو: ", fileUrl);
+                    console.log("تم رفع الفيديو بنجاح: ", fileUrl);
                 } else {
                     console.error("خطأ Cloudinary:", data);
                     throw new Error(data.error?.message || "فشل رفع الفيديو");
@@ -317,7 +317,6 @@ document.getElementById("se").onclick = async () => {
             video: fileType === 'video' ? fileUrl : null
         });
 
-        // تنظيف الفورم بعد النجاح
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = "";
         mediaPreview.style.display = "none";
@@ -356,7 +355,6 @@ window.addView = async (id) => {
     }
 };
 
-// --- وظائف التعليقات الجديدة ---
 window.toggleCommentBox = (id) => {
     const box = document.getElementById(`comment-section-${id}`);
     box.style.display = box.style.display === "none" ? "block" : "none";
