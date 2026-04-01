@@ -345,16 +345,27 @@ const setupProgressUI = () => {
 window.sendComment = async (postId) => {
     const input = document.getElementById(`comment-input-${postId}`);
     if (!input) return;
+
     const text = input.value.trim();
     if (!text) return;
+
+    if (!auth.currentUser) {
+        alert("لازم تسجل دخول الأول");
+        return;
+    }
+
     try {
         await addDoc(collection(db, "posts", postId, "comments"), {
             text: text,
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
+            uid: auth.currentUser.uid,
             createdAt: serverTimestamp()
         });
         input.value = "";
-    } catch (e) { console.error("Error adding comment: ", e); }
+    } catch (e) {
+        console.error("Error adding comment: ", e);
+        alert("حصل خطأ في التعليق");
+    }
 };
 
 window.toggleLike = async (id) => {
@@ -386,12 +397,15 @@ window.toggleCommentBox = (id) => {
 function loadComments(postId) {
     const list = document.getElementById(`comments-list-${postId}`);
     if (!list) return;
+
     onSnapshot(query(collection(db, "posts", postId, "comments"), orderBy("createdAt", "asc")), (snap) => {
         list.innerHTML = "";
+
         if (snap.empty) {
             list.innerHTML = `<p style="font-size:11px; color:#9ca3af; text-align:center;">لا توجد تعليقات بعد</p>`;
             return;
         }
+
         snap.forEach((doc) => {
             const c = doc.data();
             list.innerHTML += `
@@ -400,37 +414,50 @@ function loadComments(postId) {
                     <span style="font-size:13px; color:#374151;">${c.text}</span>
                 </div>`;
         });
+
         list.scrollTop = list.scrollHeight;
     });
 }
 
-// --- التعديل هنا فقط ---
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.href = "index.html";
         return;
     }
+
     setupProgressUI();
-    
-    const userDoc = await getDoc(doc(db, "users", user.uid));
     const nameDisplay = document.getElementById("user-name-display");
-    
-    if (userDoc.exists()) {
-        currentUserData = userDoc.data();
-        if(nameDisplay) nameDisplay.innerText = currentUserData.name || user.email.split("@")[0];
-        
-        const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
-        document.getElementById("navProfilePic").src = userImg;
-        const compImg = document.querySelector(".composer-header img");
-        if(compImg) compImg.src = userImg;
-    } else {
+
+    try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+
+        if (userDoc.exists()) {
+            currentUserData = userDoc.data();
+
+            if(nameDisplay) nameDisplay.innerText = currentUserData.name || user.email.split("@")[0];
+
+            const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
+            document.getElementById("navProfilePic").src = userImg;
+
+            const compImg = document.querySelector(".composer-header img");
+            if(compImg) compImg.src = userImg;
+
+        } else {
+            if(nameDisplay) nameDisplay.innerText = user.email.split("@")[0];
+        }
+
+    } catch (error) {
+        console.error("Error loading user:", error);
         if(nameDisplay) nameDisplay.innerText = user.email.split("@")[0];
     }
-    
-    // إخفاء اللودر
-    setTimeout(() => { if(loader) { loader.style.opacity = "0"; setTimeout(() => loader.style.display = "none", 600); } }, 2000);
+
+    setTimeout(() => {
+        if(loader) {
+            loader.style.opacity = "0";
+            setTimeout(() => loader.style.display = "none", 600);
+        }
+    }, 1500);
 });
-// --- نهاية التعديل ---
 
 const imgInput = document.getElementById("imgInput");
 const videoInput = document.getElementById("videoInput");
@@ -472,9 +499,11 @@ document.getElementById("se").onclick = async () => {
 
     try {
         let fileUrl = null;
+
         if (selectedFile) {
             if(container) container.style.display = "block";
             if(txt) txt.style.display = "block";
+
             const cloudName = "dno9n87sc"; 
             const uploadPreset = "kirafix_posts"; 
             const url = `https://api.cloudinary.com/v1_1/${cloudName}/${fileType}/upload`;
@@ -482,6 +511,7 @@ document.getElementById("se").onclick = async () => {
             fileUrl = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 xhr.open("POST", url);
+
                 xhr.upload.onprogress = (e) => {
                     if (e.lengthComputable && bar && txt) {
                         const percent = Math.round((e.loaded / e.total) * 100);
@@ -489,11 +519,14 @@ document.getElementById("se").onclick = async () => {
                         txt.innerText = `جاري الرفع: ${percent}%`;
                     }
                 };
+
                 xhr.onload = () => {
                     const res = JSON.parse(xhr.responseText);
                     res.secure_url ? resolve(res.secure_url) : reject(res.error?.message || "فشل الرفع");
                 };
+
                 xhr.onerror = () => reject("خطأ في الاتصال");
+
                 const fd = new FormData();
                 fd.append("file", selectedFile);
                 fd.append("upload_preset", uploadPreset);
@@ -517,14 +550,20 @@ document.getElementById("se").onclick = async () => {
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = "";
         mediaPreview.style.display = "none";
+
         if(container) container.style.display = "none";
         if(txt) txt.style.display = "none";
+
         selectedFile = null;
-        btn.disabled = false; btn.innerText = "نشر";
+        btn.disabled = false;
+        btn.innerText = "نشر";
+
         document.getElementById("composerBox").style.display = "none";
+
     } catch (error) {
         alert("حصلت مشكلة: " + error.message);
-        btn.disabled = false; btn.innerText = "نشر";
+        btn.disabled = false;
+        btn.innerText = "نشر";
     }
 };
 
@@ -544,12 +583,16 @@ function timeAgo(timestamp) {
 onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
     const container = document.getElementById("postsContainer");
     if(!container) return;
+
     container.innerHTML = "";
+
     snap.forEach((docSnap) => {
         const post = docSnap.data();
         const id = docSnap.id;
+
         const likesCount = Object.keys(post.likes || {}).length;
         const viewsCount = Object.keys(post.views || {}).length;
+
         const isLiked = post.likes && auth.currentUser && post.likes[auth.currentUser.uid] ? "active-like" : "";
 
         container.innerHTML += `
@@ -561,7 +604,9 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
                     <div class="post-time" style="font-size:12px; color:#65676b;">${timeAgo(post.createdAt)}</div>
                 </div>
             </div>
+
             <div class="post-text" style="margin-bottom:12px;">${post.text || ""}</div>
+
             ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
             ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
             
@@ -583,6 +628,7 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
                 </div>
             </div>
         </div>`;
+
         loadComments(id);
     });
 });
