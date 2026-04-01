@@ -13,7 +13,6 @@
             --primary-blue: #2563eb;
         }
 
-        /* ستايل وضع الظلام */
         body.dark-mode {
             --bg-color: #18191a;
             --card-bg: #242526;
@@ -39,6 +38,17 @@
             align-items: center;
         }
 
+        /* ستايل زرار تسجيل الخروج عشان يظهر بوضوح */
+        .logout-card {
+            border: 1px solid #ff4d4d;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 20px;
+        }
+        .logout-card:hover {
+            background: rgba(255, 77, 77, 0.1);
+        }
+
         select, .toggle-btn {
             padding: 8px 15px;
             border-radius: 10px;
@@ -57,7 +67,7 @@
         }
     </style>
 </head>
-<body class="">
+<body>
 
 <div class="settings-container">
     <a href="index.html" class="back-btn" id="lang-back">← العودة للرئيسية</a>
@@ -92,74 +102,32 @@
         </div>
         <input type="checkbox" checked>
     </div>
+
+    <div class="setting-card logout-card" id="logoutBtn">
+        <div>
+            <h3 style="color: #ff4d4d;" id="lang-label-logout">تسجيل الخروج</h3>
+            <p style="font-size: 12px; color: gray;" id="lang-desc-logout">الخروج من حسابك الحالي</p>
+        </div>
+        <span style="color: #ff4d4d; font-size: 20px;">➔</span>
+    </div>
 </div>
 
-<script>
-    // قاموس اللغات
+<script type="module">
+    // استيراد فايربيز
+    import { auth } from "./firebase-config.js";
+    import { signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
     const translations = {
-        ar: {
-            title: "الإعدادات",
-            back: "← العودة للرئيسية",
-            labelLang: "لغة التطبيق",
-            descLang: "اختر اللغة المفضلة لواجهة المستخدم",
-            labelTheme: "المظهر (Dark Mode)",
-            descTheme: "تبديل بين الوضع الفاتح والمظلم",
-            labelNotif: "الإشعارات",
-            descNotif: "تلقي تنبيهات عند التفاعل مع بوستاتك",
-            btnDark: "تبديل الوضع"
-        },
-        en: {
-            title: "Settings",
-            back: "← Back to Home",
-            labelLang: "App Language",
-            descLang: "Choose your preferred interface language",
-            labelTheme: "Appearance (Dark Mode)",
-            descTheme: "Switch between light and dark themes",
-            labelNotif: "Notifications",
-            descNotif: "Receive alerts for interactions",
-            btnDark: "Toggle Theme"
-        },
-        fr: {
-            title: "Paramètres",
-            back: "← Retour à l'accueil",
-            labelLang: "Langue de l'application",
-            descLang: "Choisissez votre langue d'interface",
-            labelTheme: "Apparence (Mode Sombre)",
-            descTheme: "Basculer entre les thèmes",
-            labelNotif: "Notifications",
-            descNotif: "Recevoir des alertes",
-            btnDark: "Changer le mode"
-        },
-        es: {
-            title: "Ajustes",
-            back: "← Volver al inicio",
-            labelLang: "Idioma de la aplicación",
-            descLang: "Elige tu idioma preferido",
-            labelTheme: "Apariencia (Modo Oscuro)",
-            descTheme: "Cambiar entre temas",
-            labelNotif: "Notificaciones",
-            descNotif: "Recibir alertas",
-            btnDark: "Cambiar modo"
-        },
-        zh: {
-            title: "设置",
-            back: "← 回到首页",
-            labelLang: "应用语言",
-            descLang: "选择您的界面语言",
-            labelTheme: "外观 (深色模式)",
-            descTheme: "切换主题",
-            labelNotif: "通知",
-            descNotif: "接收提醒",
-            btnDark: "切换模式"
-        }
+        ar: { title: "الإعدادات", back: "← العودة للرئيسية", labelLang: "لغة التطبيق", descLang: "اختر اللغة المفضلة", labelTheme: "المظهر", descTheme: "تبديل الوضع", labelNotif: "الإشعارات", descNotif: "تلقي تنبيهات", labelLogout: "تسجيل الخروج", descLogout: "الخروج من حسابك" },
+        en: { title: "Settings", back: "← Back to Home", labelLang: "App Language", descLang: "Choose language", labelTheme: "Appearance", descTheme: "Switch theme", labelNotif: "Notifications", descNotif: "Receive alerts", labelLogout: "Logout", descLogout: "Sign out" }
     };
 
     const langSelect = document.getElementById('languageSelect');
     const darkBtn = document.getElementById('darkModeBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
 
-    // وظيفة تغيير اللغة
     function applyLanguage(lang) {
-        const t = translations[lang];
+        const t = translations[lang] || translations['ar'];
         document.getElementById('lang-title').textContent = t.title;
         document.getElementById('lang-back').textContent = t.back;
         document.getElementById('lang-label-language').textContent = t.labelLang;
@@ -168,31 +136,40 @@
         document.getElementById('lang-desc-theme').textContent = t.descTheme;
         document.getElementById('lang-label-notif').textContent = t.labelNotif;
         document.getElementById('lang-desc-notif').textContent = t.descNotif;
-        
-        // تغيير اتجاه الصفحة (RTL للعربي و LTR للباقي)
+        document.getElementById('lang-label-logout').textContent = t.labelLogout;
+        document.getElementById('lang-desc-logout').textContent = t.descLogout;
         document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
         localStorage.setItem('kirafix-lang', lang);
     }
 
-    langSelect.onchange = (e) => applyLanguage(e.target.value);
+    langSelect.addEventListener('change', (e) => applyLanguage(e.target.value));
 
-    // وظيفة وضع الظلام
-    darkBtn.onclick = () => {
+    darkBtn.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('kirafix-dark', isDark);
-    };
+        localStorage.setItem('kirafix-dark', document.body.classList.contains('dark-mode'));
+    });
 
-    // تحميل الإعدادات المحفوظة عند فتح الصفحة
-    window.onload = () => {
-        const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
-        const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+    // برمجة تسجيل الخروج
+    logoutBtn.addEventListener('click', async () => {
+        if (confirm("هل أنت متأكد من تسجيل الخروج؟")) {
+            try {
+                await signOut(auth);
+                localStorage.removeItem('kirafix-user');
+                window.location.replace("signup.html");
+            } catch (error) {
+                console.error(error);
+                localStorage.removeItem('kirafix-user');
+                window.location.replace("signup.html");
+            }
+        }
+    });
 
-        langSelect.value = savedLang;
-        applyLanguage(savedLang);
-
-        if (savedDark) document.body.classList.add('dark-mode');
-    };
+    // تحميل الإعدادات
+    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+    langSelect.value = savedLang;
+    applyLanguage(savedLang);
+    if (savedDark) document.body.classList.add('dark-mode');
 </script>
 </body>
 </html>
