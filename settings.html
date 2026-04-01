@@ -58,6 +58,13 @@
     </style>
 </head>
 <body class="">
+    <div class="setting-card" style="border: 1px solid #ff4d4d; cursor: pointer;" id="logoutBtn">
+        <div>
+            <h3 style="color: #ff4d4d;" id="lang-label-logout">تسجيل الخروج</h3>
+            <p style="font-size: 12px; color: gray;" id="lang-desc-logout">الخروج من حسابك الحالي</p>
+        </div>
+        <span style="color: #ff4d4d; font-size: 20px;">➔</span>
+    </div>
 
 <div class="settings-container">
     <a href="index.html" class="back-btn" id="lang-back">← العودة للرئيسية</a>
@@ -94,8 +101,12 @@
     </div>
 </div>
 
-<script>
-    // قاموس اللغات
+<script type="module"> // ضيف type="module" لو بتستخدم firebase-config
+    // 1. استيراد الفايربيز (تأكد من المسار)
+    import { auth } from "./firebase-config.js";
+    import { signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    // قاموس اللغات (تم إضافة نصوص الخروج)
     const translations = {
         ar: {
             title: "الإعدادات",
@@ -106,7 +117,9 @@
             descTheme: "تبديل بين الوضع الفاتح والمظلم",
             labelNotif: "الإشعارات",
             descNotif: "تلقي تنبيهات عند التفاعل مع بوستاتك",
-            btnDark: "تبديل الوضع"
+            btnDark: "تبديل الوضع",
+            labelLogout: "تسجيل الخروج", // جديد
+            descLogout: "الخروج من حسابك الحالي" // جديد
         },
         en: {
             title: "Settings",
@@ -117,7 +130,9 @@
             descTheme: "Switch between light and dark themes",
             labelNotif: "Notifications",
             descNotif: "Receive alerts for interactions",
-            btnDark: "Toggle Theme"
+            btnDark: "Toggle Theme",
+            labelLogout: "Logout", // جديد
+            descLogout: "Sign out of your account" // جديد
         },
         fr: {
             title: "Paramètres",
@@ -128,7 +143,9 @@
             descTheme: "Basculer entre les thèmes",
             labelNotif: "Notifications",
             descNotif: "Recevoir des alertes",
-            btnDark: "Changer le mode"
+            btnDark: "Changer le mode",
+            labelLogout: "Déconnexion",
+            descLogout: "Se déconnecter de votre compte"
         },
         es: {
             title: "Ajustes",
@@ -139,7 +156,9 @@
             descTheme: "Cambiar entre temas",
             labelNotif: "Notificaciones",
             descNotif: "Recibir alertas",
-            btnDark: "Cambiar modo"
+            btnDark: "Cambiar modo",
+            labelLogout: "Cerrar sesión",
+            descLogout: "Cerrar sesión en su cuenta"
         },
         zh: {
             title: "设置",
@@ -150,12 +169,15 @@
             descTheme: "切换主题",
             labelNotif: "通知",
             descNotif: "接收提醒",
-            btnDark: "切换模式"
+            btnDark: "切换模式",
+            labelLogout: "登出",
+            descLogout: "退出当前账号"
         }
     };
 
     const langSelect = document.getElementById('languageSelect');
     const darkBtn = document.getElementById('darkModeBtn');
+    const logoutBtn = document.getElementById('logoutBtn'); // تعريف الزرار
 
     // وظيفة تغيير اللغة
     function applyLanguage(lang) {
@@ -169,7 +191,10 @@
         document.getElementById('lang-label-notif').textContent = t.labelNotif;
         document.getElementById('lang-desc-notif').textContent = t.descNotif;
         
-        // تغيير اتجاه الصفحة (RTL للعربي و LTR للباقي)
+        // تطبيق نصوص الخروج
+        document.getElementById('lang-label-logout').textContent = t.labelLogout;
+        document.getElementById('lang-desc-logout').textContent = t.descLogout;
+        
         document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
         localStorage.setItem('kirafix-lang', lang);
     }
@@ -183,7 +208,23 @@
         localStorage.setItem('kirafix-dark', isDark);
     };
 
-    // تحميل الإعدادات المحفوظة عند فتح الصفحة
+    // وظيفة تسجيل الخروج
+    logoutBtn.onclick = async () => {
+        const isAr = localStorage.getItem('kirafix-lang') === 'ar';
+        const msg = isAr ? "هل أنت متأكد من تسجيل الخروج؟" : "Are you sure you want to logout?";
+        
+        if (confirm(msg)) {
+            try {
+                await signOut(auth);
+                window.location.href = "login.html"; // حوله لصفحة الدخول
+            } catch (error) {
+                console.error("Logout Error:", error);
+                alert("Error logging out!");
+            }
+        }
+    };
+
+    // تحميل الإعدادات المحفوظة
     window.onload = () => {
         const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
         const savedDark = localStorage.getItem('kirafix-dark') === 'true';
