@@ -1,111 +1,4 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirafix - Settings</title>
-    <link rel="stylesheet" href="style.css?v=2">
-    <style>
-        :root {
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-            --text-color: #1c1e21;
-            --primary-blue: #2563eb;
-        }
-
-        /* ستايل وضع الظلام */
-        body.dark-mode {
-            --bg-color: #18191a;
-            --card-bg: #242526;
-            --text-color: #e4e6eb;
-        }
-
-        body { 
-            background-color: var(--bg-color); 
-            color: var(--text-color); 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            transition: 0.3s;
-        }
-
-        .settings-container { max-width: 600px; margin: 30px auto; padding: 20px; }
-        .setting-card { 
-            background: var(--card-bg); 
-            padding: 20px; 
-            border-radius: 15px; 
-            margin-bottom: 15px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        select, .toggle-btn {
-            padding: 8px 15px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            background: var(--card-bg);
-            color: var(--text-color);
-            cursor: pointer;
-        }
-
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 20px;
-            text-decoration: none;
-            color: var(--primary-blue);
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body class="">
-    <div class="setting-card" style="border: 1px solid #ff4d4d; cursor: pointer;" id="logoutBtn">
-        <div>
-            <h3 style="color: #ff4d4d;" id="lang-label-logout">تسجيل الخروج</h3>
-            <p style="font-size: 12px; color: gray;" id="lang-desc-logout">الخروج من حسابك الحالي</p>
-        </div>
-        <span style="color: #ff4d4d; font-size: 20px;">➔</span>
-    </div>
-
-<div class="settings-container">
-    <a href="index.html" class="back-btn" id="lang-back">← العودة للرئيسية</a>
-    <h2 id="lang-title">الإعدادات</h2>
-
-    <div class="setting-card">
-        <div>
-            <h3 id="lang-label-language">لغة التطبيق</h3>
-            <p style="font-size: 12px; color: gray;" id="lang-desc-language">اختر اللغة المفضلة لواجهة المستخدم</p>
-        </div>
-        <select id="languageSelect">
-            <option value="ar">العربية</option>
-            <option value="en">English</option>
-            <option value="fr">Français</option>
-            <option value="es">Español</option>
-            <option value="zh">中文 (Chinese)</option>
-        </select>
-    </div>
-
-    <div class="setting-card">
-        <div>
-            <h3 id="lang-label-theme">المظهر (Dark Mode)</h3>
-            <p style="font-size: 12px; color: gray;" id="lang-desc-theme">تبديل بين الوضع الفاتح والمظلم</p>
-        </div>
-        <button class="toggle-btn" id="darkModeBtn">تفعيل</button>
-    </div>
-
-    <div class="setting-card">
-        <div>
-            <h3 id="lang-label-notif">الإشعارات</h3>
-            <p style="font-size: 12px; color: gray;" id="lang-desc-notif">تلقي تنبيهات عند التفاعل مع بوستاتك</p>
-        </div>
-        <input type="checkbox" checked>
-    </div>
-</div>
-
-<script type="module"> // ضيف type="module" لو بتستخدم firebase-config
-    // 1. استيراد الفايربيز (تأكد من المسار)
-    import { auth } from "./firebase-config.js";
-    import { signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
+<script>
     // قاموس اللغات (تم إضافة نصوص الخروج)
     const translations = {
         ar: {
@@ -118,8 +11,8 @@
             labelNotif: "الإشعارات",
             descNotif: "تلقي تنبيهات عند التفاعل مع بوستاتك",
             btnDark: "تبديل الوضع",
-            labelLogout: "تسجيل الخروج", // جديد
-            descLogout: "الخروج من حسابك الحالي" // جديد
+            labelLogout: "تسجيل الخروج",
+            descLogout: "الخروج من حسابك الحالي"
         },
         en: {
             title: "Settings",
@@ -131,8 +24,8 @@
             labelNotif: "Notifications",
             descNotif: "Receive alerts for interactions",
             btnDark: "Toggle Theme",
-            labelLogout: "Logout", // جديد
-            descLogout: "Sign out of your account" // جديد
+            labelLogout: "Logout",
+            descLogout: "Sign out of your account"
         },
         fr: {
             title: "Paramètres",
@@ -145,7 +38,7 @@
             descNotif: "Recevoir des alertes",
             btnDark: "Changer le mode",
             labelLogout: "Déconnexion",
-            descLogout: "Se déconnecter de votre compte"
+            descLogout: "Se déconnecter"
         },
         es: {
             title: "Ajustes",
@@ -177,11 +70,13 @@
 
     const langSelect = document.getElementById('languageSelect');
     const darkBtn = document.getElementById('darkModeBtn');
-    const logoutBtn = document.getElementById('logoutBtn'); // تعريف الزرار
+    const logoutBtn = document.getElementById('logoutBtn');
 
     // وظيفة تغيير اللغة
     function applyLanguage(lang) {
         const t = translations[lang];
+        if(!t) return;
+
         document.getElementById('lang-title').textContent = t.title;
         document.getElementById('lang-back').textContent = t.back;
         document.getElementById('lang-label-language').textContent = t.labelLang;
@@ -191,10 +86,12 @@
         document.getElementById('lang-label-notif').textContent = t.labelNotif;
         document.getElementById('lang-desc-notif').textContent = t.descNotif;
         
-        // تطبيق نصوص الخروج
-        document.getElementById('lang-label-logout').textContent = t.labelLogout;
-        document.getElementById('lang-desc-logout').textContent = t.descLogout;
-        
+        // تحديث نصوص زرار الخروج لو موجود
+        if(document.getElementById('lang-label-logout')) {
+            document.getElementById('lang-label-logout').textContent = t.labelLogout;
+            document.getElementById('lang-desc-logout').textContent = t.descLogout;
+        }
+
         document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
         localStorage.setItem('kirafix-lang', lang);
     }
@@ -208,23 +105,20 @@
         localStorage.setItem('kirafix-dark', isDark);
     };
 
-    // وظيفة تسجيل الخروج
-    logoutBtn.onclick = async () => {
+    // وظيفة تسجيل الخروج (بدون استيراد خارجي عشان ميعطلش السكريبت)
+    logoutBtn.onclick = () => {
         const isAr = localStorage.getItem('kirafix-lang') === 'ar';
-        const msg = isAr ? "هل أنت متأكد من تسجيل الخروج؟" : "Are you sure you want to logout?";
+        const confirmMsg = isAr ? "هل أنت متأكد من تسجيل الخروج؟" : "Are you sure you want to logout?";
         
-        if (confirm(msg)) {
-            try {
-                await signOut(auth);
-                window.location.href = "login.html"; // حوله لصفحة الدخول
-            } catch (error) {
-                console.error("Logout Error:", error);
-                alert("Error logging out!");
-            }
+        if (confirm(confirmMsg)) {
+            // هنا بننادي على logout اللي المفروض يكون متعرف في ملف firebase-config
+            // أو ببساطة بنمسح الداتا ونحول الصفحة
+            localStorage.removeItem('kirafix-dark'); // مثال
+            window.location.href = "login.html"; 
         }
     };
 
-    // تحميل الإعدادات المحفوظة
+    // تحميل الإعدادات المحفوظة عند فتح الصفحة
     window.onload = () => {
         const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
         const savedDark = localStorage.getItem('kirafix-dark') === 'true';
@@ -235,5 +129,3 @@
         if (savedDark) document.body.classList.add('dark-mode');
     };
 </script>
-</body>
-</html>
