@@ -7,14 +7,13 @@
     <title>Welcome to Kirafix Professional Services</title>
     <link rel="stylesheet" href="auth.css">
     <style>
-        /* ضمان توسيط الفورم في نصف الشاشة بالضبط */
         body {
             display: flex !important;
             justify-content: center !important;
             align-items: center !important;
             min-height: 100vh;
             margin: 0;
-            background-color: #f0f2f5; /* لون خلفية اختياري */
+            background-color: #f0f2f5;
         }
         #signupForm {
             width: 100%;
@@ -25,6 +24,25 @@
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        /* ستايل زرار جوجل */
+        #googleSign {
+            background-color: white;
+            color: #444;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        #googleSign:hover { background-color: #f9f9f9; }
+        #googleSign img { width: 20px; }
     </style>
 </head>
 
@@ -52,6 +70,12 @@
         </div>
 
         <button type="button" id="sign">Sign Up</button>
+
+        <button type="button" id="googleSign">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg">
+            Continue with Google
+        </button>
+
         <div class="login-link">
             Already have an account? 
             <a href="Kirafix.html">Log In</a>
@@ -61,8 +85,14 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { 
+        getAuth, 
+        createUserWithEmailAndPassword, 
+        onAuthStateChanged, 
+        GoogleAuthProvider, 
+        signInWithPopup 
+    } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -76,9 +106,11 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
     const signupForm = document.getElementById("signupForm");
     const btn = document.getElementById("sign");
+    const googleBtn = document.getElementById("googleSign");
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -88,12 +120,33 @@
         }
     });
 
+    // دالة مساعدة لحفظ بيانات المستخدم في Firestore
+    async function saveUserToFirestore(user, customImage = null) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        // لا نقوم بمسح البيانات إذا كان المستخدم موجوداً بالفعل (خاصة مع جوجل)
+        if (!userSnap.exists()) {
+            await setDoc(userRef, {
+                name: user.displayName || user.email.split('@')[0],
+                username: "user" + Math.floor(Math.random() * 10000),
+                email: user.email,
+                bio: "أهلاً بك في كيرفيكس!",
+                image: customImage || user.photoURL || "af80e23deeb127837d30554452546196.jpg",
+                followers: [],
+                following: [],
+                uid: user.uid,
+                createdAt: serverTimestamp()
+            });
+        }
+    }
+
+    // التسجيل العادي بالإيميل
     btn.addEventListener("click", async (event) => {
         event.preventDefault();
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
         const file = document.getElementById("profilePic").files[0];
-        const fullName = email.split('@')[0];
 
         if (!email || !password) {
             alert("Please fill all fields");
@@ -104,31 +157,31 @@
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // --- حفظ البيانات الأساسية في Firestore لضمان عدم ظهور "مستخدم جديد" لاحقاً ---
-            await setDoc(doc(db, "users", user.uid), {
-                name: fullName,
-                username: "user" + Math.floor(Math.random() * 10000),
-                email: email,
-                bio: "أهلاً بك في كيرفيكس!",
-                image: "af80e23deeb127837d30554452546196.jpg", 
-                followers: [],
-                following: [],
-                uid: user.uid,
-                createdAt: serverTimestamp()
-            });
-
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    localStorage.setItem("userProfilePic", e.target.result);
+                reader.onload = async function(e) {
+                    await saveUserToFirestore(user, e.target.result);
                     window.location.replace("master.html");
                 };
                 reader.readAsDataURL(file);
             } else {
+                await saveUserToFirestore(user);
                 window.location.replace("master.html");
             }
         } catch (error) {
             alert(error.message);
+        }
+    });
+
+    // التسجيل باستخدام جوجل
+    googleBtn.addEventListener("click", async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            await saveUserToFirestore(result.user);
+            window.location.replace("master.html");
+        } catch (error) {
+            console.error("Google Sign-In Error:", error);
+            alert("فشل التسجيل باستخدام جوجل: " + error.message);
         }
     });
 </script>
