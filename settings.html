@@ -27,6 +27,7 @@
         }
 
         .settings-container { max-width: 600px; margin: 30px auto; padding: 20px; }
+
         .setting-card { 
             background: var(--card-bg); 
             padding: 20px; 
@@ -47,6 +48,12 @@
             cursor: pointer;
         }
 
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+        }
+
         .back-btn {
             display: inline-block;
             margin-bottom: 20px;
@@ -54,17 +61,9 @@
             color: var(--primary-blue);
             font-weight: bold;
         }
-
-        .logout-card {
-            border: 1px solid #ff4d4d;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .logout-card:hover {
-            background: rgba(255, 77, 77, 0.05);
-        }
     </style>
 </head>
+
 <body>
 
 <div class="settings-container">
@@ -74,53 +73,62 @@
     <div class="setting-card">
         <div>
             <h3 id="lang-label-language">لغة التطبيق</h3>
-            <p style="font-size: 12px; color: gray;" id="lang-desc-language">اختر اللغة المفضلة لواجهة المستخدم</p>
+            <p style="font-size: 12px; color: gray;" id="lang-desc-language">اختر اللغة المفضلة</p>
         </div>
         <select id="languageSelect">
             <option value="ar">العربية</option>
             <option value="en">English</option>
             <option value="fr">Français</option>
             <option value="es">Español</option>
-            <option value="zh">中文 (Chinese)</option>
+            <option value="zh">中文</option>
         </select>
     </div>
 
     <div class="setting-card">
         <div>
-            <h3 id="lang-label-theme">المظهر (Dark Mode)</h3>
-            <p style="font-size: 12px; color: gray;" id="lang-desc-theme">تبديل بين الوضع الفاتح والمظلم</p>
+            <h3 id="lang-label-theme">المظهر</h3>
+            <p style="font-size: 12px; color: gray;" id="lang-desc-theme">الوضع المظلم</p>
         </div>
-        <button class="toggle-btn" id="darkModeBtn">تفعيل</button>
+        <button class="toggle-btn" id="darkModeBtn">تبديل</button>
     </div>
 
     <div class="setting-card">
         <div>
             <h3 id="lang-label-notif">الإشعارات</h3>
-            <p style="font-size: 12px; color: gray;" id="lang-desc-notif">تلقي تنبيهات عند التفاعل مع بوستاتك</p>
+            <p style="font-size: 12px; color: gray;" id="lang-desc-notif">تنبيهات التفاعل</p>
         </div>
         <input type="checkbox" checked>
     </div>
 
-    <div class="setting-card logout-card" id="logoutBtn">
+    <!-- زرار تسجيل الخروج -->
+    <div class="setting-card">
         <div>
-            <h3 style="color: #ff4d4d;" id="lang-label-logout">تسجيل الخروج</h3>
-            <p style="font-size: 12px; color: gray;" id="lang-desc-logout">الخروج من حسابك الحالي</p>
+            <h3>تسجيل الخروج</h3>
+            <p style="font-size: 12px; color: gray;">الخروج من الحساب</p>
         </div>
-        <span style="color: #ff4d4d; font-size: 20px;">➔</span>
+        <button class="toggle-btn logout-btn" id="logoutBtn">Logout</button>
     </div>
+
 </div>
 
-<script type="module">
-    // تأكد أن ملف firebase-config موجود في نفس الفولدر وبنفس الاسم
-    import { auth } from "./firebase-config.js";
-    import { signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+<script>
 
+    // 🔐 حماية الصفحة
+    const user = localStorage.getItem("kirafix-user");
+    if (!user) {
+        window.location.href = "index.html";
+    }
+
+    // قاموس اللغات
     const translations = {
-        ar: { title: "الإعدادات", back: "← العودة للرئيسية", labelLang: "لغة التطبيق", descLang: "اختر اللغة المفضلة", labelTheme: "المظهر", descTheme: "تبديل الوضع", labelNotif: "الإشعارات", descNotif: "تلقي تنبيهات", labelLogout: "تسجيل الخروج", descLogout: "الخروج من حسابك" },
-        en: { title: "Settings", back: "← Back to Home", labelLang: "App Language", descLang: "Choose language", labelTheme: "Appearance", descTheme: "Switch theme", labelNotif: "Notifications", descNotif: "Receive alerts", labelLogout: "Logout", descLogout: "Sign out" },
-        fr: { title: "Paramètres", back: "← Retour", labelLang: "Langue", descLang: "Choisir la langue", labelTheme: "Apparence", descTheme: "Changer de thème", labelNotif: "Notifications", descNotif: "Alertes", labelLogout: "Déconnexion", descLogout: "Se déconnecter" },
-        es: { title: "Ajustes", back: "← Volver", labelLang: "Idioma", descLang: "Elegir idioma", labelTheme: "Apariencia", descTheme: "Cambiar tema", labelNotif: "Notificaciones", descNotif: "Alertas", labelLogout: "Cerrar sesión", descLogout: "Cerrar sesión" },
-        zh: { title: "设置", back: "← 回到首页", labelLang: "应用语言", descLang: "选择语言", labelTheme: "外观", descTheme: "切换主题", labelNotif: "通知", descNotif: "接收提醒", labelLogout: "登出", descLogout: "退出当前账号" }
+        ar: {
+            title: "الإعدادات",
+            back: "← العودة للرئيسية"
+        },
+        en: {
+            title: "Settings",
+            back: "← Back to Home"
+        }
     };
 
     const langSelect = document.getElementById('languageSelect');
@@ -129,56 +137,48 @@
 
     function applyLanguage(lang) {
         const t = translations[lang];
-        if(!t) return;
+        if (!t) return;
+
         document.getElementById('lang-title').textContent = t.title;
         document.getElementById('lang-back').textContent = t.back;
-        document.getElementById('lang-label-language').textContent = t.labelLang;
-        document.getElementById('lang-desc-language').textContent = t.descLang;
-        document.getElementById('lang-label-theme').textContent = t.labelTheme;
-        document.getElementById('lang-desc-theme').textContent = t.descTheme;
-        document.getElementById('lang-label-notif').textContent = t.labelNotif;
-        document.getElementById('lang-desc-notif').textContent = t.descNotif;
-        document.getElementById('lang-label-logout').textContent = t.labelLogout;
-        document.getElementById('lang-desc-logout').textContent = t.descLogout;
+
         document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
         localStorage.setItem('kirafix-lang', lang);
     }
 
     langSelect.onchange = (e) => applyLanguage(e.target.value);
 
+    // 🌙 دارك مود
     darkBtn.onclick = () => {
         document.body.classList.toggle('dark-mode');
-        localStorage.setItem('kirafix-dark', document.body.classList.contains('dark-mode'));
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('kirafix-dark', isDark);
     };
 
-    // تعديل تسجيل الخروج ليكون "مضاد للخطأ"
-    logoutBtn.onclick = async () => {
-        const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
-        const confirmMsg = currentLang === 'ar' ? "هل أنت متأكد من تسجيل الخروج؟" : "Are you sure?";
-        
-        if (confirm(confirmMsg)) {
-            try {
-                // 1. الخروج من فايربيز
-                await signOut(auth); 
-                
-                // 2. تنظيف كل حاجة تخص المستخدم
-                localStorage.removeItem('kirafix-user');
-                sessionStorage.clear(); // زيادة أمان
-                
-                // 3. التوجيه
-                window.location.replace("signup.html"); // استخدمنا replace عشان ميرجعش بظهره
-            } catch (error) {
-                console.error("Logout Error:", error);
-                // لو فايربيز معلق، نخرجه برضه من المتصفح
-                localStorage.removeItem('kirafix-user');
-                window.location.replace("signup.html");
-            }
-        }
+    // 🚪 تسجيل الخروج
+    logoutBtn.onclick = () => {
+        localStorage.removeItem("kirafix-user");
+        window.location.href = "index.html";
     };
 
+    // 🔄 تحميل الإعدادات
     window.onload = () => {
         const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
         const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+
         langSelect.value = savedLang;
         applyLanguage(savedLang);
+
         if (savedDark) document.body.classList.add('dark-mode');
+    };
+
+    // 🚫 منع الرجوع بعد تسجيل الخروج
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function () {
+        window.location.href = "index.html";
+    };
+
+</script>
+
+</body>
+</html>
