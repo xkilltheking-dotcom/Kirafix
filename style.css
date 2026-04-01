@@ -467,3 +467,38 @@ body.dark-mode #but {
         display: none; /* إخفاء اللينكات العادية */
     }
 }
+/* تنسيق فقاعة التعليق */
+.comment-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+}
+.comment-item img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.comment-content {
+    background: #f0f2f5;
+    padding: 8px 12px;
+    border-radius: 18px;
+    max-width: 85%;
+}
+.comment-user {
+    font-weight: bold;
+    font-size: 13px;
+    display: block;
+    margin-bottom: 2px;
+}
+.comment-text {
+    font-size: 14px;
+    color: #1c1e21;
+    word-break: break-word;
+}
+.dark-mode .comment-content {
+    background: #3a3b3c;
+    color: #e4e6eb;
+}
+.dark-mode .comment-text { color: #e4e6eb; }
