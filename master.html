@@ -444,14 +444,14 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
                 <span>👁️ ${viewsCount} View</span>
             </div>
             <div class="post-actions" style="display:flex; justify-content:space-around; margin-top:10px;">
-                <button onclick="event.stopPropagation(); toggleLike('${id}')" style="background:none; border:none; color:${isLiked ? '#1877f2' : ''}; cursor:pointer; font-weight:bold;">👍 Like</button>
-                <button onclick="event.stopPropagation(); toggleCommentBox('${id}')" style="background:none; border:none; cursor:pointer; font-weight:bold;">💬 Comment</button>
+                <button onclick="event.stopPropagation(); window.toggleLike('${id}')" style="background:none; border:none; color:${isLiked ? '#1877f2' : ''}; cursor:pointer; font-weight:bold;">👍 Like</button>
+                <button onclick="event.stopPropagation(); window.toggleCommentBox('${id}')" style="background:none; border:none; cursor:pointer; font-weight:bold;">💬 Comment</button>
             </div>
             <div id="comment-section-${id}" style="display:none; margin-top:10px; border-top: 1px solid #f0f2f5; padding-top:10px;">
                 <div id="comments-list-${id}" style="max-height: 100px; overflow-y: auto; margin-bottom: 10px;"></div>
                 <div style="display:flex; gap:5px;">
                     <input type="text" id="comment-input-${id}" placeholder="اكتب تعليقاً..." style="flex:1; border-radius:15px; border:1px solid #ddd; padding:5px 12px;" onclick="event.stopPropagation()">
-                    <button onclick="event.stopPropagation(); sendComment('${id}')" style="background:#2563eb; color:white; border:none; border-radius:50%; width:30px; height:30px;">➤</button>
+                    <button onclick="event.stopPropagation(); window.sendComment('${id}')" style="background:#2563eb; color:white; border:none; border-radius:50%; width:30px; height:30px;">➤</button>
                 </div>
             </div>
         </div>`;
