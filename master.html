@@ -398,14 +398,16 @@ window.sendComment = async (postId) => {
     const input = document.getElementById(`comment-input-${postId}`);
     const text = input.value.trim();
     if (!text) return;
+
     try {
         await addDoc(collection(db, "posts", postId, "comments"), {
             text: text,
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
+            userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg", // إضافة الصورة
             createdAt: serverTimestamp()
         });
         input.value = "";
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Error sending comment:", e); }
 };
 
 function loadComments(postId) {
@@ -414,8 +416,18 @@ function loadComments(postId) {
         list.innerHTML = "";
         snap.forEach((doc) => {
             const c = doc.data();
-            list.innerHTML += `<div style="margin-bottom:5px; font-size:13px;"><b>${c.userName}:</b> ${c.text}</div>`;
+            list.innerHTML += `
+                <div class="comment-item">
+                    <img src="${c.userImage || 'af80e23deeb127837d30554452546196.jpg'}">
+                    <div class="comment-content">
+                        <span class="comment-user">${c.userName}</span>
+                        <span class="comment-text">${c.text}</span>
+                    </div>
+                </div>
+            `;
         });
+        // Scroll لآخر تعليق تلقائياً
+        list.scrollTop = list.scrollHeight;
     });
 }
 
@@ -440,8 +452,9 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
         const viewsCount = Object.keys(post.views || {}).length;
         const isLiked = post.likes && post.likes[auth.currentUser.uid] ? "active-like" : "";
 
+        // لاحظ إننا دمجنا كل الـ HTML في قالب واحد (Template Literal)
         container.innerHTML += `
-        <div class="post" onclick="addView('${id}')" style="border-radius:12px; padding:15px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+        <div class="post" onclick="addView('${id}')" style="border-radius:12px; padding:15px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.05); background: white;">
             <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                 <div class="user-info">
@@ -452,23 +465,32 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
             <div class="post-text" style="margin-bottom:12px; line-height:1.5;">${post.text || ""}</div>
             ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
             ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
+            
             <div class="post-stats" style="font-size:13px; border-top:1px solid #f0f2f5; padding-top:10px; display:flex; gap:15px;">
                 <span>👍 ${likesCount} Like</span>
                 <span>👁️ ${viewsCount} View</span>
             </div>
+
             <div class="post-actions" style="display:flex; justify-content:space-around; margin-top:10px;">
                 <button onclick="event.stopPropagation(); toggleLike('${id}')" style="background:none; border:none; color:${isLiked ? '#1877f2' : ''}; cursor:pointer; font-weight:bold;">👍 Like</button>
                 <button onclick="event.stopPropagation(); toggleCommentBox('${id}')" style="background:none; border:none; cursor:pointer; font-weight:bold;">💬 Comment</button>
             </div>
-            <div id="comment-section-${id}" style="display:none; margin-top:10px; border-top: 1px solid #f0f2f5; padding-top:10px;">
-                <div id="comments-list-${id}" style="max-height: 100px; overflow-y: auto; margin-bottom: 10px;"></div>
-                <div style="display:flex; gap:5px;">
-                    <input type="text" id="comment-input-${id}" placeholder="اكتب تعليقاً..." style="flex:1; border-radius:15px; border:1px solid #ddd; padding:5px 12px;" onclick="event.stopPropagation()">
-                    <button onclick="event.stopPropagation(); sendComment('${id}')" style="background:#2563eb; color:white; border:none; border-radius:50%; width:30px; height:30px;">➤</button>
+
+            <div id="comment-section-${id}" style="display:none; margin-top:10px; border-top: 1px solid #f0f2f5; padding-top:15px;">
+                <div id="comments-list-${id}" style="max-height: 250px; overflow-y: auto; padding-right: 5px;"></div>
+                <div style="display:flex; gap:8px; align-items:center; margin-top:10px;">
+                    <img src="${currentUserData?.image || 'af80e23deeb127837d30554452546196.jpg'}" style="width:30px; height:30px; border-radius:50%;">
+                    <input type="text" id="comment-input-${id}" placeholder="اكتب تعليقاً..." 
+                           style="flex:1; border-radius:20px; border:none; background:#f0f2f5; padding:8px 15px; outline:none;" 
+                           onkeydown="if(event.key === 'Enter') sendComment('${id}')" 
+                           onclick="event.stopPropagation()">
+                    <button onclick="event.stopPropagation(); sendComment('${id}')" 
+                            style="background:none; border:none; color:#2563eb; cursor:pointer; font-size:20px;">➤</button>
                 </div>
             </div>
         </div>`;
-        loadComments(id);
+        
+        loadComments(id); // تحميل التعليقات لكل بوست
     });
 });
     // تشغيل القائمة الجانبية
