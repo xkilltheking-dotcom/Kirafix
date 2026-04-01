@@ -107,16 +107,6 @@
 
 <header class="header">
     <div class="right">
-        <div id="menuBtn" class="menu-icon">☰</div>
-
-<div id="sideNav" class="side-nav">
-    <div class="close-btn" id="closeBtn">&times;</div>
-    <div class="side-links">
-        <a href="#">Home</a>
-        <a href="profile.html">Profile</a>
-        <a href="#">Kirafix AI✨</a>
-    </div>
-</div>
         <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" id="ht" style="cursor:pointer;" 
      onclick="window.location.href='settings.html'">
         <img src="af80e23deeb127837d30554452546196.jpg" id="navProfilePic">
@@ -129,6 +119,16 @@
     <div class="center"><div id="but">+</div></div>
     <div class="left"><h2>Kirafix</h2></div>
 </header>
+            <div id="menuBtn" class="menu-icon">☰</div>
+
+<div id="sideNav" class="side-nav">
+    <div class="close-btn" id="closeBtn">&times;</div>
+    <div class="side-links">
+        <a href="#">Home</a>
+        <a href="profile.html">Profile</a>
+        <a href="#">Kirafix AI✨</a>
+    </div>
+</div>
 
 <section class="section">
     <div class="composer" id="composerBox" style="display:none;">
@@ -178,7 +178,6 @@ const db = getFirestore(app);
 const loader = document.getElementById("loadingScreen");
 let currentUserData = null;
 
-// وظيفة لإضافة شريط التحميل برمجياً لو مش موجود
 const setupProgressUI = () => {
     const composer = document.getElementById("composerBox");
     if (composer && !document.getElementById("uploadProgressContainer")) {
@@ -193,14 +192,55 @@ const setupProgressUI = () => {
     }
 };
 
+// --- تعريف الوظائف وربطها بالـ window عشان الـ onclick يشتغل ---
+
+window.sendComment = async (postId) => {
+    const input = document.getElementById(`comment-input-${postId}`);
+    const text = input.value.trim();
+    if (!text) return;
+    try {
+        await addDoc(collection(db, "posts", postId, "comments"), {
+            text: text,
+            userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
+            createdAt: serverTimestamp()
+        });
+        input.value = "";
+    } catch (e) { console.error(e); }
+};
+
+window.toggleLike = async (id) => {
+    const postRef = doc(db, "posts", id);
+    const snap = await getDoc(postRef);
+    let likes = snap.data().likes || {};
+    let uid = auth.currentUser.uid;
+    likes[uid] ? delete likes[uid] : likes[uid] = true;
+    await updateDoc(postRef, { likes });
+};
+
+window.addView = async (id) => {
+    const postRef = doc(db, "posts", id);
+    const snap = await getDoc(postRef);
+    let views = snap.data().views || {};
+    let uid = auth.currentUser.uid;
+    if (!views[uid]) {
+        views[uid] = true;
+        await updateDoc(postRef, { views });
+    }
+};
+
+window.toggleCommentBox = (id) => {
+    const box = document.getElementById(`comment-section-${id}`);
+    box.style.display = box.style.display === "none" ? "block" : "none";
+};
+
+// --- باقي الكود الأصلي بدون تغيير ---
+
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.href = "index.html";
         return;
     }
-    
-    setupProgressUI(); // تفعيل واجهة التحميل
-
+    setupProgressUI();
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists()) {
         currentUserData = userDoc.data();
@@ -211,9 +251,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
-    if (savedDark) {
-        document.body.classList.add('dark-mode');
-    }
+    if (savedDark) document.body.classList.add('dark-mode');
 
     const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
     applyMainLanguage(savedLang);
@@ -223,7 +261,7 @@ onAuthStateChanged(auth, async (user) => {
             ar: { home: "الرئيسية", profile: "البروفايل", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر" },
             en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post" },
             fr: { home: "Accueil", profile: "Profil", ai: "Kirafix AI✨", placeholder: "À quoi pensez-vous?", postBtn: "Publier" },
-            es: { home: "Inicio", profile: "Perfil", ai: "Kirafix AI✨", placeholder: "¿En qué piensas?", postBtn: "Publicار" },
+            es: { home: "Inicio", profile: "Perfil", ai: "Kirafix AI✨", placeholder: "¿En qué piensas?", postBtn: "Publicar" },
             zh: { home: "首页", profile: "个人资料", ai: "Kirafix AI✨", placeholder: "你在想什么？", postBtn: "发布" }
         };
         const t = dict[lang];
@@ -239,7 +277,6 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     document.getElementById("user-name-display").textContent = currentUserData?.name || user.email.split("@")[0];
-    
     setTimeout(() => {
         if(loader) {
             loader.style.opacity = "0";
@@ -281,7 +318,6 @@ videoInput.onchange = (e) => {
     }
 };
 
-// --- دالة النشر المعدلة (Progress Bar + Cloudinary لكل الميديا) ---
 document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
@@ -299,20 +335,16 @@ document.getElementById("se").onclick = async () => {
 
     try {
         let fileUrl = null;
-        
         if (selectedFile) {
             if(container) container.style.display = "block";
             if(txt) txt.style.display = "block";
-
             const cloudName = "dno9n87sc"; 
             const uploadPreset = "kirafix_posts"; 
-            // هنرفع كله على Cloudinary عشان نستفيد من الضغط والـ Progress Bar
             const url = `https://api.cloudinary.com/v1_1/${cloudName}/${fileType}/upload`;
 
             fileUrl = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 xhr.open("POST", url);
-
                 xhr.upload.onprogress = (e) => {
                     if (e.lengthComputable && bar && txt) {
                         const percent = Math.round((e.loaded / e.total) * 100);
@@ -320,14 +352,11 @@ document.getElementById("se").onclick = async () => {
                         txt.innerText = `جاري الرفع: ${percent}%`;
                     }
                 };
-
                 xhr.onload = () => {
                     const res = JSON.parse(xhr.responseText);
                     res.secure_url ? resolve(res.secure_url) : reject(res.error?.message || "فشل الرفع");
                 };
-
                 xhr.onerror = () => reject("خطأ في الاتصال");
-
                 const fd = new FormData();
                 fd.append("file", selectedFile);
                 fd.append("upload_preset", uploadPreset);
@@ -348,7 +377,6 @@ document.getElementById("se").onclick = async () => {
             video: fileType === 'video' ? fileUrl : null
         });
 
-        // ريست للواجهة
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = "";
         mediaPreview.style.display = "none";
@@ -360,52 +388,11 @@ document.getElementById("se").onclick = async () => {
         btn.disabled = false; 
         btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
-
     } catch (error) {
         alert("حصلت مشكلة: " + error.message);
         btn.disabled = false;
         btn.innerText = "نشر";
     }
-};
-
-// --- باقي الوظائف كما هي تماماً دون أي تغيير ---
-window.toggleLike = async (id) => {
-    const postRef = doc(db, "posts", id);
-    const snap = await getDoc(postRef);
-    let likes = snap.data().likes || {};
-    let uid = auth.currentUser.uid;
-    likes[uid] ? delete likes[uid] : likes[uid] = true;
-    await updateDoc(postRef, { likes });
-};
-
-window.addView = async (id) => {
-    const postRef = doc(db, "posts", id);
-    const snap = await getDoc(postRef);
-    let views = snap.data().views || {};
-    let uid = auth.currentUser.uid;
-    if (!views[uid]) {
-        views[uid] = true;
-        await updateDoc(postRef, { views });
-    }
-};
-
-window.toggleCommentBox = (id) => {
-    const box = document.getElementById(`comment-section-${id}`);
-    box.style.display = box.style.display === "none" ? "block" : "none";
-};
-
-window.sendComment = async (postId) => {
-    const input = document.getElementById(`comment-input-${postId}`);
-    const text = input.value.trim();
-    if (!text) return;
-    try {
-        await addDoc(collection(db, "posts", postId, "comments"), {
-            text: text,
-            userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
-            createdAt: serverTimestamp()
-        });
-        input.value = "";
-    } catch (e) { console.error(e); }
 };
 
 function loadComments(postId) {
@@ -471,7 +458,7 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
         loadComments(id);
     });
 });
-    // تشغيل القائمة الجانبية
+
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
 const closeBtn = document.getElementById("closeBtn");
@@ -481,12 +468,9 @@ if (menuBtn && sideNav && closeBtn) {
         e.stopPropagation();
         sideNav.classList.add("active");
     };
-
     closeBtn.onclick = () => {
         sideNav.classList.remove("active");
     };
-
-    // قفل القائمة لو ضغطت بره
     document.addEventListener('click', (event) => {
         if (!sideNav.contains(event.target) && event.target !== menuBtn) {
             sideNav.classList.remove("active");
