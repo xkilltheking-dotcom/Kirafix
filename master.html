@@ -468,30 +468,31 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
                 </div>
             </div>
         </div>`;
-        // تعريف العناصر
+        loadComments(id);
+    });
+});
+    // تشغيل القائمة الجانبية
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
 const closeBtn = document.getElementById("closeBtn");
 
-// فتح القائمة
-menuBtn.onclick = () => {
-    sideNav.classList.add("active");
-};
+if (menuBtn && sideNav && closeBtn) {
+    menuBtn.onclick = (e) => {
+        e.stopPropagation();
+        sideNav.classList.add("active");
+    };
 
-// قفل القائمة
-closeBtn.onclick = () => {
-    sideNav.classList.remove("active");
-};
-
-// قفل القائمة لو ضغطت في أي مكان بره
-window.onclick = (event) => {
-    if (event.target === sideNav) {
+    closeBtn.onclick = () => {
         sideNav.classList.remove("active");
-    }
-};
-        loadComments(id);
+    };
+
+    // قفل القائمة لو ضغطت بره
+    document.addEventListener('click', (event) => {
+        if (!sideNav.contains(event.target) && event.target !== menuBtn) {
+            sideNav.classList.remove("active");
+        }
     });
-});
+}
 </script>
 
                
