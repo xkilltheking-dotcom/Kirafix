@@ -399,13 +399,32 @@ document.getElementById("se").onclick = async () => {
 
 function loadComments(postId) {
     const list = document.getElementById(`comments-list-${postId}`);
+    if (!list) return;
+
+    // بنعمل مراقبة حية للتعليقات بتاعة البوست ده بس
     onSnapshot(query(collection(db, "posts", postId, "comments"), orderBy("createdAt", "asc")), (snap) => {
-        if (!list) return;
-        list.innerHTML = "";
+        list.innerHTML = ""; // بننظف القائمة قبل ما نعرض الجديد
+        
+        if (snap.empty) {
+            list.innerHTML = `<p style="font-size:11px; color:#9ca3af; text-align:center;">لا توجد تعليقات بعد</p>`;
+            return;
+        }
+
         snap.forEach((doc) => {
             const c = doc.data();
-            list.innerHTML += `<div style="margin-bottom:5px; font-size:13px; background:#f0f2f5; padding:5px 10px; border-radius:10px;"><b>${c.userName}:</b> ${c.text}</div>`;
+            // تأكد إن اسم المستخدم والنص موجودين
+            const name = c.userName || "مستخدم";
+            const text = c.text || "";
+
+            list.innerHTML += `
+                <div class="comment-item" style="margin-bottom:8px; display:flex; flex-direction:column; background:#ffffff; padding:8px 12px; border-radius:12px; border:1px solid #f0f2f5; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                    <span style="font-weight:bold; font-size:12px; color:#1d4ed8; margin-bottom:2px;">${name}</span>
+                    <span style="font-size:13px; color:#374151; word-break: break-word;">${text}</span>
+                </div>`;
         });
+        
+        // دي عشان لو التعليقات كتير، ينزل لآخر تعليق لوحده
+        list.scrollTop = list.scrollHeight;
     });
 }
 
