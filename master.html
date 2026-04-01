@@ -328,7 +328,6 @@ const db = getFirestore(app);
 const loader = document.getElementById("loadingScreen");
 let currentUserData = null;
 
-// --- إعداد واجهة شريط التحميل (Progress UI) ---
 const setupProgressUI = () => {
     const composer = document.getElementById("composerBox");
     if (composer && !document.getElementById("uploadProgressContainer")) {
@@ -342,8 +341,6 @@ const setupProgressUI = () => {
         if(target) target.insertAdjacentHTML('beforebegin', progressHTML);
     }
 };
-
-// --- ربط الوظائف بـ window لإتاحتها للـ HTML ---
 
 window.sendComment = async (postId) => {
     const input = document.getElementById(`comment-input-${postId}`);
@@ -386,7 +383,6 @@ window.toggleCommentBox = (id) => {
     if (box) box.style.display = box.style.display === "none" ? "block" : "none";
 };
 
-// --- عرض التعليقات لايف ---
 function loadComments(postId) {
     const list = document.getElementById(`comments-list-${postId}`);
     if (!list) return;
@@ -408,27 +404,34 @@ function loadComments(postId) {
     });
 }
 
-// --- الحالة والمصادقة ---
+// --- التعديل هنا فقط ---
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.href = "index.html";
         return;
     }
     setupProgressUI();
+    
     const userDoc = await getDoc(doc(db, "users", user.uid));
+    const nameDisplay = document.getElementById("user-name-display");
+    
     if (userDoc.exists()) {
         currentUserData = userDoc.data();
+        if(nameDisplay) nameDisplay.innerText = currentUserData.name || user.email.split("@")[0];
+        
         const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
         document.getElementById("navProfilePic").src = userImg;
         const compImg = document.querySelector(".composer-header img");
         if(compImg) compImg.src = userImg;
+    } else {
+        if(nameDisplay) nameDisplay.innerText = user.email.split("@")[0];
     }
     
     // إخفاء اللودر
     setTimeout(() => { if(loader) { loader.style.opacity = "0"; setTimeout(() => loader.style.display = "none", 600); } }, 2000);
 });
+// --- نهاية التعديل ---
 
-// ميديا النشر
 const imgInput = document.getElementById("imgInput");
 const videoInput = document.getElementById("videoInput");
 const mediaPreview = document.getElementById("mediaPreview");
@@ -456,7 +459,6 @@ videoInput.onchange = (e) => {
     }
 };
 
-// وظيفة النشر (Cloudinary + Firestore)
 document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
@@ -512,7 +514,6 @@ document.getElementById("se").onclick = async () => {
             video: fileType === 'video' ? fileUrl : null
         });
 
-        // ريست للفورم
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = "";
         mediaPreview.style.display = "none";
@@ -540,7 +541,6 @@ function timeAgo(timestamp) {
     } catch(e) { return "الآن"; }
 }
 
-// عرض البوستات (Live)
 onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
     const container = document.getElementById("postsContainer");
     if(!container) return;
@@ -587,7 +587,6 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
     });
 });
 
-// قائمة SideNav
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
 const closeBtn = document.getElementById("closeBtn");
