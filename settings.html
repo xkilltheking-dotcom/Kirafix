@@ -111,76 +111,16 @@
 </div>
 
 <script type="module">
-    // 1. استيراد الفايربيز
+    // تأكد أن ملف firebase-config موجود في نفس الفولدر وبنفس الاسم
     import { auth } from "./firebase-config.js";
     import { signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const translations = {
-        ar: {
-            title: "الإعدادات",
-            back: "← العودة للرئيسية",
-            labelLang: "لغة التطبيق",
-            descLang: "اختر اللغة المفضلة لواجهة المستخدم",
-            labelTheme: "المظهر (Dark Mode)",
-            descTheme: "تبديل بين الوضع الفاتح والمظلم",
-            labelNotif: "الإشعارات",
-            descNotif: "تلقي تنبيهات عند التفاعل مع بوستاتك",
-            btnDark: "تبديل الوضع",
-            labelLogout: "تسجيل الخروج",
-            descLogout: "الخروج من حسابك الحالي"
-        },
-        en: {
-            title: "Settings",
-            back: "← Back to Home",
-            labelLang: "App Language",
-            descLang: "Choose your preferred interface language",
-            labelTheme: "Appearance (Dark Mode)",
-            descTheme: "Switch between light and dark themes",
-            labelNotif: "Notifications",
-            descNotif: "Receive alerts for interactions",
-            btnDark: "Toggle Theme",
-            labelLogout: "Logout",
-            descLogout: "Sign out of your account"
-        },
-        fr: {
-            title: "Paramètres",
-            back: "← Retour à l'accueil",
-            labelLang: "Langue de l'application",
-            descLang: "Choisissez votre langue d'interface",
-            labelTheme: "Apparence (Mode Sombre)",
-            descTheme: "Basculer entre les thèmes",
-            labelNotif: "Notifications",
-            descNotif: "Recevoir des alertes",
-            btnDark: "Changer le mode",
-            labelLogout: "Déconnexion",
-            descLogout: "Se déconnecter de votre compte"
-        },
-        es: {
-            title: "Ajustes",
-            back: "← Volver al inicio",
-            labelLang: "Idioma de la aplicación",
-            descLang: "Elige tu idioma preferido",
-            labelTheme: "Apariencia (Modo Oscuro)",
-            descTheme: "Cambiar entre temas",
-            labelNotif: "Notificaciones",
-            descNotif: "Recibir alertas",
-            btnDark: "Cambiar modo",
-            labelLogout: "Cerrar sesión",
-            descLogout: "Cerrar sesión en su cuenta"
-        },
-        zh: {
-            title: "设置",
-            back: "← 回到首页",
-            labelLang: "应用语言",
-            descLang: "选择您的界面语言",
-            labelTheme: "外观 (深色模式)",
-            descTheme: "切换主题",
-            labelNotif: "通知",
-            descNotif: "接收提醒",
-            btnDark: "切换模式",
-            labelLogout: "登出",
-            descLogout: "退出当前账号"
-        }
+        ar: { title: "الإعدادات", back: "← العودة للرئيسية", labelLang: "لغة التطبيق", descLang: "اختر اللغة المفضلة", labelTheme: "المظهر", descTheme: "تبديل الوضع", labelNotif: "الإشعارات", descNotif: "تلقي تنبيهات", labelLogout: "تسجيل الخروج", descLogout: "الخروج من حسابك" },
+        en: { title: "Settings", back: "← Back to Home", labelLang: "App Language", descLang: "Choose language", labelTheme: "Appearance", descTheme: "Switch theme", labelNotif: "Notifications", descNotif: "Receive alerts", labelLogout: "Logout", descLogout: "Sign out" },
+        fr: { title: "Paramètres", back: "← Retour", labelLang: "Langue", descLang: "Choisir la langue", labelTheme: "Apparence", descTheme: "Changer de thème", labelNotif: "Notifications", descNotif: "Alertes", labelLogout: "Déconnexion", descLogout: "Se déconnecter" },
+        es: { title: "Ajustes", back: "← Volver", labelLang: "Idioma", descLang: "Elegir idioma", labelTheme: "Apariencia", descTheme: "Cambiar tema", labelNotif: "Notificaciones", descNotif: "Alertas", labelLogout: "Cerrar sesión", descLogout: "Cerrar sesión" },
+        zh: { title: "设置", back: "← 回到首页", labelLang: "应用语言", descLang: "选择语言", labelTheme: "外观", descTheme: "切换主题", labelNotif: "通知", descNotif: "接收提醒", labelLogout: "登出", descLogout: "退出当前账号" }
     };
 
     const langSelect = document.getElementById('languageSelect');
@@ -190,7 +130,6 @@
     function applyLanguage(lang) {
         const t = translations[lang];
         if(!t) return;
-
         document.getElementById('lang-title').textContent = t.title;
         document.getElementById('lang-back').textContent = t.back;
         document.getElementById('lang-label-language').textContent = t.labelLang;
@@ -201,7 +140,6 @@
         document.getElementById('lang-desc-notif').textContent = t.descNotif;
         document.getElementById('lang-label-logout').textContent = t.labelLogout;
         document.getElementById('lang-desc-logout').textContent = t.descLogout;
-        
         document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
         localStorage.setItem('kirafix-lang', lang);
     }
@@ -210,22 +148,30 @@
 
     darkBtn.onclick = () => {
         document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('kirafix-dark', isDark);
+        localStorage.setItem('kirafix-dark', document.body.classList.contains('dark-mode'));
     };
 
-    // تسجيل الخروج والتحويل لصفحة الساين أب
+    // تعديل تسجيل الخروج ليكون "مضاد للخطأ"
     logoutBtn.onclick = async () => {
         const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
-        const confirmMsg = currentLang === 'ar' ? "هل أنت متأكد من تسجيل الخروج؟" : "Are you sure you want to logout?";
+        const confirmMsg = currentLang === 'ar' ? "هل أنت متأكد من تسجيل الخروج؟" : "Are you sure?";
         
         if (confirm(confirmMsg)) {
             try {
-                await signOut(auth); // قفل الجلسة في فايربيز
-                localStorage.removeItem('kirafix-user'); // مسح الداتا المحلية
-                window.location.href = "signup.html"; // التحويل للساين أب
+                // 1. الخروج من فايربيز
+                await signOut(auth); 
+                
+                // 2. تنظيف كل حاجة تخص المستخدم
+                localStorage.removeItem('kirafix-user');
+                sessionStorage.clear(); // زيادة أمان
+                
+                // 3. التوجيه
+                window.location.replace("signup.html"); // استخدمنا replace عشان ميرجعش بظهره
             } catch (error) {
                 console.error("Logout Error:", error);
+                // لو فايربيز معلق، نخرجه برضه من المتصفح
+                localStorage.removeItem('kirafix-user');
+                window.location.replace("signup.html");
             }
         }
     };
@@ -236,7 +182,3 @@
         langSelect.value = savedLang;
         applyLanguage(savedLang);
         if (savedDark) document.body.classList.add('dark-mode');
-    };
-</script>
-</body>
-</html>
