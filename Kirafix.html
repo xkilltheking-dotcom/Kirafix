@@ -5,6 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Welcome to Kirafix Professional Services</title>
 <link rel="stylesheet" href="des.css">
+<style>
+    /* تنسيق زرار جوجل ليكون متناسق مع صفحة اللوج إن */
+    #googleLogin {
+        background-color: white;
+        color: #444;
+        border: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 15px;
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    #googleLogin:hover { background-color: #f9f9f9; }
+    #googleLogin img { width: 20px; }
+</style>
 </head>
 
 <body>
@@ -25,6 +46,11 @@
 
   <button type="button" id="loginBtn">Log In</button>
 
+  <button type="button" id="googleLogin">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg">
+      Continue with Google
+  </button>
+
   <div class="login-link">
     Don't have an account? <a href="index.html">Sign Up</a>
   </div>
@@ -35,8 +61,14 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
+import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    onAuthStateChanged, 
+    GoogleAuthProvider, 
+    signInWithPopup 
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -49,7 +81,28 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const storage = getStorage(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+// دالة لحفظ البيانات لو المستخدم جديد (احتياطياً)
+async function checkAndSaveUser(user) {
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+        await setDoc(userRef, {
+            name: user.displayName || user.email.split('@')[0],
+            username: "user" + Math.floor(Math.random() * 10000),
+            email: user.email,
+            bio: "أهلاً بك في كيرفيكس!",
+            image: user.photoURL || "af80e23deeb127837d30554452546196.jpg",
+            followers: [],
+            following: [],
+            uid: user.uid,
+            createdAt: serverTimestamp()
+        });
+    }
+}
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -59,19 +112,32 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
+// تسجيل الدخول العادي
 const btn = document.getElementById("loginBtn");
-
 btn.addEventListener("click", async function() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
   try {
-    // تسجيل دخول فقط بدون تعديل أي بيانات في Firestore
     await signInWithEmailAndPassword(auth, email, password);
     window.location.href = "master.html";
   } catch (error) {
     alert("Email or Password incorrect!");
   }
+});
+
+// تسجيل الدخول بجوجل
+const googleBtn = document.getElementById("googleLogin");
+googleBtn.addEventListener("click", async () => {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        // نتأكد إن بياناته موجودة في الداتا بيز عشان البروفايل يشتغل صح
+        await checkAndSaveUser(result.user);
+        window.location.href = "master.html";
+    } catch (error) {
+        console.error("Google Login Error:", error);
+        alert("حصلت مشكلة في دخول جوجل: " + error.message);
+    }
 });
 </script>
 
