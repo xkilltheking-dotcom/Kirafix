@@ -113,12 +113,6 @@
 
 <script>
 
-    // 🔐 حماية الصفحة
-    const user = localStorage.getItem("kirafix-user");
-    if (!user) {
-        window.location.href = "index.html";
-    }
-
     // قاموس اللغات
     const translations = {
         ar: {
@@ -161,8 +155,16 @@
         window.location.href = "index.html";
     };
 
-    // 🔄 تحميل الإعدادات
+    // 🔄 تحميل + حماية الصفحة (تم الإصلاح هنا)
     window.onload = () => {
+
+        // 🔐 حماية الدخول (بعد تحميل الصفحة مش قبلها)
+        const user = localStorage.getItem("kirafix-user");
+        if (!user) {
+            window.location.href = "index.html";
+            return;
+        }
+
         const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
         const savedDark = localStorage.getItem('kirafix-dark') === 'true';
 
