@@ -468,6 +468,27 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
                 </div>
             </div>
         </div>`;
+        // تعريف العناصر
+const menuBtn = document.getElementById("menuBtn");
+const sideNav = document.getElementById("sideNav");
+const closeBtn = document.getElementById("closeBtn");
+
+// فتح القائمة
+menuBtn.onclick = () => {
+    sideNav.classList.add("active");
+};
+
+// قفل القائمة
+closeBtn.onclick = () => {
+    sideNav.classList.remove("active");
+};
+
+// قفل القائمة لو ضغطت في أي مكان بره
+window.onclick = (event) => {
+    if (event.target === sideNav) {
+        sideNav.classList.remove("active");
+    }
+};
         loadComments(id);
     });
 });
