@@ -502,3 +502,41 @@ body.dark-mode #but {
     color: #e4e6eb;
 }
 .dark-mode .comment-text { color: #e4e6eb; }
+/* دعم الدارك مود للتعليقات واللايك */
+body.dark-mode .post {
+    background: #1f2937 !important;
+    color: #e5e7eb;
+}
+
+body.dark-mode .post-stats {
+    color: #9ca3af;
+    border-color: #374151;
+}
+
+body.dark-mode .action-btn {
+    color: #9ca3af;
+}
+
+body.dark-mode .action-btn:hover {
+    background: #374151;
+}
+
+body.dark-mode .action-btn.liked {
+    color: #60a5fa;
+}
+
+body.dark-mode .comments-section {
+    background: #111827;
+    border-color: #374151;
+}
+
+body.dark-mode .comment-bubble {
+    background: #1f2937;
+    color: #e5e7eb;
+}
+
+body.dark-mode .comment-input-wrapper input {
+    background: #1f2937;
+    border-color: #374151;
+    color: #e5e7eb;
+}
