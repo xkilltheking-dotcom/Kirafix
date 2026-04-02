@@ -7,61 +7,61 @@
     <link rel="stylesheet" href="style.css?v=2">
     <style>
         /* التنسيقات الإضافية لشاشة التحميل ومنطقة النشر */
-#loadingScreen {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background: #fff;
-    top: 0;
-    left: 0;
-    z-index: 9999;
-    transition: opacity 0.6s ease;
-}
+        #loadingScreen {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+            transition: opacity 0.6s ease;
+        }
 
-.welcome-box-final {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    font-size: 28px;
-    font-weight: bold;
-    color: #fff;
-    background-color: #374151;
-    padding: 15px 20px;
-    border-radius: 10px;
-}
+        .welcome-box-final {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #374151;
+            padding: 15px 20px;
+            border-radius: 10px;
+        }
 
-.loading-area-final {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    width: 260px;
-}
+        .loading-area-final {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 260px;
+        }
 
-.rolling-box-final {
-    position: absolute;
-    top: -70px;
-    left: 0;
-    width: 60px;
-    height: 60px;
-    background-color: #374151;
-    border-radius: 10px;
-    animation: rollAcross 3s infinite ease-in-out;
-}
+        .rolling-box-final {
+            position: absolute;
+            top: -70px;
+            left: 0;
+            width: 60px;
+            height: 60px;
+            background-color: #374151;
+            border-radius: 10px;
+            animation: rollAcross 3s infinite ease-in-out;
+        }
 
-.loading-text-final {
-    font-size: 22px;
-    margin: 0;
-    color: #333;
-    font-weight: bold;
-}
+        .loading-text-final {
+            font-size: 22px;
+            margin: 0;
+            color: #333;
+            font-weight: bold;
+        }
 
-@keyframes rollAcross {
-    0% { left: 0; transform: rotate(0deg); }
-    50% { left: calc(100% - 60px); transform: rotate(360deg); }
-    100% { left: 0; transform: rotate(720deg); }
-}
+        @keyframes rollAcross {
+            0% { left: 0; transform: rotate(0deg); }
+            50% { left: calc(100% - 60px); transform: rotate(360deg); }
+            100% { left: 0; transform: rotate(720deg); }
+        }
 
         /* ستايل منطقة كتابة البوست الجديد */
         .composer {
@@ -90,6 +90,35 @@
             background: #2563eb; color: white; border: none; padding: 8px 25px; 
             border-radius: 20px; font-weight: bold; cursor: pointer;
         }
+
+        /* تنسيقات التفاعلات الجديدة */
+        .post-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #65676b;
+            padding: 8px 5px;
+            border-bottom: 1px solid #f3f4f6;
+            margin-bottom: 8px;
+        }
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 5px;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            color: #65676b;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 8px;
+            flex: 1;
+            transition: 0.2s;
+            border-radius: 5px;
+        }
+        .action-btn:hover { background: #f3f4f6; }
+        .action-btn.liked { color: #2563eb; }
     </style>
 </head>
 <body>
@@ -109,16 +138,16 @@
     <div class="right">
         <div id="menuBtn" class="menu-icon">☰</div>
 
-<div id="sideNav" class="side-nav">
-    <div class="close-btn" id="closeBtn">&times;</div>
-    <div class="side-links">
-        <a href="#">Home</a>
-        <a href="profile.html">Profile</a>
-        <a href="#">Kirafix AI✨</a>
-    </div>
-</div>
+        <div id="sideNav" class="side-nav">
+            <div class="close-btn" id="closeBtn">&times;</div>
+            <div class="side-links">
+                <a href="#">Home</a>
+                <a href="profile.html">Profile</a>
+                <a href="#">Kirafix AI✨</a>
+            </div>
+        </div>
         <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" id="ht" style="cursor:pointer;" 
-     onclick="window.location.href='settings.html'">
+             onclick="window.location.href='settings.html'">
         <img src="af80e23deeb127837d30554452546196.jpg" id="navProfilePic">
         <div class="links">
             <a href="#">Home</a>
@@ -152,15 +181,13 @@
     </div>
 
     <div id="postsContainer"></div>
-    <a href="chat.html" class="chat-toggle">
-    ➤
-</a>
+    <a href="chat.html" class="chat-toggle">➤</a>
 </section>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -178,7 +205,35 @@ const db = getFirestore(app);
 const loader = document.getElementById("loadingScreen");
 let currentUserData = null;
 
-// وظيفة لإضافة شريط التحميل برمجياً لو مش موجود
+// سيستم المشاهدات الذكي
+const viewObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const postId = entry.target.getAttribute('data-id');
+            const viewedBy = JSON.parse(entry.target.getAttribute('data-views') || "[]");
+            
+            if (auth.currentUser && !viewedBy.includes(auth.currentUser.uid)) {
+                const postRef = doc(db, "posts", postId);
+                updateDoc(postRef, { views: arrayUnion(auth.currentUser.uid) });
+                viewObserver.unobserve(entry.target);
+            }
+        }
+    });
+}, { threshold: 0.6 });
+
+// دالة اللايكات العالمية لتعمل مع onclick
+window.toggleLike = async (postId, hasLiked) => {
+    if(!auth.currentUser) return;
+    const postRef = doc(db, "posts", postId);
+    try {
+        if (hasLiked) {
+            await updateDoc(postRef, { likes: arrayRemove(auth.currentUser.uid) });
+        } else {
+            await updateDoc(postRef, { likes: arrayUnion(auth.currentUser.uid) });
+        }
+    } catch(e) { console.error(e); }
+};
+
 const setupProgressUI = () => {
     const composer = document.getElementById("composerBox");
     if (composer && !document.getElementById("uploadProgressContainer")) {
@@ -199,7 +254,7 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
     
-    setupProgressUI(); // تفعيل واجهة التحميل
+    setupProgressUI();
 
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists()) {
@@ -211,9 +266,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
-    if (savedDark) {
-        document.body.classList.add('dark-mode');
-    }
+    if (savedDark) document.body.classList.add('dark-mode');
 
     const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
     applyMainLanguage(savedLang);
@@ -221,12 +274,9 @@ onAuthStateChanged(auth, async (user) => {
     function applyMainLanguage(lang) {
         const dict = {
             ar: { home: "الرئيسية", profile: "البروفايل", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر" },
-            en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post" },
-            fr: { home: "Accueil", profile: "Profil", ai: "Kirafix AI✨", placeholder: "À quoi pensez-vous?", postBtn: "Publier" },
-            es: { home: "Inicio", profile: "Perfil", ai: "Kirafix AI✨", placeholder: "¿En qué piensas?", postBtn: "Publicار" },
-            zh: { home: "首页", profile: "个人资料", ai: "Kirafix AI✨", placeholder: "你在想什么？", postBtn: "发布" }
+            en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post" }
         };
-        const t = dict[lang];
+        const t = dict[lang] || dict['ar'];
         const links = document.querySelectorAll('.links a');
         if(links.length >= 3) {
             links[0].textContent = t.home;
@@ -281,7 +331,6 @@ videoInput.onchange = (e) => {
     }
 };
 
-// --- دالة النشر المعدلة (Progress Bar + Cloudinary لكل الميديا) ---
 document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
@@ -299,20 +348,17 @@ document.getElementById("se").onclick = async () => {
 
     try {
         let fileUrl = null;
-        
         if (selectedFile) {
             if(container) container.style.display = "block";
             if(txt) txt.style.display = "block";
 
             const cloudName = "dno9n87sc"; 
             const uploadPreset = "kirafix_posts"; 
-            // هنرفع كله على Cloudinary عشان نستفيد من الضغط والـ Progress Bar
             const url = `https://api.cloudinary.com/v1_1/${cloudName}/${fileType}/upload`;
 
             fileUrl = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 xhr.open("POST", url);
-
                 xhr.upload.onprogress = (e) => {
                     if (e.lengthComputable && bar && txt) {
                         const percent = Math.round((e.loaded / e.total) * 100);
@@ -320,14 +366,11 @@ document.getElementById("se").onclick = async () => {
                         txt.innerText = `جاري الرفع: ${percent}%`;
                     }
                 };
-
                 xhr.onload = () => {
                     const res = JSON.parse(xhr.responseText);
                     res.secure_url ? resolve(res.secure_url) : reject(res.error?.message || "فشل الرفع");
                 };
-
                 xhr.onerror = () => reject("خطأ في الاتصال");
-
                 const fd = new FormData();
                 fd.append("file", selectedFile);
                 fd.append("upload_preset", uploadPreset);
@@ -342,19 +385,18 @@ document.getElementById("se").onclick = async () => {
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
             createdAt: serverTimestamp(),
-            likes: {},
-            views: {},
             image: fileType === 'image' ? fileUrl : null,
-            video: fileType === 'video' ? fileUrl : null
+            video: fileType === 'video' ? fileUrl : null,
+            likes: [],
+            views: [],
+            commentsCount: 0
         });
 
-        // ريست للواجهة
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = "";
         mediaPreview.style.display = "none";
         if(container) container.style.display = "none";
         if(txt) txt.style.display = "none";
-        if(bar) bar.style.width = "0%";
         selectedFile = null;
         fileType = null;
         btn.disabled = false; 
@@ -367,57 +409,6 @@ document.getElementById("se").onclick = async () => {
         btn.innerText = "نشر";
     }
 };
-
-// --- باقي الوظائف كما هي تماماً دون أي تغيير ---
-window.toggleLike = async (id) => {
-    const postRef = doc(db, "posts", id);
-    const snap = await getDoc(postRef);
-    let likes = snap.data().likes || {};
-    let uid = auth.currentUser.uid;
-    likes[uid] ? delete likes[uid] : likes[uid] = true;
-    await updateDoc(postRef, { likes });
-};
-
-window.addView = async (id) => {
-    const postRef = doc(db, "posts", id);
-    const snap = await getDoc(postRef);
-    let views = snap.data().views || {};
-    let uid = auth.currentUser.uid;
-    if (!views[uid]) {
-        views[uid] = true;
-        await updateDoc(postRef, { views });
-    }
-};
-
-window.toggleCommentBox = (id) => {
-    const box = document.getElementById(`comment-section-${id}`);
-    box.style.display = box.style.display === "none" ? "block" : "none";
-};
-
-window.sendComment = async (postId) => {
-    const input = document.getElementById(`comment-input-${postId}`);
-    const text = input.value.trim();
-    if (!text) return;
-    try {
-        await addDoc(collection(db, "posts", postId, "comments"), {
-            text: text,
-            userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
-            createdAt: serverTimestamp()
-        });
-        input.value = "";
-    } catch (e) { console.error(e); }
-};
-
-function loadComments(postId) {
-    const list = document.getElementById(`comments-list-${postId}`);
-    onSnapshot(query(collection(db, "posts", postId, "comments"), orderBy("createdAt", "asc")), (snap) => {
-        list.innerHTML = "";
-        snap.forEach((doc) => {
-            const c = doc.data();
-            list.innerHTML += `<div style="margin-bottom:5px; font-size:13px;"><b>${c.userName}:</b> ${c.text}</div>`;
-        });
-    });
-}
 
 function timeAgo(timestamp) {
     if (!timestamp) return "الآن";
@@ -435,13 +426,14 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
     container.innerHTML = "";
     snap.forEach((docSnap) => {
         const post = docSnap.data();
-        const id = docSnap.id;
-        const likesCount = Object.keys(post.likes || {}).length;
-        const viewsCount = Object.keys(post.views || {}).length;
-        const isLiked = post.likes && post.likes[auth.currentUser.uid] ? "active-like" : "";
+        const postId = docSnap.id;
+        const currentUid = auth.currentUser?.uid;
+        const likes = post.likes || [];
+        const views = post.views || [];
+        const hasLiked = likes.includes(currentUid);
 
-        container.innerHTML += `
-        <div class="post" onclick="addView('${id}')" style="border-radius:12px; padding:15px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+        const postHTML = `
+        <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; padding:15px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
             <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                 <div class="user-info">
@@ -452,26 +444,28 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
             <div class="post-text" style="margin-bottom:12px; line-height:1.5;">${post.text || ""}</div>
             ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
             ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
-            <div class="post-stats" style="font-size:13px; border-top:1px solid #f0f2f5; padding-top:10px; display:flex; gap:15px;">
-                <span>👍 ${likesCount} Like</span>
-                <span>👁️ ${viewsCount} View</span>
+            
+            <div class="post-stats">
+                <span>👍 ${likes.length} إعجاب</span>
+                <span>${views.length} مشاهدة • ${post.commentsCount || 0} تعليق</span>
             </div>
-            <div class="post-actions" style="display:flex; justify-content:space-around; margin-top:10px;">
-                <button onclick="event.stopPropagation(); toggleLike('${id}')" style="background:none; border:none; color:${isLiked ? '#1877f2' : ''}; cursor:pointer; font-weight:bold;">👍 Like</button>
-                <button onclick="event.stopPropagation(); toggleCommentBox('${id}')" style="background:none; border:none; cursor:pointer; font-weight:bold;">💬 Comment</button>
-            </div>
-            <div id="comment-section-${id}" style="display:none; margin-top:10px; border-top: 1px solid #f0f2f5; padding-top:10px;">
-                <div id="comments-list-${id}" style="max-height: 100px; overflow-y: auto; margin-bottom: 10px;"></div>
-                <div style="display:flex; gap:5px;">
-                    <input type="text" id="comment-input-${id}" placeholder="اكتب تعليقاً..." style="flex:1; border-radius:15px; border:1px solid #ddd; padding:5px 12px;" onclick="event.stopPropagation()">
-                    <button onclick="event.stopPropagation(); sendComment('${id}')" style="background:#2563eb; color:white; border:none; border-radius:50%; width:30px; height:30px;">➤</button>
-                </div>
+
+            <div class="post-actions">
+                <button class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
+                    ${hasLiked ? '❤️ تم الإعجاب' : '🤍 إعجاب'}
+                </button>
+                <button class="action-btn" onclick="window.location.href='comments.html?post=${postId}'">
+                    💬 تعليق
+                </button>
             </div>
         </div>`;
-        loadComments(id);
+
+        const postNode = document.createRange().createContextualFragment(postHTML).firstElementChild;
+        container.appendChild(postNode);
+        viewObserver.observe(postNode);
     });
 });
-    // تشغيل القائمة الجانبية
+
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
 const closeBtn = document.getElementById("closeBtn");
@@ -481,12 +475,9 @@ if (menuBtn && sideNav && closeBtn) {
         e.stopPropagation();
         sideNav.classList.add("active");
     };
-
     closeBtn.onclick = () => {
         sideNav.classList.remove("active");
     };
-
-    // قفل القائمة لو ضغطت بره
     document.addEventListener('click', (event) => {
         if (!sideNav.contains(event.target) && event.target !== menuBtn) {
             sideNav.classList.remove("active");
@@ -494,8 +485,6 @@ if (menuBtn && sideNav && closeBtn) {
     });
 }
 </script>
-
-               
 
 </body>
 </html>
