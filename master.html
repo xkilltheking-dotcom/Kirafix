@@ -120,7 +120,7 @@
         .action-btn:hover { background: #f3f4f6; }
         .action-btn.liked { color: #2563eb; }
 
-        /* ستايل التعليقات المدمجة */
+        /* ستايل التعليقات المدمجة مع دعم الدارك مود */
         .comments-section {
             display: none;
             background: #f9fafb;
@@ -128,14 +128,26 @@
             padding: 10px;
             border-radius: 0 0 12px 12px;
         }
+        body.dark-mode .comments-section { background: #1f2937; border-top-color: #374151; }
+        
         .comment-item { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
         .comment-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
-        .comment-bubble { background: #f0f2f5; padding: 8px 12px; border-radius: 18px; font-size: 13px; flex: 1; }
+        
+        .comment-bubble { background: #f0f2f5; padding: 8px 12px; border-radius: 18px; font-size: 13px; flex: 1; color: #1c1e21; }
+        body.dark-mode .comment-bubble { background: #374151; color: #f3f4f6; }
+        
         .comment-input-wrapper { display: flex; gap: 8px; margin-top: 10px; padding: 5px; }
         .comment-input-wrapper input { 
             flex: 1; border: 1px solid #ddd; border-radius: 20px; 
-            padding: 8px 15px; font-size: 13px; outline: none; 
+            padding: 8px 15px; font-size: 13px; outline: none; background: white;
         }
+        body.dark-mode .comment-input-wrapper input { background: #111827; border-color: #4b5563; color: white; }
+        
+        /* تحسينات الدارك مود للبوستات */
+        body.dark-mode .post { background: #111827 !important; color: white; border: 1px solid #374151; }
+        body.dark-mode .post-stats { color: #9ca3af; border-bottom-color: #374151; }
+        body.dark-mode .action-btn { color: #9ca3af; }
+        body.dark-mode .action-btn:hover { background: #374151; }
     </style>
 </head>
 <body>
@@ -328,14 +340,16 @@ onAuthStateChanged(auth, async (user) => {
 
     function applyMainLanguage(lang) {
         const dict = {
-            ar: { home: "الرئيسية", profile: "البروفايل", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر" },
-            en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post" }
+            ar: { home: "الرئيسية", profile: "البروفايل", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
+            en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
         };
         const t = dict[lang] || dict['ar'];
         const links = document.querySelectorAll('.links a');
         if(links.length >= 3) { links[0].textContent = t.home; links[1].textContent = t.profile; links[2].textContent = t.ai; }
         document.getElementById('tex').placeholder = t.placeholder;
         document.getElementById('se').textContent = t.postBtn;
+        document.getElementById('imgBtn').textContent = t.imgBtn;
+        document.getElementById('videoBtn').textContent = t.videoBtn;
         document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
     }
     document.getElementById("user-name-display").textContent = currentUserData?.name || user.email.split("@")[0];
@@ -463,6 +477,13 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
         const likes = post.likes || [];
         const views = post.views || [];
         const hasLiked = likes.includes(currentUid);
+        
+        // جلب اللغة الحالية لتغيير نصوص الأزرار
+        const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
+        const ui = {
+            ar: { like: 'إعجاب', liked: 'تم الإعجاب', comment: 'تعليق', views: 'مشاهدة', comments: 'تعليق', input: 'اكتب تعليقاً...', publish: 'نشر' },
+            en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
+        }[currentLang];
 
 const postHTML = `
         <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
@@ -479,16 +500,16 @@ const postHTML = `
                 ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
                 
                 <div class="post-stats">
-                    <span>👍 ${likes.length} إعجاب</span>
-                    <span>${views.length} مشاهدة • ${post.commentsCount || 0} تعليق</span>
+                    <span>👍 ${likes.length} ${ui.like}</span>
+                    <span>${views.length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}</span>
                 </div>
 
                 <div class="post-actions">
                     <button type="button" class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
-                        ${hasLiked ? '❤️ تم الإعجاب' : '🤍 إعجاب'}
+                        ${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}
                     </button>
                     <button type="button" class="action-btn" onclick="event.preventDefault(); toggleComments('${postId}')">
-                        💬 تعليق
+                        💬 ${ui.comment}
                     </button>
                 </div>
             </div>
@@ -496,8 +517,8 @@ const postHTML = `
             <div id="comments-${postId}" class="comments-section">
                 <div id="list-${postId}"></div>
                 <div class="comment-input-wrapper">
-                    <input type="text" id="input-${postId}" placeholder="اكتب تعليقاً..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); sendComment('${postId}'); }">
-                    <button type="button" onclick="event.preventDefault(); sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">نشر</button>
+                    <input type="text" id="input-${postId}" placeholder="${ui.input}" onkeypress="if(event.key === 'Enter') { event.preventDefault(); sendComment('${postId}'); }">
+                    <button type="button" onclick="event.preventDefault(); sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">${ui.publish}</button>
                 </div>
             </div>
         </div>`;
