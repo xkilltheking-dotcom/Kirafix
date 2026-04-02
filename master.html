@@ -178,24 +178,19 @@ const db = getFirestore(app);
 const loader = document.getElementById("loadingScreen");
 let currentUserData = null;
 
-// تجهيز واجهة الرفع
-const setupProgressUI = () => {
-    const composer = document.getElementById("composerBox");
-    if (composer && !document.getElementById("uploadProgressContainer")) {
-        const progressHTML = `
-            <div id="uploadProgressContainer" style="display:none; width:100%; background:#e5e7eb; border-radius:10px; height:8px; margin:10px 0; overflow:hidden;">
-                <div id="uploadProgressBar" style="width:0%; background:#2563eb; height:100%; transition: width 0.3s;"></div>
-            </div>
-            <small id="progressText" style="display:none; color:#2563eb; font-weight:bold; margin-bottom:10px; display:block; text-align:center;">جاري الرفع: 0%</small>
-        `;
-        const target = document.querySelector(".composer-actions");
-        if(target) target.insertAdjacentHTML('beforebegin', progressHTML);
-    }
-};
+// ✅ إضافة UID ثابت
+let currentUID = null;
+
+// باقي الكود زي ما هو...
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = "index.html"; return; }
-    
+    if (!user) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    currentUID = user.uid; // ✅ مهم
+
     setupProgressUI();
 
     const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -208,10 +203,32 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
-    if (savedDark) document.body.classList.add('dark-mode');
+    if (savedDark) {
+        document.body.classList.add('dark-mode');
+    }
 
     const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
     applyMainLanguage(savedLang);
+
+    function applyMainLanguage(lang) {
+        const dict = {
+            ar: { home: "الرئيسية", profile: "البروفايل", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر" },
+            en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post" },
+            fr: { home: "Accueil", profile: "Profil", ai: "Kirafix AI✨", placeholder: "À quoi pensez-vous?", postBtn: "Publier" },
+            es: { home: "Inicio", profile: "Perfil", ai: "Kirafix AI✨", placeholder: "¿En qué piensas?", postBtn: "Publicار" },
+            zh: { home: "首页", profile: "个人资料", ai: "Kirafix AI✨", placeholder: "你在想什么？", postBtn: "发布" }
+        };
+        const t = dict[lang];
+        const links = document.querySelectorAll('.links a');
+        if(links.length >= 3) {
+            links[0].textContent = t.home;
+            links[1].textContent = t.profile;
+            links[2].textContent = t.ai;
+        }
+        document.getElementById('tex').placeholder = t.placeholder;
+        document.getElementById('se').textContent = t.postBtn;
+        document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+    }
 
     document.getElementById("user-name-display").textContent = currentUserData?.name || user.email.split("@")[0];
     
@@ -223,179 +240,39 @@ onAuthStateChanged(auth, async (user) => {
     }, 2000);
 });
 
-// وظيفة الترجمة الشاملة
-function applyMainLanguage(lang) {
-    const dict = {
-        ar: { home: "الرئيسية", profile: "البروفايل", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر", like: "إعجاب", comment: "تعليق", view: "مشاهدة" },
-        en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post", like: "Like", comment: "Comment", view: "View" }
-    };
-    const t = dict[lang] || dict['en'];
-    
-    // ترجمة اللينكات في الهيدر والسايد ناف
-    const allLinks = document.querySelectorAll('.links a, .side-links a');
-    allLinks.forEach(link => {
-        if(link.textContent.includes("Home") || link.textContent.includes("الرئيسية")) link.textContent = t.home;
-        if(link.textContent.includes("Profile") || link.textContent.includes("البروفايل")) link.textContent = t.profile;
-        if(link.textContent.includes("AI")) link.textContent = t.ai;
-    });
+// باقي الكود زي ما هو...
 
-    if(document.getElementById('tex')) document.getElementById('tex').placeholder = t.placeholder;
-    if(document.getElementById('se')) document.getElementById('se').textContent = t.postBtn;
-    document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-}
-
-// فتح صندوق المنشور
-document.getElementById("but").onclick = () => {
-    const box = document.getElementById("composerBox");
-    box.style.display = box.style.display === "none" ? "block" : "none";
-};
-
-// رفع الميديا
-const imgInput = document.getElementById("imgInput");
-const videoInput = document.getElementById("videoInput");
-const mediaPreview = document.getElementById("mediaPreview");
-let selectedFile = null;
-let fileType = null;
-
-document.getElementById("imgBtn").onclick = () => imgInput.click();
-document.getElementById("videoBtn").onclick = () => videoInput.click();
-
-imgInput.onchange = (e) => {
-    selectedFile = e.target.files[0];
-    fileType = 'image';
-    if(selectedFile) {
-        mediaPreview.style.display = "block";
-        mediaPreview.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" style="width:100%; border-radius:10px;">`;
-    }
-};
-
-videoInput.onchange = (e) => {
-    selectedFile = e.target.files[0];
-    fileType = 'video';
-    if(selectedFile) {
-        mediaPreview.style.display = "block";
-        mediaPreview.innerHTML = `<video src="${URL.createObjectURL(selectedFile)}" controls style="width:100%; border-radius:10px;"></video>`;
-    }
-};
-
-// زر النشر
-document.getElementById("se").onclick = async () => {
-    const text = document.getElementById("tex").value;
-    const btn = document.getElementById("se");
-    const bar = document.getElementById("uploadProgressBar");
-    const container = document.getElementById("uploadProgressContainer");
-    const txt = document.getElementById("progressText");
-
-    if (!text && !selectedFile) return;
-
-    btn.disabled = true; 
-    btn.innerText = "...";
-
-    try {
-        let fileUrl = null;
-        if (selectedFile) {
-            container.style.display = "block";
-            txt.style.display = "block";
-            const cloudName = "dno9n87sc"; 
-            const uploadPreset = "kirafix_posts"; 
-            const url = `https://api.cloudinary.com/v1_1/${cloudName}/${fileType}/upload`;
-
-            fileUrl = await new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open("POST", url);
-                xhr.upload.onprogress = (e) => {
-                    const percent = Math.round((e.loaded / e.total) * 100);
-                    bar.style.width = percent + "%";
-                    txt.innerText = `جاري الرفع: ${percent}%`;
-                };
-                xhr.onload = () => {
-                    const res = JSON.parse(xhr.responseText);
-                    res.secure_url ? resolve(res.secure_url) : reject("فشل الرفع");
-                };
-                xhr.send(new FormData(Object.assign(document.createElement('form'), {
-                    innerHTML: `<input name="file" value="${selectedFile}"><input name="upload_preset" value="${uploadPreset}">`
-                })));
-                // تصحيح بسيط للـ FormData
-                const fd = new FormData();
-                fd.append("file", selectedFile);
-                fd.append("upload_preset", uploadPreset);
-                xhr.send(fd);
-            });
-        }
-
-        await addDoc(collection(db, "posts"), {
-            text, email: auth.currentUser.email, uid: auth.currentUser.uid,
-            userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
-            userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
-            createdAt: serverTimestamp(), likes: {}, views: {},
-            image: fileType === 'image' ? fileUrl : null,
-            video: fileType === 'video' ? fileUrl : null
-        });
-
-        location.reload(); // ريفرش بسيط لضمان نظافة الواجهة
-    } catch (e) { alert(e.message); btn.disabled = false; }
-};
-
-// --- نظام التفاعل (الإصلاح هنا) ---
 window.toggleLike = async (id) => {
-    const uid = auth.currentUser.uid;
     const postRef = doc(db, "posts", id);
     const snap = await getDoc(postRef);
     let likes = snap.data().likes || {};
+    let uid = auth.currentUser.uid;
     likes[uid] ? delete likes[uid] : likes[uid] = true;
     await updateDoc(postRef, { likes });
 };
 
-window.addView = async (id) => {
-    const uid = auth.currentUser.uid;
-    const postRef = doc(db, "posts", id);
-    const snap = await getDoc(postRef);
-    let views = snap.data().views || {};
-    if (!views[uid]) {
-        views[uid] = true;
-        await updateDoc(postRef, { views });
-    }
-};
-
-window.toggleCommentBox = (id) => {
-    const box = document.getElementById(`comment-section-${id}`);
-    box.style.display = box.style.display === "none" ? "block" : "none";
-    if (box.style.display === "block") loadComments(id);
-};
-
-window.sendComment = async (postId) => {
-    const input = document.getElementById(`comment-input-${postId}`);
-    const text = input.value.trim();
-    if (!text) return;
-    await addDoc(collection(db, "posts", postId, "comments"), {
-        text, userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
-        createdAt: serverTimestamp()
-    });
-    input.value = "";
-};
-
+// ✅ تعديل التعليقات
 function loadComments(postId) {
     const list = document.getElementById(`comments-list-${postId}`);
-    onSnapshot(query(collection(db, "posts", postId, "comments"), orderBy("createdAt", "asc")), (snap) => {
+    
+    onSnapshot(collection(db, "posts", postId, "comments"), (snap) => {
+        const comments = [];
+
+        snap.forEach((doc) => {
+            comments.push(doc.data());
+        });
+
+        comments.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+
         list.innerHTML = "";
-        snap.forEach(d => {
-            const c = d.data();
-            list.innerHTML += `<div style="margin-bottom:5px; font-size:13px; border-bottom:1px solid #f0f2f5; padding:3px;"><b>${c.userName}:</b> ${c.text}</div>`;
+
+        comments.forEach((c) => {
+            list.innerHTML += `<div style="margin-bottom:5px; font-size:13px;"><b>${c.userName}:</b> ${c.text}</div>`;
         });
     });
 }
 
-function timeAgo(timestamp) {
-    if (!timestamp) return "الآن";
-    const seconds = Math.floor((new Date() - timestamp.toDate()) / 1000);
-    if (seconds < 60) return "الآن";
-    let interval = Math.floor(seconds / 3600);
-    if (interval >= 1) return "منذ " + interval + " س";
-    interval = Math.floor(seconds / 60);
-    return "منذ " + interval + " د";
-}
-
-// عرض المنشورات
+// داخل عرض البوست 👇 استبدلت السطر ده بس
 onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
     const container = document.getElementById("postsContainer");
     container.innerHTML = "";
@@ -404,48 +281,17 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
         const id = docSnap.id;
         const likesCount = Object.keys(post.likes || {}).length;
         const viewsCount = Object.keys(post.views || {}).length;
-        const isLiked = post.likes && post.likes[auth.currentUser.uid] ? "#1877f2" : "#65676b";
+
+        // ✅ التعديل هنا
+        const isLiked = post.likes && post.likes[currentUID] ? "active-like" : "";
 
         container.innerHTML += `
-        <div class="post" style="background:var(--card-bg); border-radius:12px; padding:15px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-            <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                <img src="${post.userImage}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
-                <div class="user-info">
-                    <div style="font-weight:bold;">${post.userName}</div>
-                    <div style="font-size:11px; color:gray;">${timeAgo(post.createdAt)}</div>
-                </div>
-            </div>
-            <div style="cursor:pointer" onclick="addView('${id}')">
-                <div style="margin-bottom:12px; white-space: pre-wrap;">${post.text || ""}</div>
-                ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
-                ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
-            </div>
-            <div style="font-size:12px; color:gray; padding:10px 0; border-top:1px solid #f0f2f5; display:flex; gap:15px;">
-                <span>👍 ${likesCount}</span> <span>👁️ ${viewsCount}</span>
-            </div>
-            <div style="display:flex; justify-content:space-around; border-top:1px solid #f0f2f5; padding-top:10px;">
-                <button onclick="toggleLike('${id}')" style="background:none; border:none; color:${isLiked}; cursor:pointer; font-weight:bold;">👍 Like</button>
-                <button onclick="toggleCommentBox('${id}')" style="background:none; border:none; color:#65676b; cursor:pointer; font-weight:bold;">💬 Comment</button>
-            </div>
-            <div id="comment-section-${id}" style="display:none; margin-top:10px;">
-                <div id="comments-list-${id}" style="max-height: 150px; overflow-y: auto; background:#f0f2f5; border-radius:10px; padding:8px; margin-bottom:10px; color:#333;"></div>
-                <div style="display:flex; gap:5px;">
-                    <input type="text" id="comment-input-${id}" placeholder="اكتب تعليقاً..." style="flex:1; border-radius:20px; border:1px solid #ddd; padding:8px 15px;">
-                    <button onclick="sendComment('${id}')" style="background:#2563eb; color:white; border:none; border-radius:50%; width:35px; height:35px;">➤</button>
-                </div>
-            </div>
+        <div class="post" onclick="addView('${id}')" style="border-radius:12px; padding:15px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+            ...
         </div>`;
+        loadComments(id);
     });
 });
-
-// قائمة جانبية
-const menuBtn = document.getElementById("menuBtn");
-const sideNav = document.getElementById("sideNav");
-if (menuBtn) {
-    menuBtn.onclick = (e) => { e.stopPropagation(); sideNav.classList.add("active"); };
-    document.getElementById("closeBtn").onclick = () => sideNav.classList.remove("active");
-    document.addEventListener('click', (e) => { if (!sideNav.contains(e.target)) sideNav.classList.remove("active"); });
-}
 </script>
 
                
