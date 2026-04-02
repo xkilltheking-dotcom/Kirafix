@@ -464,7 +464,7 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
         const views = post.views || [];
         const hasLiked = likes.includes(currentUid);
 
-        const postHTML = `
+const postHTML = `
         <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
             <div style="padding:15px;">
                 <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
@@ -484,10 +484,10 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
                 </div>
 
                 <div class="post-actions">
-                    <button class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
+                    <button type="button" class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
                         ${hasLiked ? '❤️ تم الإعجاب' : '🤍 إعجاب'}
                     </button>
-                    <button class="action-btn" onclick="toggleComments('${postId}')">
+                    <button type="button" class="action-btn" onclick="event.preventDefault(); toggleComments('${postId}')">
                         💬 تعليق
                     </button>
                 </div>
@@ -496,8 +496,8 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
             <div id="comments-${postId}" class="comments-section">
                 <div id="list-${postId}"></div>
                 <div class="comment-input-wrapper">
-                    <input type="text" id="input-${postId}" placeholder="اكتب تعليقاً...">
-                    <button onclick="sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">نشر</button>
+                    <input type="text" id="input-${postId}" placeholder="اكتب تعليقاً..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); sendComment('${postId}'); }">
+                    <button type="button" onclick="event.preventDefault(); sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">نشر</button>
                 </div>
             </div>
         </div>`;
