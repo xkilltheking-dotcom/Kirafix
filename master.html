@@ -283,7 +283,8 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
         const viewsCount = Object.keys(post.views || {}).length;
 
         // ✅ التعديل هنا
-        const isLiked = post.likes && post.likes[currentUID] ? "active-like" : "";
+        const uid = currentUID || auth.currentUser?.uid;
+        const isLiked = post.likes && post.likes[uid] ? "active-like" : "";
 
         container.innerHTML += `
         <div class="post" onclick="addView('${id}')" style="border-radius:12px; padding:15px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
