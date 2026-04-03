@@ -5,7 +5,6 @@ import requests
 
 app = FastAPI()
 
-# فك حظر المتصفح (CORS) لربط الـ Frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,25 +18,27 @@ MODEL_NAME = "llama3.1"
 class Query(BaseModel):
     prompt: str
 
-# التعليمات الخاصة بـ Kirafix Ai
 SYSTEM_PROMPT = """
-أنت الآن Kirafix Ai، المساعد الذكي الرسمي والوحيد لموقعنا.
-- ممنوع تقول إنك تطوير Meta أو OpenAI.
-- لو حد سألك "أنت مين؟" رد بـ "أنا Kirafix Ai، مساعدكم الذكي هنا".
-- الإجابة تكون باللهجة المصرية وسريعة.
+أنت Kirafix Ai، رد باللهجة المصرية وباختصار.
 """
 
 @app.post("/chat")
 async def chat(query: Query):
     payload = {
         "model": MODEL_NAME,
-        "prompt": f"{SYSTEM_PROMPT}\nالمستخدم: {query.prompt}",
+        "prompt": f"{SYSTEM_PROMPT}\nUser: {query.prompt}",
         "stream": False
     }
+
     try:
         response = requests.post(OLLAMA_URL, json=payload)
-        return {"answer": response.json().get("response")}
-    except:
-        return {"answer": "السيرفر مش واصل.. تأكد إن Ollama شغال."}
+        data = response.json()
 
-# للتشغيل: uvicorn main:app --reload
+        print("OLLAMA RESPONSE:", data)  # مهم للتجربة
+
+        return {
+            "answer": data.get("response", "مفيش رد من الذكاء الاصطناعي")
+        }
+
+    except Exception as e:
+        return {"answer": f"خطأ في السيرفر: {str(e)}"}
