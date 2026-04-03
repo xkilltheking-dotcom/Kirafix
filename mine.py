@@ -1,7 +1,15 @@
+import firebase_admin
+from firebase_admin import credentials, firestore
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
+from datetime import datetime
+
+# إعداد Firebase
+cred = credentials.Certificate("serviceAccountKey.json")
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 app = FastAPI()
 
@@ -16,38 +24,76 @@ OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "llama3.1"
 
 class Query(BaseModel):
+    user_id: str
     prompt: str
+
+SYSTEM_PROMPT = """
+أنت "Kirafix Ai"، مساعد ذكي احترافي. 
+تتحدث باللغة العربية الفصحى دائماً.
+أسلوبك جاد، دقيق، ومختصر.
+"""
+
+# 📌 دالة تجيب آخر محادثات (History)
+def get_history(user_id):
+    chats = db.collection("chats")\
+        .where("user_id", "==", user_id)\
+        .order_by("timestamp", direction=firestore.Query.DESCENDING)\
+        .limit(5)\
+        .stream()
+
+    history = ""
+    for chat in chats:
+        data = chat.to_dict()
+        history += f"المستخدم: {data['question']}\nالرد: {data['answer']}\n"
+
+    return history
+
 
 @app.post("/chat")
 async def chat(query: Query):
-    # الـ Template ده هو السر عشان يفهم اللهجة المصرية صح
-payload = {
+
+    # 🧠 1. هات البيانات من Firebase
+    docs = db.collection('info').stream()
+    context_data = ""
+
+    for doc in docs:
+        context_data += f"{doc.to_dict()}\n"
+
+    # 🧠 2. هات History
+    history = get_history(query.user_id)
+
+    # 🧠 3. بناء البرومبت
+    full_prompt = f"""
+{SYSTEM_PROMPT}
+
+سجل المحادثة:
+{history}
+
+بيانات القاعدة:
+{context_data}
+
+المستخدم: {query.prompt}
+"""
+
+    payload = {
         "model": MODEL_NAME,
-        "prompt": f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-أنت Kirafix AI، مساعد ذكي مصري "ابن نكتة" وصاحب صاحبه. 
-- اتكلم لغة عامية مصرية بيور (بتاعة القعدة على القهوة).
-- لما حد يقولك ازيك، رد بـ "زي الفل يا زميلي" أو "تمام يا هندسة".
-- لما حد يطلب نكتة، قول نكتة مصرية قصيرة ومضحكة (زي نكت الصعايدة أو المحششين اللطيفة).
-- ممنوع تقول "إجابة غير مناسبة" أو "مخالف للقواعد" لأنك مساعد ترفيهي وآمن تماماً.
-- خلي ردودك قصيرة جداً وصايعة.
-<|eot_id|><|start_header_id|>user<|end_header_id|>
-{query.prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
-        "stream": False,
-        "options": {
-            "temperature": 0.9, # زودنا الهزار
-            "top_p": 0.9,
-            "num_predict": 100, # عشان ميرغيش كتير
-            "stop": ["<|eot_id|>", "assistant", "user"]
-        }
+        "prompt": full_prompt,
+        "stream": False
     }
 
     try:
         response = requests.post(OLLAMA_URL, json=payload)
-        response.raise_for_status()
-        data = response.json()
-        answer = data.get("response", "").strip()
-        
+        answer = response.json().get("response")
+
+        # 💾 4. حفظ المحادثة
+        db.collection("chats").add({
+            "user_id": query.user_id,
+            "question": query.prompt,
+            "answer": answer,
+            "timestamp": datetime.utcnow()
+        })
+
         return {"answer": answer}
 
-    except Exception as e:
-        return {"answer": "يا غالي السيرفر مهيس شوية، جرب كمان دقيقة."}
+    except:
+        return {"answer": "خطأ في الاتصال. تأكد من تشغيل Ollama."}
