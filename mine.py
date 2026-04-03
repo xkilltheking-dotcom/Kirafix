@@ -116,6 +116,7 @@ async def chat(query: Query):
 
     try:
         response = requests.post(OLLAMA_URL, json=payload)
+        print(response.json())
         answer = response.json().get("response")
 
         # 💾 حفظ الشات
