@@ -36,9 +36,9 @@ async def chat(query: Query):
 
         print("OLLAMA RESPONSE:", data)  # مهم للتجربة
 
-        return {
-            "answer": data.get("response", "مفيش رد من الذكاء الاصطناعي")
-        }
+return {
+    "answer": data.get("response") or data.get("message") or str(data)
+}
 
     except Exception as e:
         return {"answer": f"خطأ في السيرفر: {str(e)}"}
