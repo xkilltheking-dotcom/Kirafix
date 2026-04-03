@@ -33,7 +33,7 @@ SYSTEM_PROMPT = """
 أسلوبك جاد، دقيق، ومختصر.
 """
 
-# 📌 دالة تجيب آخر محادثات (History)
+# 📌 History
 def get_history(user_id):
     chats = db.collection("chats")\
         .where("user_id", "==", user_id)\
@@ -52,35 +52,9 @@ def get_history(user_id):
 @app.post("/chat")
 async def chat(query: Query):
 
-    # 🧠 1. هات البيانات من Firebase
-    docs = db.collection('info').stream()
-    context_data = ""
-
-    for doc in docs:
-        context_data += f"{doc.to_dict()}\n"
-
-    # 🧠 2. هات History
-    history = get_history(query.user_id)
-
-    # 🧠 3. بناء البرومبت
-    full_prompt = f"""
-{SYSTEM_PROMPT}
-
-سجل المحادثة:
-{history}
-
-بيانات القاعدة:
-{context_data}
-
-المستخدم: {query.prompt}
-"""
-
-@app.post("/chat")
-async def chat(query: Query):
-
     user_text = query.prompt.lower()
 
-    # 🧠 1. تحديد هل ده بحث ولا سؤال عام
+    # 🧠 1. تحديد نوع الطلب
     keywords = ["سعر", "كام", "شراء", "منتج", "عايز", "عندك"]
     is_search = any(word in user_text for word in keywords)
 
@@ -94,23 +68,31 @@ async def chat(query: Query):
             item = doc.to_dict()
             name = item.get("name", "").lower()
 
-            # 🔥 مقارنة ذكية (مش لازم تطابق كامل)
             if any(word in name for word in user_text.split()):
                 found_products.append(item)
 
-    # 🧠 3. تجهيز البيانات
+    # 🧠 3. تجهيز context
     if found_products:
         context = "المنتجات المتاحة:\n"
-        for p in found_products[:5]:  # نحدد 5 بس
+        for p in found_products[:5]:
             context += f"- {p['name']} | السعر: {p['price']} | {p['description']}\n"
     else:
-        # fallback للذكاء
         history = get_history(query.user_id)
+
+        # ممكن كمان تضيف info لو حابب
+        docs = db.collection('info').stream()
+        info_data = ""
+        for doc in docs:
+            info_data += f"{doc.to_dict()}\n"
+
         context = f"""
 لا توجد نتائج مباشرة.
 
 سجل المحادثة:
 {history}
+
+بيانات إضافية:
+{info_data}
 """
 
     # 🧠 4. بناء البرومبت
@@ -140,7 +122,8 @@ async def chat(query: Query):
         db.collection("chats").add({
             "user_id": query.user_id,
             "question": query.prompt,
-            "answer": answer
+            "answer": answer,
+            "timestamp": datetime.utcnow()
         })
 
         return {"answer": answer}
