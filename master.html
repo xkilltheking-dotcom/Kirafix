@@ -386,64 +386,93 @@ function timeAgo(timestamp) {
     return "الآن";
 }
 
-onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
+onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc")), (snap) => {
     const container = document.getElementById("postsContainer");
-    container.innerHTML = "";
-    snap.forEach((docSnap) => {
-        const post = docSnap.data();
-        const postId = docSnap.id;
+    
+    snap.docChanges().forEach((change) => {
+        const post = change.doc.data();
+        const postId = change.doc.id;
         const currentUid = auth.currentUser?.uid;
         const likes = post.likes || [];
         const views = post.views || [];
         const hasLiked = likes.includes(currentUid);
-        
         const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
         const ui = {
             ar: { like: 'إعجاب', liked: 'تم الإعجاب', comment: 'تعليق', views: 'مشاهدة', comments: 'تعليق', input: 'اكتب تعليقاً...', publish: 'نشر' },
             en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
         }[currentLang];
 
-const postHTML = `
-        <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
-            <div style="padding:15px;">
-                <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
-                    <div class="user-info">
-                        <div class="username" style="font-weight:bold;">${post.userName || post.email?.split("@")[0]}</div>
-                        <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
+        // لو البوست مضاف حديثاً
+        if (change.type === "added") {
+            const postHTML = `
+                <div class="post" id="post-${postId}" data-id="${postId}" data-views='${JSON.stringify(views)}'>
+                    <div style="padding:15px;">
+                        <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                            <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+                            <div class="user-info">
+                                <div class="username" style="font-weight:bold;">${post.userName || post.email?.split("@")[0]}</div>
+                                <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
+                            </div>
+                        </div>
+                        <div class="post-text" style="margin-bottom:12px; line-height:1.5;">${post.text || ""}</div>
+                        ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
+                        ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
+                        
+                        <div class="post-stats" id="stats-${postId}">
+                            <span>👍 ${likes.length} ${ui.like}</span>
+                            <span>${views.length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}</span>
+                        </div>
+
+                        <div class="post-actions">
+                            <button type="button" id="likeBtn-${postId}" class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
+                                ${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}
+                            </button>
+                            <button type="button" class="action-btn" onclick="toggleComments('${postId}')">
+                                💬 ${ui.comment}
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div class="post-text" style="margin-bottom:12px; line-height:1.5;">${post.text || ""}</div>
-                ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
-                ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
-                
-                <div class="post-stats">
+
+                    <div id="comments-${postId}" class="comments-section" style="display:none;">
+                        <div id="list-${postId}"></div>
+                        <div class="comment-input-wrapper">
+                            <input type="text" id="input-${postId}" placeholder="${ui.input}" onkeypress="if(event.key === 'Enter') sendComment('${postId}')">
+                            <button type="button" onclick="sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">${ui.publish}</button>
+                        </div>
+                    </div>
+                </div>`;
+            
+            // إضافة البوست في البداية بدون مسح القديم
+            container.insertAdjacentHTML('afterbegin', postHTML);
+            const newPostNode = document.getElementById(`post-${postId}`);
+            viewObserver.observe(newPostNode);
+        }
+
+        // لو حصل تعديل (لايك أو مشاهدة أو كومنت جديد)
+        if (change.type === "modified") {
+            const statsEle = document.getElementById(`stats-${postId}`);
+            const likeBtn = document.getElementById(`likeBtn-${postId}`);
+            
+            if (statsEle) {
+                statsEle.innerHTML = `
                     <span>👍 ${likes.length} ${ui.like}</span>
                     <span>${views.length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}</span>
-                </div>
+                `;
+            }
+            if (likeBtn) {
+                likeBtn.className = `action-btn ${hasLiked ? 'liked' : ''}`;
+                likeBtn.innerHTML = `${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}`;
+                likeBtn.onclick = () => toggleLike(postId, hasLiked);
+            }
+            // بنحدث الداتا المخفية للمشاهدات عشان الـ Observer ميكررش
+            const postNode = document.getElementById(`post-${postId}`);
+            if(postNode) postNode.setAttribute('data-views', JSON.stringify(views));
+        }
 
-                <div class="post-actions">
-                    <button type="button" class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
-                        ${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}
-                    </button>
-                    <button type="button" class="action-btn" onclick="event.preventDefault(); toggleComments('${postId}')">
-                        💬 ${ui.comment}
-                    </button>
-                </div>
-            </div>
-
-            <div id="comments-${postId}" class="comments-section">
-                <div id="list-${postId}"></div>
-                <div class="comment-input-wrapper">
-                    <input type="text" id="input-${postId}" placeholder="${ui.input}" onkeypress="if(event.key === 'Enter') { event.preventDefault(); sendComment('${postId}'); }">
-                    <button type="button" onclick="event.preventDefault(); sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">${ui.publish}</button>
-                </div>
-            </div>
-        </div>`;
-
-        const postNode = document.createRange().createContextualFragment(postHTML).firstElementChild;
-        container.appendChild(postNode);
-        viewObserver.observe(postNode);
+        // لو البوست اتحذف
+        if (change.type === "removed") {
+            document.getElementById(`post-${postId}`)?.remove();
+        }
     });
 });
 
