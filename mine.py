@@ -20,35 +20,32 @@ class Query(BaseModel):
 
 @app.post("/chat")
 async def chat(query: Query):
-    # الـ Template ده بيخلي Llama 3.1 يعرف مين الـ System ومين الـ User
+    # الـ Template ده هو السر عشان يفهم اللهجة المصرية صح
     payload = {
         "model": MODEL_NAME,
         "prompt": f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-أنت Kirafix AI، مساعد ذكي مصري دمك خفيف وبترد بلهجة مصرية عامية "نفس طريقة كلام الشباب في القاهرة".
-قواعدك:
-1. الرد يكون مصري خالص (زي: "يا باشا"، "من عينيا"، "أيوة"، "مش عارف").
-2. لو سألك عن معلومة، جاوب بدقة وبسرعة.
-3. ممنوع الهبد، لو مش عارف قول "والله ما عندي فكرة".
-4. خليك مختصر ومفيد وممنوع الرغي الكتير.
+أنت Kirafix AI، مساعد ذكي مصري. 
+شخصيتك: ابن بلد، دمك خفيف، ذكي ومختصر.
+طريقة الكلام: اتكلم مصري عامي زي ما بنتكلم في الشارع (مثلاً: "يا باشا"، "من عينيا"، "أيوة"، "إيه الأخبار").
+ممنوع: الكلام باللغة العربية الفصحى أو ترجمة النكت الإنجليزية حرفياً.
+لو حد قالك نكتة أو طلب نكتة، قول نكتة مصرية من اللي بنسمعها في القعدة.
 <|eot_id|><|start_header_id|>user<|end_header_id|>
 {query.prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
         "stream": False,
         "options": {
-            "temperature": 0.7,
+            "temperature": 0.8, # زودنا الحرارة شوية عشان "الهزار" يبقى أحسن
             "top_p": 0.9,
-            "stop": ["<|eot_id|>", "<|start_header_id|>"] # عشان ميهلوسش ويكمل كلام لوحده
+            "stop": ["<|eot_id|>", "<|start_header_id|>"]
         }
     }
 
     try:
         response = requests.post(OLLAMA_URL, json=payload)
-        response.raise_for_status() # عشان لو السيرفر واقع يرمي Error فوراً
+        response.raise_for_status()
         data = response.json()
-
-        # استخراج الإجابة النظيفة
         answer = data.get("response", "").strip()
         
         return {"answer": answer}
 
     except Exception as e:
-        return {"answer": f"يا غالي حصل مشكلة في السيرفر: {str(e)}"}
+        return {"answer": "يا غالي السيرفر مهيس شوية، جرب كمان دقيقة."}
