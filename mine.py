@@ -18,15 +18,19 @@ MODEL_NAME = "llama3.1"
 class Query(BaseModel):
     prompt: str
 
-SYSTEM_PROMPT = """
-أنت Kirafix Ai، رد باللهجة المصرية وباختصار.
-"""
+SYSTEM_PROMPT = "أنت Kirafix Ai، رد باللهجة المصرية وباختصار."
 
 @app.post("/chat")
 async def chat(query: Query):
+
     payload = {
         "model": MODEL_NAME,
-        "prompt": f"{SYSTEM_PROMPT}\nUser: {query.prompt}",
+        "prompt": f"""
+{SYSTEM_PROMPT}
+
+المستخدم: {query.prompt}
+الرد:
+""",
         "stream": False
     }
 
@@ -34,11 +38,13 @@ async def chat(query: Query):
         response = requests.post(OLLAMA_URL, json=payload)
         data = response.json()
 
-        print("OLLAMA RESPONSE:", data)  # مهم للتجربة
+        print("OLLAMA RESPONSE:", data)
 
-return {
-    "answer": data.get("response") or data.get("message") or str(data)
-}
+        return {
+            "answer": data.get("response") or data.get("message") or str(data)
+        }
 
     except Exception as e:
-        return {"answer": f"خطأ في السيرفر: {str(e)}"}
+        return {
+            "answer": f"خطأ في السيرفر: {str(e)}"
+        }
