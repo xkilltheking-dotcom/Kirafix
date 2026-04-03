@@ -18,11 +18,9 @@ MODEL_NAME = "llama3.1"
 class Query(BaseModel):
     prompt: str
 
-SYSTEM_PROMPT = "أنت Kirafix Ai، رد باللهجة المصرية وباختصار."
-
 @app.post("/chat")
 async def chat(query: Query):
-    # الـ Prompt ده بيجبر الموديل يتقمص الشخصية صح ويبعد عن الترجمة الحرفية
+    # الـ Template ده بيخلي Llama 3.1 يعرف مين الـ System ومين الـ User
     payload = {
         "model": MODEL_NAME,
         "prompt": f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
@@ -31,27 +29,26 @@ async def chat(query: Query):
 1. الرد يكون مصري خالص (زي: "يا باشا"، "من عينيا"، "أيوة"، "مش عارف").
 2. لو سألك عن معلومة، جاوب بدقة وبسرعة.
 3. ممنوع الهبد، لو مش عارف قول "والله ما عندي فكرة".
-4. خليك مختصر ومفيد.
+4. خليك مختصر ومفيد وممنوع الرغي الكتير.
 <|eot_id|><|start_header_id|>user<|end_header_id|>
 {query.prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
         "stream": False,
         "options": {
-            "temperature": 0.7,  # عشان ميكررش الكلام
-            "top_p": 0.9
+            "temperature": 0.7,
+            "top_p": 0.9,
+            "stop": ["<|eot_id|>", "<|start_header_id|>"] # عشان ميهلوسش ويكمل كلام لوحده
         }
     }
 
     try:
         response = requests.post(OLLAMA_URL, json=payload)
+        response.raise_for_status() # عشان لو السيرفر واقع يرمي Error فوراً
         data = response.json()
 
-        print("OLLAMA RESPONSE:", data)
-
-        return {
-            "answer": data.get("response") or data.get("message") or str(data)
-        }
+        # استخراج الإجابة النظيفة
+        answer = data.get("response", "").strip()
+        
+        return {"answer": answer}
 
     except Exception as e:
-        return {
-            "answer": f"خطأ في السيرفر: {str(e)}"
-        }
+        return {"answer": f"يا غالي حصل مشكلة في السيرفر: {str(e)}"}
