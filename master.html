@@ -175,26 +175,34 @@ window.sendComment = async (postId) => {
     } catch(e) { console.error(e); }
 };
 
-// تحميل التعليقات للبوست
 function loadCommentsRealtime(postId) {
     const list = document.getElementById(`list-${postId}`);
     const q = query(collection(db, "posts", postId, "comments"), orderBy("createdAt", "asc"));
+    
+    // بنعمل Snapshot واحد للتعليقات
     onSnapshot(q, (snap) => {
-        list.innerHTML = "";
+        list.innerHTML = ""; // بنصفر القائمة مرة واحدة بس في البداية
+        
+        let allCommentsHTML = ""; // بنجمع كل التعليقات في متغير واحد الأول
+        
         snap.forEach(d => {
             const c = d.data();
-            list.innerHTML += `
-                <div class="comment-item">
-                    <img src="${c.userImage}">
-                    <div class="comment-bubble">
-                        <div style="font-weight:bold; font-size:11px;">${c.userName}</div>
-                        <div>${c.text}</div>
+            const userImg = c.userImage || "af80e23deeb127837d30554452546196.jpg";
+            
+            allCommentsHTML += `
+                <div class="comment-item" style="display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start;">
+                    <img src="${userImg}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                    <div class="comment-bubble" style="background: #f0f2f5; padding: 8px 12px; border-radius: 18px; font-size: 13px; flex: 1;">
+                        <div style="font-weight:bold; font-size:11px; color: #1c1e21;">${c.userName}</div>
+                        <div style="color: #1c1e21; word-break: break-word;">${c.text}</div>
                     </div>
                 </div>`;
         });
+        
+        // بنحقن كل التعليقات مرة واحدة في الـ DOM
+        list.insertAdjacentHTML('beforeend', allCommentsHTML);
     });
 }
-
 // سيستم المشاهدات الذكي
 const viewObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
