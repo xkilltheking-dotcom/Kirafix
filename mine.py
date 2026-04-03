@@ -75,6 +75,57 @@ async def chat(query: Query):
 المستخدم: {query.prompt}
 """
 
+@app.post("/chat")
+async def chat(query: Query):
+
+    user_text = query.prompt.lower()
+
+    # 🧠 1. تحديد هل ده بحث ولا سؤال عام
+    keywords = ["سعر", "كام", "شراء", "منتج", "عايز", "عندك"]
+    is_search = any(word in user_text for word in keywords)
+
+    found_products = []
+
+    # 🧠 2. بحث في المنتجات
+    if is_search:
+        docs = db.collection('products').stream()
+
+        for doc in docs:
+            item = doc.to_dict()
+            name = item.get("name", "").lower()
+
+            # 🔥 مقارنة ذكية (مش لازم تطابق كامل)
+            if any(word in name for word in user_text.split()):
+                found_products.append(item)
+
+    # 🧠 3. تجهيز البيانات
+    if found_products:
+        context = "المنتجات المتاحة:\n"
+        for p in found_products[:5]:  # نحدد 5 بس
+            context += f"- {p['name']} | السعر: {p['price']} | {p['description']}\n"
+    else:
+        # fallback للذكاء
+        history = get_history(query.user_id)
+        context = f"""
+لا توجد نتائج مباشرة.
+
+سجل المحادثة:
+{history}
+"""
+
+    # 🧠 4. بناء البرومبت
+    full_prompt = f"""
+{SYSTEM_PROMPT}
+
+تعليمات:
+- لو فيه منتجات: رشح الأفضل
+- لو مفيش: جاوب بشكل عام
+
+{context}
+
+سؤال المستخدم: {query.prompt}
+"""
+
     payload = {
         "model": MODEL_NAME,
         "prompt": full_prompt,
@@ -85,15 +136,14 @@ async def chat(query: Query):
         response = requests.post(OLLAMA_URL, json=payload)
         answer = response.json().get("response")
 
-        # 💾 4. حفظ المحادثة
+        # 💾 حفظ الشات
         db.collection("chats").add({
             "user_id": query.user_id,
             "question": query.prompt,
-            "answer": answer,
-            "timestamp": datetime.utcnow()
+            "answer": answer
         })
 
         return {"answer": answer}
 
     except:
-        return {"answer": "خطأ في الاتصال. تأكد من تشغيل Ollama."}
+        return {"answer": "حصل خطأ في السيرفر"}
