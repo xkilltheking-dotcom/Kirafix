@@ -6,42 +6,59 @@
     <title>Kirafix - Home</title>
     <link rel="stylesheet" href="style.css?v=2">
 <style>
-    /* شاشة التحميل */
+    /* شاشة التحميل - زي ما هي */
     #loadingScreen { position: fixed; inset: 0; background: #fff; z-index: 9999; transition: opacity 0.6s; }
     .welcome-box-final { position: fixed; top: 10px; left: 10px; font-size: 28px; font-weight: bold; color: #fff; background: #374151; padding: 15px 20px; border-radius: 10px; }
     .loading-area-final { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 260px; }
     .rolling-box-final { position: absolute; top: -70px; left: 0; width: 60px; height: 60px; background: #374151; border-radius: 10px; animation: rollAcross 3s infinite ease-in-out; }
     @keyframes rollAcross { 0% { left: 0; transform: rotate(0deg); } 50% { left: calc(100% - 60px); transform: rotate(360deg); } 100% { left: 0; transform: rotate(720deg); } }
 
-    /* منطقة النشر (Composer) */
-    .composer { background: white; border-radius: 15px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; }
-    .composer-header { display: flex; gap: 10px; margin-bottom: 10px; }
-    .composer-header img { width: 45px; height: 45px; border-radius: 50%; }
-    #tex { flex: 1; border: none; background: #f3f4f6; border-radius: 20px; padding: 12px 20px; outline: none; resize: none; font-size: 16px; }
-    .media-preview img, .media-preview video { width: 100%; border-radius: 10px; max-height: 300px; object-fit: cover; }
-    .composer-actions { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid #f3f4f6; }
-    .upload-btns button { background: #f3f4f6; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 13px; }
-    #se { background: #2563eb; color: white; border: none; padding: 8px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+    /* منطقة النشر (Composer) - تنحيف المسافات */
+    .composer { background: white; border-radius: 12px; padding: 10px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; }
+    .composer-header { display: flex; gap: 8px; margin-bottom: 8px; }
+    .composer-header img { width: 40px; height: 40px; border-radius: 50%; }
+    #tex { flex: 1; border: none; background: #f3f4f6; border-radius: 18px; padding: 10px 15px; outline: none; resize: none; font-size: 15px; }
+    .media-preview img, .media-preview video { width: 100%; border-radius: 8px; max-height: 250px; object-fit: cover; }
+    .composer-actions { display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid #f3f4f6; }
+    .upload-btns button { background: #f3f4f6; border: none; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 12px; }
+    #se { background: #2563eb; color: white; border: none; padding: 6px 20px; border-radius: 15px; font-weight: bold; cursor: pointer; }
 
-    /* البوست والتفاعلات (ملمومة) */
-    .post-stats { display: flex; justify-content: space-between; font-size: 13px; color: #65676b; padding: 8px 5px; border-bottom: 1px solid #f3f4f6; margin-bottom: 8px; }
-    .post-actions { display: flex; justify-content: space-around; padding: 5px 0; }
-    .action-btn { background: none; border: none; color: #65676b; font-weight: bold; cursor: pointer; padding: 8px; flex: 1; transition: 0.2s; border-radius: 5px; }
+    /* البوست (التحول لصفر بادنج) */
+    .post { 
+        padding: 0 !important; /* تصفير البادنج الرئيسي */
+        margin-bottom: 12px; 
+        border-radius: 10px; 
+        overflow: hidden; 
+        background: white;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .post-header { display: flex; gap: 8px; padding: 8px 10px; align-items: center; }
+    .post-text { padding: 0 10px 8px 10px; margin: 0; font-size: 14.5px; line-height: 1.4; }
+    
+    /* الميديا في البوست تاخد العرض كامل */
+    .post img, .post video { width: 100%; display: block; border-radius: 0; margin: 0; }
+
+    /* التفاعلات ملمومة جداً */
+    .post-stats { display: flex; justify-content: space-between; font-size: 12px; color: #65676b; padding: 5px 10px; border-bottom: 1px solid #f3f4f6; }
+    .post-actions { display: flex; justify-content: space-around; padding: 2px 0; }
+    .action-btn { background: none; border: none; color: #65676b; font-weight: bold; cursor: pointer; padding: 6px; flex: 1; font-size: 13px; }
     .action-btn:hover { background: #f3f4f6; }
     .action-btn.liked { color: #2563eb; }
 
-    /* التعليقات */
-    .comments-section { display: none; background: #f0f2f5; padding: 10px; border-radius: 0 0 12px 12px; }
-    .comment-item { display: flex; gap: 8px; margin-bottom: 8px; }
-    .comment-bubble { background: #fff; padding: 8px 12px; border-radius: 18px; font-size: 13px; flex: 1; color: #1c1e21; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-    .comment-input-wrapper { display: flex; gap: 8px; margin-top: 10px; }
-    .comment-input-wrapper input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 15px; font-size: 13px; outline: none; }
+    /* التعليقات مضغوطة */
+    .comments-section { display: none; background: #f0f2f5; padding: 8px 10px; border-radius: 0; }
+    .comment-item { display: flex; gap: 6px; margin-bottom: 6px; }
+    .comment-bubble { background: #fff; padding: 6px 10px; border-radius: 15px; font-size: 12.5px; flex: 1; color: #1c1e21; box-shadow: 0 1px 1px rgba(0,0,0,0.05); }
+    .comment-input-wrapper { display: flex; gap: 6px; margin-top: 8px; }
+    .comment-input-wrapper input { flex: 1; border: 1px solid #ddd; border-radius: 18px; padding: 6px 12px; font-size: 13px; outline: none; }
 
-    /* دعم الدارك مود (إصلاح الألوان) */
+    /* الدارك مود - ثابت ميتغيرش */
     body.dark-mode .post, body.dark-mode .composer { background: #242526; border-color: #3e4042; color: #e4e6eb; }
     body.dark-mode .comments-section { background: #1c1e21; }
     body.dark-mode .comment-bubble { background: #3a3b3c; color: #e4e6eb; }
     body.dark-mode #tex, body.dark-mode .comment-input-wrapper input { background: #3a3b3c; color: #fff; border: none; }
+    body.dark-mode .post-stats { border-bottom-color: #3e4042; }
 </style>
 </head>
 <body>
