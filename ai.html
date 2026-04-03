@@ -3,27 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirafix Ai - المساعد الذكي</title>
+    <title>Kirafix Ai</title>
     <link rel="stylesheet" href="ai.css">
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <div class="status-dot"></div>
-            <h1>Kirafix Ai</h1>
-        </div>
-        
-        <div id="chat-box" class="chat-box">
-            <div class="message ai-msg">أهلاً بك! أنا Kirafix Ai، كيف يمكنني مساعدتك اليوم؟</div>
-        </div>
 
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="اكتب سؤالك هنا..." onkeypress="handleKeyPress(event)">
-            <button onclick="sendMessage()">إرسال</button>
+<div class="chat-container">
+
+    <div class="chat-header">
+        <div class="status-dot"></div>
+        <h1>Kirafix Ai</h1>
+    </div>
+
+    <div id="chat-box" class="chat-box">
+        <div class="message ai-msg">
+            أهلاً بك 👋
         </div>
     </div>
 
-    <script src="script.js">
-    </script>
+    <div class="input-area">
+        <input type="text" id="user-input"
+               placeholder="اكتب سؤالك..."
+               onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">إرسال</button>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
