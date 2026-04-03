@@ -52,58 +52,30 @@ def get_history(user_id):
 @app.post("/chat")
 async def chat(query: Query):
 
-    user_text = query.prompt.lower()
+    # 🔍 البحث في Firebase عن منتج قريب من رسالة المستخدم
+    products_ref = db.collection('products')
 
-    # 🧠 1. تحديد نوع الطلب
-    keywords = ["سعر", "كام", "شراء", "منتج", "عايز", "عندك"]
-    is_search = any(word in user_text for word in keywords)
+    docs = products_ref.stream()
 
-    found_products = []
+    found_info = ""
 
-    # 🧠 2. بحث في المنتجات
-    if is_search:
-        docs = db.collection('products').stream()
+    for doc in docs:
+        item = doc.to_dict()
 
-        for doc in docs:
-            item = doc.to_dict()
-            name = item.get("name", "").lower()
+        # لو اسم المنتج موجود في رسالة المستخدم
+        if item.get('name', '').lower() in query.prompt.lower():
+            found_info += f"المنتج: {item['name']}, السعر: {item['price']}, الوصف: {item['description']}\n"
 
-            if any(word in name for word in user_text.split()):
-                found_products.append(item)
+    # ❗ لو مفيش نتائج
+    if not found_info:
+        found_info = "لم أجد معلومات محددة عن هذا المنتج في القاعدة حالياً."
 
-    # 🧠 3. تجهيز context
-    if found_products:
-        context = "المنتجات المتاحة:\n"
-        for p in found_products[:5]:
-            context += f"- {p['name']} | السعر: {p['price']} | {p['description']}\n"
-    else:
-        history = get_history(query.user_id)
-
-        # ممكن كمان تضيف info لو حابب
-        docs = db.collection('info').stream()
-        info_data = ""
-        for doc in docs:
-            info_data += f"{doc.to_dict()}\n"
-
-        context = f"""
-لا توجد نتائج مباشرة.
-
-سجل المحادثة:
-{history}
-
-بيانات إضافية:
-{info_data}
-"""
-
-    # 🧠 4. بناء البرومبت
+    # 🧠 تجهيز البرومبت للـ AI
     full_prompt = f"""
 {SYSTEM_PROMPT}
 
-تعليمات:
-- لو فيه منتجات: رشح الأفضل
-- لو مفيش: جاوب بشكل عام
-
-{context}
+بيانات المنتجات المتوفرة:
+{found_info}
 
 سؤال المستخدم: {query.prompt}
 """
@@ -116,18 +88,9 @@ async def chat(query: Query):
 
     try:
         response = requests.post(OLLAMA_URL, json=payload)
-        print(response.json())
-        answer = response.json().get("response", "لم يتم توليد رد")
-
-        # 💾 حفظ الشات
-        db.collection("chats").add({
-            "user_id": query.user_id,
-            "question": query.prompt,
-            "answer": answer,
-            "timestamp": datetime.utcnow()
-        })
+        answer = response.json().get("response")
 
         return {"answer": answer}
 
     except:
-        return {"answer": "حصل خطأ في السيرفر"}
+        return {"answer": "خطأ في الاتصال بالسيرفر"}
