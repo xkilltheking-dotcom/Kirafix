@@ -22,25 +22,24 @@ SYSTEM_PROMPT = "أنت Kirafix Ai، رد باللهجة المصرية وباخ
 
 @app.post("/chat")
 async def chat(query: Query):
-
-payload = {
-    "model": MODEL_NAME,
-    "prompt": f"""
-أنت Kirafix Ai.
-
-اتبع القواعد بدقة:
-1- جاوب بمعلومة صحيحة فقط
-2- ممنوع تخمين أو إضافة دول غير صحيحة
-3- لو مش متأكد قول: "مش متأكد"
-4- الرد يكون مختصر جدًا
-5- اتكلم باللهجة المصرية البسيطة
-
-السؤال: {query.prompt}
-
-الإجابة:
-""",
-    "stream": False
-}
+    # الـ Prompt ده بيجبر الموديل يتقمص الشخصية صح ويبعد عن الترجمة الحرفية
+    payload = {
+        "model": MODEL_NAME,
+        "prompt": f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+أنت Kirafix AI، مساعد ذكي مصري دمك خفيف وبترد بلهجة مصرية عامية "نفس طريقة كلام الشباب في القاهرة".
+قواعدك:
+1. الرد يكون مصري خالص (زي: "يا باشا"، "من عينيا"، "أيوة"، "مش عارف").
+2. لو سألك عن معلومة، جاوب بدقة وبسرعة.
+3. ممنوع الهبد، لو مش عارف قول "والله ما عندي فكرة".
+4. خليك مختصر ومفيد.
+<|eot_id|><|start_header_id|>user<|end_header_id|>
+{query.prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+        "stream": False,
+        "options": {
+            "temperature": 0.7,  # عشان ميكررش الكلام
+            "top_p": 0.9
+        }
+    }
 
     try:
         response = requests.post(OLLAMA_URL, json=payload)
