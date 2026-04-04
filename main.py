@@ -18,4 +18,5 @@ def home():
 
 @app.get("/chat")
 def chat(query: str):
-    return {"response": f"Kirafix heard: {query}"}
+    # جرب نغير "response" لـ "text" لأن أغلب الواجهات بتدور على الاسم ده
+    return {"text": f"Kirafix Ai: {query}"}
