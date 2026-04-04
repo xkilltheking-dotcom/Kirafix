@@ -13,6 +13,16 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
+
+# إعداد الـ CORS عشان الواجهة تقدر تتصل بالسيرفر
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # بيسمح لأي واجهة (زي اللي أنت فاتحها) بالوصول
+    allow_credentials=True,
+    allow_methods=["*"],  # بيسمح بـ GET, POST, إلخ
+    allow_headers=["*"],
+)
 
 app.add_middleware(
     CORSMiddleware,
