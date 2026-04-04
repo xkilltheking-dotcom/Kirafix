@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# تصريح العبور (الجسر) عشان المتصفح ميعملش Block
+# تصريح العبور (الجسر) - ده اللي هيحل "تعذر الاتصال"
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -12,13 +12,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# الصفحة الرئيسية (عشان تتأكد إن السيرفر شغال)
 @app.get("/")
 def home():
-    return {"status": "Kirafix Server is Online!"}
+    return {"status": "Online"}
 
-# "ودن" السيرفر اللي بتسمع الشات
 @app.get("/chat")
 def chat(query: str):
-    # هنا بنقول للسيرفر: خد الكلام ورجعهولي زي ما هو (لحد ما نركب مخ AI)
-    return {"response": f"Sended: {query}"}
+    return {"response": f"Kirafix heard: {query}"}
