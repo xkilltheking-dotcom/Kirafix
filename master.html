@@ -6,7 +6,7 @@
     <title>Kirafix - Home</title>
     <link rel="stylesheet" href="style.css?v=2">
     <style>
-/* التنسيقات الإضافية لشاشة التحميل ومنطقة النشر */
+        /* التنسيقات الإضافية لشاشة التحميل ومنطقة النشر */
         #loadingScreen {
             position: fixed;
             width: 100%;
@@ -135,7 +135,7 @@
         
         /* تعديل ظهور نص التعليق */
         .comment-bubble { 
-            background: #f0f2f5; 
+            background: #f0f2f5; /* لون فاتح للوضع العادي */
             padding: 8px 12px; 
             border-radius: 18px; 
             font-size: 13px; 
@@ -210,21 +210,21 @@
 
         /* الإعدادات الافتراضية (للكمبيوتر) */
         .mobile-only {
-            display: none !important; 
+            display: none !important; /* إخفاء العائم في الكمبيوتر */
         }
 
         .desktop-only {
-            display: flex; 
+            display: flex; /* إظهار عداد الهيدر */
         }
 
         /* الإعدادات للموبايل (أقل من 768px) */
         @media (max-width: 767px) {
             .desktop-only {
-                display: none !important; 
+                display: none !important; /* إخفاء عداد الهيدر في الموبايل */
             }
             
             .mobile-only {
-                display: flex !important; 
+                display: flex !important; /* إظهار العداد العائم */
             }
 
             .floating-coins {
@@ -242,7 +242,6 @@
                 box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             }
         }
-
         /* تنسيق العداد داخل السايد ناف */
         .side-nav-coins {
             display: flex;
@@ -254,7 +253,7 @@
             border: 1px solid #ffd700;
             position: absolute;
             top: 15px;
-            left: 15px;
+            left: 15px; /* عشان يكون مقابل لعلامة الـ X */
         }
 
         .side-nav-coins #user-coins-side {
@@ -263,71 +262,13 @@
             font-size: 16px;
         }
 
-        /* إصلاح القائمة الجانبية للكمبيوتر والموبايل */
-        .side-nav {
-            position: fixed;
-            top: 0;
-            right: -300px; /* مخفية */
-            width: 300px;
-            height: 100vh;
-            background: white;
-            z-index: 10000; /* أعلى من كل شيء */
-            transition: right 0.4s ease;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .side-nav.active {
-            right: 0; /* تظهر */
-        }
-
-        body.dark-mode .side-nav {
-            background: #1f2937;
-        }
-
-        .menu-icon {
-            display: block !important; 
-            cursor: pointer;
-            font-size: 24px;
-            margin-left: 15px;
-            z-index: 1001;
-        }
-
-        .links {
-            display: none !important;
-        }
-
-        @media (min-width: 768px) {
-            .side-nav-coins {
-                display: none !important;
+        /* إخفاء العداد القديم في الموبايل عشان ميبقاش فيه زحمة */
+        @media (max-width: 767px) {
+            .floating-coins.mobile-only {
+                display: none !important; 
             }
         }
-        
-        .side-links a, .side-links button {
-            display: block;
-            padding: 15px 25px;
-            text-decoration: none;
-            color: inherit;
-            font-size: 18px;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            text-align: right;
-            background: none;
-            border-left: none;
-            border-right: none;
-            border-top: none;
-            width: 100%;
-            cursor: pointer;
-        }
-        
-        .close-btn {
-            font-size: 30px;
-            cursor: pointer;
-            padding: 15px;
-            align-self: flex-start;
-        }
-</style>
-
+    </style>
 </head>
 <body>
 
@@ -349,7 +290,7 @@
         <div id="sideNav" class="side-nav">
             <div class="close-btn" id="closeBtn">&times;</div>
             
-            <div class="side-nav-coins mobile-only"> 
+            <div class="side-nav-coins">
                 <div class="kira-coin" style="width:20px; height:20px;">
                     <div class="coin-front" style="font-size:12px;">K</div>
                 </div>
@@ -374,6 +315,11 @@
             <span id="user-coins">0</span>
         </div>
 
+        <div class="links">
+            <a href="#">Home</a>
+            <a href="profile.html">Profile</a>
+            <button id="aiBtn">✨ اسأل AI</button>
+        </div>
     </div>
     <div class="center"><div id="but">+</div></div>
     <div class="left"><h2>Kirafix</h2></div>
@@ -550,12 +496,20 @@ const setupProgressUI = () => {
 // --- وظيفة اللغة ---
 function applyMainLanguage(lang) {
     const dict = {
-        ar: { home: "الرئيسية", profile: "البروفايل", ai: "✨ اسأل AI", placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
-        en: { home: "Home", profile: "Profile", ai: "✨ Ask AI", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
+        ar: { home: "الرئيسية", profile: "البروفايل", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
+        en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
     };
     const t = dict[lang] || dict['ar'];
     
-    // ترجمة روابط القائمة الجانبية (بما أن Links في الهيدر مخفية)
+    // ترجمة روابط الهيدر (الكمبيوتر)
+    const links = document.querySelectorAll('.links a');
+    if(links.length >= 2) { 
+        links[0].textContent = t.home; 
+        links[1].textContent = t.profile; 
+    }
+    if(document.getElementById('aiBtn')) document.getElementById('aiBtn').textContent = t.ai;
+
+    // ترجمة روابط القائمة الجانبية (الموبايل)
     const sideLinks = document.querySelectorAll('.side-links a');
     if(sideLinks.length >= 2) {
         sideLinks[0].textContent = t.home;
@@ -569,6 +523,7 @@ function applyMainLanguage(lang) {
     if(document.getElementById('imgBtn')) document.getElementById('imgBtn').textContent = t.imgBtn;
     if(document.getElementById('videoBtn')) document.getElementById('videoBtn').textContent = t.videoBtn;
 
+    // تحديد اتجاه الصفحة
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
@@ -600,7 +555,6 @@ onAuthStateChanged(auth, async (user) => {
                     const currentCoins = docSnap.data().coins || 0;
                     if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = currentCoins;
                     if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = currentCoins;
-                    if (document.getElementById("user-coins-float")) document.getElementById("user-coins-float").textContent = currentCoins;
                 }
             });
         }
@@ -771,9 +725,9 @@ if (menuBtn && sideNav && closeBtn) {
     document.addEventListener('click', (event) => { if (!sideNav.contains(event.target) && event.target !== menuBtn) { sideNav.classList.remove("active"); } });
 }
 
-// --- وظيفة الذكاء الاصطناعي (Kirafix AI) ---
+// --- وظيفة الذكاء الاصطناعي ---
 async function askAI(message) {
-    const API_KEY = "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E"; 
+    const API_KEY = "YOUR_ACTUAL_API_KEY"; 
     const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
     try {
         const res = await fetch(URL, {
@@ -787,18 +741,6 @@ async function askAI(message) {
         console.error("AI Error:", e);
         return "حدث خطأ في الاتصال بالذكاء الاصطناعي.";
     }
-}
-
-// تشغيل الـ AI من الزر الجانبي
-const aiBtnSide = document.getElementById("aiBtnSide");
-if(aiBtnSide) {
-    aiBtnSide.onclick = async () => {
-        const prompt = prompt("اسأل Kirafix AI أي شيء:");
-        if(prompt) {
-            const response = await askAI(prompt);
-            alert("Kirafix AI يقول: \n" + response);
-        }
-    };
 }
 </script>
 
