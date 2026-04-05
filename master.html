@@ -518,33 +518,64 @@ const setupProgressUI = () => {
 };
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = "index.html"; return; }
+    // 1. التحقق من تسجيل الدخول
+    if (!user) { 
+        window.location.href = "index.html"; 
+        return; 
+    }
+
     setupProgressUI();
     
     const userDocRef = doc(db, "users", user.uid);
-    const userDoc = await getDoc(userDocRef);
     
-    if (userDoc.exists()) {
-        currentUserData = userDoc.data();
-        const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
-        document.getElementById("navProfilePic").src = userImg;
-        const compImg = document.querySelector(".composer-header img");
-        if(compImg) compImg.src = userImg;
+    try {
+        const userDoc = await getDoc(userDocRef);
+        
+        if (userDoc.exists()) {
+            currentUserData = userDoc.data();
+            const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
+            
+            // تحديث الصور
+            if(document.getElementById("navProfilePic")) document.getElementById("navProfilePic").src = userImg;
+            const compImg = document.querySelector(".composer-header img");
+            if(compImg) compImg.src = userImg;
 
-        // مراقبة العملات في الوقت الفعلي وتحديث الـ UI
-onSnapshot(userDocRef, (doc) => {
-    if (doc.exists()) {
-        const userData = doc.data();
-        const currentCoins = userData.coins || 0;
-        
-        // تحديث الهيدر (كمبيوتر)
-        const navCoins = document.getElementById("user-coins");
-        if (navCoins) navCoins.textContent = currentCoins;
-        
-        // التحديث الجديد: عداد السايد ناف (موبايل)
-        const sideCoins = document.getElementById("user-coins-side");
-        if (sideCoins) sideCoins.textContent = currentCoins;
+            // تحديث الاسم في شاشة الـ Loading
+            const nameDisplay = document.getElementById("user-name-display");
+            if(nameDisplay) nameDisplay.textContent = currentUserData.name || user.email.split("@")[0];
+
+            // مراقبة العملات (Real-time) - القوس هنا مقفول صح
+            onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const userData = docSnap.data();
+                    const currentCoins = userData.coins || 0;
+                    
+                    if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = currentCoins;
+                    if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = currentCoins;
+                }
+            });
+        }
+    } catch (error) {
+        console.error("Firebase Error:", error);
     }
+
+    // 2. إعدادات اللغة والوضع الليلي
+    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+    if (savedDark) document.body.classList.add('dark-mode');
+    
+    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+    applyMainLanguage(savedLang);
+
+    // 3. إخفاء شاشة التحميل (ده السطر اللي كان بيعلق)
+    setTimeout(() => {
+        const loader = document.getElementById("loadingScreen");
+        if(loader) {
+            loader.style.opacity = "0";
+            setTimeout(() => {
+                loader.style.display = "none";
+            }, 600);
+        }
+    }, 1500); 
 });
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
