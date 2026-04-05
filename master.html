@@ -584,6 +584,10 @@ videoInput.onchange = (e) => {
 document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
+    
+    // سطر الاختبار ده هيقولنا اللون اللي هيتبعت كام بالظبط
+    console.log("اللون اللي هيتنشره حالياً هو:", currentUserData?.activeColor);
+
     if (!text && !selectedFile) { alert("اكتب حاجة أو اختار ميديا!"); return; }
     btn.disabled = true; btn.innerText = "...";
     try {
@@ -593,7 +597,8 @@ document.getElementById("se").onclick = async () => {
             uid: auth.currentUser.uid,
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
-            userColor: currentUserData?.activeColor || '#374151',
+            // هنا بنضمن إنه لو اللون مش موجود يحط لون افتراضي غامق
+            userColor: currentUserData?.activeColor || '#374151', 
             createdAt: serverTimestamp(),
             image: null, video: null, likes: [], views: [], commentsCount: 0
         });
