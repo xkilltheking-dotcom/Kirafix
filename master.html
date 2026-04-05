@@ -294,16 +294,25 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-    async function addKiraCoins(amount = 5) {
+async function addKiraCoins(amount) {
     if (!auth.currentUser) return;
     const userRef = doc(db, "users", auth.currentUser.uid);
+    
     try {
+        const userDoc = await getDoc(userRef);
+        let currentCoins = userDoc.data()?.coins || 0;
+        
+        // منع الرصيد من النزول تحت الصفر
+        let newAmount = amount;
+        if (currentCoins + amount < 0) {
+            newAmount = -currentCoins; // هيسحب اللي موجود بس ويخليها 0
+        }
+
         await updateDoc(userRef, {
-            coins: increment(amount)
+            coins: increment(newAmount)
         });
-        console.log(`مبروك! أخدت ${amount} Kira Coins`);
     } catch (e) {
-        console.error("Error adding coins:", e);
+        console.error("Error adding/removing coins:", e);
     }
 }
 
@@ -328,6 +337,7 @@ window.sendComment = async (postId) => {
     if (!text || !auth.currentUser) return;
 
     try {
+        // 1. رفع الكومنت
         await addDoc(collection(db, "posts", postId, "comments"), {
             text: text,
             uid: auth.currentUser.uid,
@@ -335,9 +345,18 @@ window.sendComment = async (postId) => {
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
             createdAt: serverTimestamp()
         });
+
+        // 2. تحديث عداد الكومنتات في البوست
         await updateDoc(doc(db, "posts", postId), { commentsCount: increment(1) });
+        
+        // 3. إضافة الكوينز (تمت بنجاح)
+        await addKiraCoins(5); 
+        
         input.value = "";
-    } catch(e) { console.error(e); }
+    } catch(e) { 
+        console.error("Error sending comment:", e);
+        alert("فشل إرسال التعليق");
+    }
 };
 
 // تحميل التعليقات للبوست
@@ -378,10 +397,24 @@ const viewObserver = new IntersectionObserver((entries) => {
 window.toggleLike = async (postId, hasLiked) => {
     if(!auth.currentUser) return;
     const postRef = doc(db, "posts", postId);
+    
     try {
-        if (hasLiked) { await updateDoc(postRef, { likes: arrayRemove(auth.currentUser.uid) }); }
-        else { await updateDoc(postRef, { likes: arrayUnion(auth.currentUser.uid) }); }
-    } catch(e) { console.error(e); }
+        if (hasLiked) { 
+            // المستخدم شال اللايك
+            await updateDoc(postRef, { likes: arrayRemove(auth.currentUser.uid) }); 
+            
+            // سحب 2 كوين (إضافة قيمة سالبة)
+            addKiraCoins(-2); 
+        } else { 
+            // المستخدم عمل لايك جديد
+            await updateDoc(postRef, { likes: arrayUnion(auth.currentUser.uid) });
+            
+            // إضافة 2 كوين
+            addKiraCoins(2); 
+        }
+    } catch(e) { 
+        console.error("Error toggling like/coins:", e); 
+    }
 };
 
 const setupProgressUI = () => {
@@ -411,6 +444,16 @@ onAuthStateChanged(auth, async (user) => {
     }
     if (userDoc.exists()) {
         currentUserData = userDoc.data();
+        // مراقبة العملات في الوقت الفعلي
+onSnapshot(doc(db, "users", user.uid), (doc) => {
+    if (doc.exists()) {
+        const userData = doc.data();
+        const coinsElement = document.getElementById("user-coins");
+        if (coinsElement) {
+            coinsElement.textContent = userData.coins || 0;
+        }
+    }
+});
         // تحديث عداد العملات في الهيدر
         document.getElementById("user-coins").textContent = currentUserData.coins || 0;
         
