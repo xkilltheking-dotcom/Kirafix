@@ -356,6 +356,18 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+function formatCoins(num) {
+    if (num >= 1000000000) {
+        return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+    }
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    }
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    }
+    return num;
+}    
 
 const firebaseConfig = {
     apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -529,14 +541,21 @@ onAuthStateChanged(auth, async (user) => {
             const nameDisplay = document.getElementById("user-name-display");
             if(nameDisplay) nameDisplay.textContent = currentUserData.name || user.email.split("@")[0];
 
-            onSnapshot(userDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const currentCoins = docSnap.data().coins || 0;
-                    if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = currentCoins;
-                    if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = currentCoins;
-                    if (document.getElementById("user-coins-float")) document.getElementById("user-coins-float").textContent = currentCoins;
-                }
-            });
+onSnapshot(userDocRef, (docSnap) => {
+    if (docSnap.exists()) {
+        const rawCoins = docSnap.data().coins || 0;
+        const formatted = formatCoins(rawCoins); // هنا بنحول الرقم لشكل شيك
+
+        if (document.getElementById("user-coins")) 
+            document.getElementById("user-coins").textContent = formatted;
+        
+        if (document.getElementById("user-coins-side")) 
+            document.getElementById("user-coins-side").textContent = formatted;
+            
+        if (document.getElementById("user-coins-float")) 
+            document.getElementById("user-coins-float").textContent = formatted;
+    }
+});
         }
     } catch (error) {
         console.error("Firebase Error:", error);
