@@ -29,7 +29,6 @@
             padding: 20px;
         }
 
-        /* تصميم المتجر */
         .store-card {
             background: white;
             border-radius: 20px;
@@ -52,7 +51,6 @@
             margin-bottom: 20px;
         }
 
-        /* العجلة */
         .wheel-container {
             position: relative;
             width: 250px;
@@ -94,7 +92,6 @@
         }
         .spin-btn:disabled { background: #9ca3af; cursor: not-allowed; }
 
-        /* الـ Inventory */
         .inventory-section {
             margin-top: 40px;
             background: white;
@@ -119,6 +116,15 @@
             transition: 0.2s;
             position: relative;
         }
+
+        /* استايلات الألوان الخاصة */
+        .color-item.rainbow { 
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+            background-size: 200% 200%;
+            animation: rainbowBG 2s linear infinite;
+        }
+        @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+
         .color-item.active { border-color: var(--gold); transform: scale(1.1); }
         .color-item.active::after {
             content: '✓';
@@ -162,8 +168,7 @@
     <div class="inventory-section">
         <h3>🎒 حقيبتك (Inventory)</h3>
         <p style="font-size: 13px; color: #666;">اختر لوناً لتطبيقه على اسمك في التعليقات والمنشورات</p>
-        <div id="color-grid" class="color-grid">
-            </div>
+        <div id="color-grid" class="color-grid"></div>
     </div>
 </div>
 
@@ -185,25 +190,36 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// إعدادات الألوان والنسب
+// إعدادات الألوان والنسب المطلوبة بالظبط
 const colors = [
-    { name: 'أحمر ناري', code: '#ff4757', chance: 40 },
-    { name: 'أزرق ملكي', code: '#2e86de', chance: 30 },
-    { name: 'أرجواني', code: '#8e44ad', chance: 20 },
-    { name: 'أخضر فسفوري', code: '#2ecc71', chance: 7 },
-    { name: 'ذهبي أسطوري', code: '#ffd700', chance: 3 } // نادر جداً
+    // العاديين (بنسبة تقريبية 25% لكل واحد من المجموع المخصص لهم)
+    { name: 'أحمر', code: '#ff4d4d', chance: 24.0 },
+    { name: 'أخضر', code: '#4dff4d', chance: 24.0 },
+    { name: 'أصفر', code: '#ffff4d', chance: 24.0 },
+    { name: 'أزرق', code: '#4d4dff', chance: 24.0 },
+    { name: 'بنفسجي', code: '#b34dff', chance: 24.0 },
+    // الليجنديري (1% لكل واحد)
+    { name: 'جولد', code: 'linear-gradient(135deg, #ffd700, #b8860b)', chance: 1.0 },
+    { name: 'دموي', code: 'linear-gradient(135deg, #8a0303, #4a0000)', chance: 1.0 },
+    { name: 'خشبي', code: 'linear-gradient(135deg, #8b4513, #5d2e0a)', chance: 1.0 },
+    { name: 'سيلفر', code: 'linear-gradient(135deg, #e0e0e0, #757575)', chance: 1.0 },
+    // الأندر (0.1%)
+    { name: 'رينبو', code: 'RAINBOW_SPECIAL', chance: 0.1 }
 ];
 
 const canvas = document.getElementById("wheel-canvas");
 const ctx = canvas.getContext("2d");
 let currentRotation = 0;
 
-// رسم العجلة
 function drawWheel() {
     const sliceAngle = (2 * Math.PI) / colors.length;
     colors.forEach((color, i) => {
         ctx.beginPath();
-        ctx.fillStyle = color.code;
+        if (color.code === 'RAINBOW_SPECIAL') {
+            ctx.fillStyle = '#ffffff'; // شكل مميز في العجلة
+        } else {
+            ctx.fillStyle = color.code.includes('gradient') ? '#ffd700' : color.code;
+        }
         ctx.moveTo(250, 250);
         ctx.arc(250, 250, 250, i * sliceAngle, (i + 1) * sliceAngle);
         ctx.fill();
@@ -212,8 +228,8 @@ function drawWheel() {
         ctx.translate(250, 250);
         ctx.rotate(i * sliceAngle + sliceAngle / 2);
         ctx.fillStyle = "white";
-        ctx.font = "bold 20px Arial";
-        ctx.fillText("K", 180, 10);
+        ctx.font = "bold 16px Arial";
+        ctx.fillText(color.name[0], 180, 5); // عرض أول حرف
         ctx.restore();
     });
 }
@@ -221,12 +237,12 @@ drawWheel();
 
 onAuthStateChanged(auth, (user) => {
     if (!user) { window.location.href = "index.html"; return; }
-    
-    // مراقبة العملات والـ Inventory
     onSnapshot(doc(db, "users", user.uid), (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
-            document.getElementById("user-coins").textContent = data.coins || 0;
+            // استخدام دالة التنسيق للأرقام الكبيرة
+            const rawCoins = data.coins || 0;
+            document.getElementById("user-coins").textContent = rawCoins >= 1000000 ? (rawCoins/1000000).toFixed(1) + 'M' : rawCoins;
             renderInventory(data.inventory || [], data.activeColor);
         }
     });
@@ -242,21 +258,24 @@ async function spin() {
     const btn = document.getElementById("spinBtn");
     btn.disabled = true;
 
-    // خصم الكوينات
     await updateDoc(userRef, { coins: increment(-100) });
 
-    // تحديد الفائز بناءً على الاحتمالات
-    let totalChance = colors.reduce((s, c) => s + c.chance, 0);
-    let random = Math.random() * totalChance;
+    // حساب الحظ بناءً على النسب المحددة
+    let totalWeight = colors.reduce((s, c) => s + c.chance, 0);
+    let random = Math.random() * totalWeight;
     let winningIndex = 0;
+    
+    let sum = 0;
     for (let i = 0; i < colors.length; i++) {
-        if (random < colors[i].chance) { winningIndex = i; break; }
-        random -= colors[i].chance;
+        sum += colors[i].chance;
+        if (random <= sum) {
+            winningIndex = i;
+            break;
+        }
     }
 
-    // حساب زاوية التوقف (عكس عقارب الساعة عشان السهم فوق)
     const sliceAngle = 360 / colors.length;
-    const extraSpins = 5 * 360; 
+    const extraSpins = 8 * 360; 
     const stopAngle = extraSpins + (360 - (winningIndex * sliceAngle) - (sliceAngle/2));
     
     currentRotation += stopAngle;
@@ -277,17 +296,24 @@ function renderInventory(items, activeColor) {
     const grid = document.getElementById("color-grid");
     grid.innerHTML = "";
     
-    // إضافة اللون الافتراضي (الأسود/الأبيض)
-    const defaultColor = { code: '#374151', name: 'افتراضي' };
-    [defaultColor, ...new Set(items)].forEach(colorCode => {
+    const defaultColor = '#374151';
+    const allItems = [defaultColor, ...new Set(items)];
+
+    allItems.forEach(colorCode => {
         const item = document.createElement("div");
         item.className = `color-item ${activeColor === colorCode ? 'active' : ''}`;
-        item.style.backgroundColor = (typeof colorCode === 'string') ? colorCode : colorCode.code;
+        
+        if (colorCode === 'RAINBOW_SPECIAL') {
+            item.classList.add('rainbow');
+        } else if (colorCode.includes('gradient')) {
+            item.style.background = colorCode;
+        } else {
+            item.style.backgroundColor = colorCode;
+        }
         
         item.onclick = async () => {
-            const finalCode = (typeof colorCode === 'string') ? colorCode : colorCode.code;
             await updateDoc(doc(db, "users", auth.currentUser.uid), {
-                activeColor: finalCode
+                activeColor: colorCode
             });
         };
         grid.appendChild(item);
@@ -296,7 +322,6 @@ function renderInventory(items, activeColor) {
 
 document.getElementById("spinBtn").onclick = spin;
 
-// تفعيل الدارك مود لو مخزن
 if(localStorage.getItem('kirafix-dark') === 'true') document.body.classList.add('dark-mode');
 </script>
 
