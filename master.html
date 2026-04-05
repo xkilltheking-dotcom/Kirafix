@@ -242,6 +242,32 @@
                 box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             }
         }
+        /* تنسيق العداد داخل السايد ناف */
+.side-nav-coins {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 12px;
+    border: 1px solid #ffd700;
+    position: absolute;
+    top: 15px;
+    right: 15px; /* عشان يكون مقابل لعلامة الـ X */
+}
+
+.side-nav-coins #user-coins-side {
+    color: #ffd700;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* إخفاء العداد القديم في الموبايل عشان ميبقاش فيه زحمة */
+@media (max-width: 767px) {
+    .floating-coins.mobile-only {
+        display: none !important; 
+    }
+}
     </style>
 </head>
 <body>
@@ -263,6 +289,41 @@
 
         <div id="sideNav" class="side-nav">
             <div class="close-btn" id="closeBtn">&times;</div>
+            
+            <div class="side-nav-coins">
+                <div class="kira-coin" style="width:20px; height:20px;">
+                    <div class="coin-front" style="font-size:12px;">K</div>
+                </div>
+                <span id="user-coins-side">0</span>
+            </div>
+
+            <div class="side-links" style="margin-top: 60px;"> 
+                <a href="#">الرئيسية</a>
+                <a href="profile.html">البروفايل</a>
+                <button id="aiBtn">✨ اسأل AI</button>
+            </div>
+        </div>
+
+        <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" id="ht" style="cursor:pointer;" 
+             onclick="window.location.href='settings.html'">
+        <img src="af80e23deeb127837d30554452546196.jpg" id="navProfilePic">
+        
+        <div class="coin-container desktop-only" title="Kira Coins">
+            <div class="kira-coin">
+                <div class="coin-front">K</div>
+            </div>
+            <span id="user-coins">0</span>
+        </div>
+
+        <div class="links">
+            <a href="#">Home</a>
+            <a href="profile.html">Profile</a>
+            <button id="aiBtn">✨ اسأل AI</button>
+        </div>
+    </div>
+    <div class="center"><div id="but">+</div></div>
+    <div class="left"><h2>Kirafix</h2></div>
+</header>
             <div class="side-links">
                 <a href="#">Home</a>
                 <a href="profile.html">Profile</a>
@@ -471,23 +532,20 @@ onAuthStateChanged(auth, async (user) => {
         if(compImg) compImg.src = userImg;
 
         // مراقبة العملات في الوقت الفعلي وتحديث الـ UI
-        onSnapshot(userDocRef, (doc) => {
-            if (doc.exists()) {
-                const userData = doc.data();
-                const currentCoins = userData.coins || 0;
-                
-                const navCoins = document.getElementById("user-coins");
-                if (navCoins) navCoins.textContent = currentCoins;
-                
-                const floatCoins = document.getElementById("user-coins-float");
-                if (floatCoins) floatCoins.textContent = currentCoins;
-            }
-        });
-
-        if (currentUserData.coins === undefined) {
-            await updateDoc(userDocRef, { coins: 5 });
-        }
+onSnapshot(userDocRef, (doc) => {
+    if (doc.exists()) {
+        const userData = doc.data();
+        const currentCoins = userData.coins || 0;
+        
+        // تحديث الهيدر (كمبيوتر)
+        const navCoins = document.getElementById("user-coins");
+        if (navCoins) navCoins.textContent = currentCoins;
+        
+        // التحديث الجديد: عداد السايد ناف (موبايل)
+        const sideCoins = document.getElementById("user-coins-side");
+        if (sideCoins) sideCoins.textContent = currentCoins;
     }
+});
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
