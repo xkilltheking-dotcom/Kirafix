@@ -6,7 +6,7 @@
     <title>Kirafix - Home</title>
     <link rel="stylesheet" href="style.css?v=2">
     <style>
-        /* التنسيقات الإضافية لشاشة التحميل ومنطقة النشر */
+/* التنسيقات الإضافية لشاشة التحميل ومنطقة النشر */
         #loadingScreen {
             position: fixed;
             width: 100%;
@@ -210,21 +210,21 @@
 
         /* الإعدادات الافتراضية (للكمبيوتر) */
         .mobile-only {
-            display: none !important; /* إخفاء العائم في الكمبيوتر */
+            display: none !important; 
         }
 
         .desktop-only {
-            display: flex; /* إظهار عداد الهيدر */
+            display: flex; 
         }
 
         /* الإعدادات للموبايل (أقل من 768px) */
         @media (max-width: 767px) {
             .desktop-only {
-                display: none !important; /* إخفاء عداد الهيدر في الموبايل */
+                display: none !important; 
             }
             
             .mobile-only {
-                display: flex !important; /* إظهار العداد العائم */
+                display: flex !important; 
             }
 
             .floating-coins {
@@ -242,6 +242,7 @@
                 box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             }
         }
+
         /* تنسيق العداد داخل السايد ناف */
         .side-nav-coins {
             display: flex;
@@ -253,7 +254,7 @@
             border: 1px solid #ffd700;
             position: absolute;
             top: 15px;
-            left: 15px; /* عشان يكون مقابل لعلامة الـ X */
+            left: 15px;
         }
 
         .side-nav-coins #user-coins-side {
@@ -262,47 +263,69 @@
             font-size: 16px;
         }
 
-        /* إخفاء العداد القديم في الموبايل عشان ميبقاش فيه زحمة */
-        @media (max-width: 767px) {
-            .floating-coins.mobile-only {
-                display: none !important; 
-            }
+        /* إصلاح القائمة الجانبية للكمبيوتر والموبايل */
+        .side-nav {
+            position: fixed;
+            top: 0;
+            right: -300px; /* مخفية */
+            width: 300px;
+            height: 100vh;
+            background: white;
+            z-index: 10000; /* أعلى من كل شيء */
+            transition: right 0.4s ease;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
         }
-    /* تأكد أن زر المنيو يظهر دائماً */
-    .menu-icon {
-        display: block !important; 
-        cursor: pointer;
-        font-size: 24px;
-        margin-left: 15px;
-    }
 
-    /* إخفاء الروابط القديمة إذا كانت لا تزال موجودة في ملف style.css */
-    .links {
-        display: none !important;
-    }
+        .side-nav.active {
+            right: 0; /* تظهر */
+        }
 
-    /* جعل القائمة الجانبية تعمل بشكل جيد على الكمبيوتر */
-    .side-nav {
-        width: 300px; /* عرض مناسب للكمبيوتر */
-    }
+        body.dark-mode .side-nav {
+            background: #1f2937;
+        }
 
-    /* إخفاء عداد العملات داخل السايد بار في حالة الكمبيوتر فقط */
-    @media (min-width: 768px) {
-        .side-nav-coins {
+        .menu-icon {
+            display: block !important; 
+            cursor: pointer;
+            font-size: 24px;
+            margin-left: 15px;
+            z-index: 1001;
+        }
+
+        .links {
             display: none !important;
         }
-    }
-    
-    /* تنسيق الروابط داخل القائمة لتناسب الكمبيوتر والموبايل */
-    .side-links a, .side-links button {
-        display: block;
-        padding: 15px 25px;
-        text-decoration: none;
-        color: inherit;
-        font-size: 18px;
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-        text-align: right;
-    }
+
+        @media (min-width: 768px) {
+            .side-nav-coins {
+                display: none !important;
+            }
+        }
+        
+        .side-links a, .side-links button {
+            display: block;
+            padding: 15px 25px;
+            text-decoration: none;
+            color: inherit;
+            font-size: 18px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            text-align: right;
+            background: none;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .close-btn {
+            font-size: 30px;
+            cursor: pointer;
+            padding: 15px;
+            align-self: flex-start;
+        }
 </style>
 
 </head>
