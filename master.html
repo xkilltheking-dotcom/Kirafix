@@ -135,7 +135,7 @@
         
         /* تعديل ظهور نص التعليق */
         .comment-bubble { 
-            background: #f0f2f5; /* لون فاتح للوضع العادي */
+            background: #f0f2f5; 
             padding: 8px 12px; 
             border-radius: 18px; 
             font-size: 13px; 
@@ -349,7 +349,8 @@
         <div id="sideNav" class="side-nav">
             <div class="close-btn" id="closeBtn">&times;</div>
             
-            <div class="side-nav-coins mobile-only"> <div class="kira-coin" style="width:20px; height:20px;">
+            <div class="side-nav-coins mobile-only"> 
+                <div class="kira-coin" style="width:20px; height:20px;">
                     <div class="coin-front" style="font-size:12px;">K</div>
                 </div>
                 <span id="user-coins-side">0</span>
@@ -359,7 +360,7 @@
                 <a href="#">الرئيسية</a>
                 <a href="profile.html">البروفايل</a>
                 <button id="aiBtnSide">✨ اسأل AI</button>
-                </div>
+            </div>
         </div>
 
         <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" id="ht" style="cursor:pointer;" 
@@ -373,7 +374,7 @@
             <span id="user-coins">0</span>
         </div>
 
-        </div>
+    </div>
     <div class="center"><div id="but">+</div></div>
     <div class="left"><h2>Kirafix</h2></div>
 </header>
@@ -549,20 +550,12 @@ const setupProgressUI = () => {
 // --- وظيفة اللغة ---
 function applyMainLanguage(lang) {
     const dict = {
-        ar: { home: "الرئيسية", profile: "البروفايل", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
-        en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
+        ar: { home: "الرئيسية", profile: "البروفايل", ai: "✨ اسأل AI", placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
+        en: { home: "Home", profile: "Profile", ai: "✨ Ask AI", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
     };
     const t = dict[lang] || dict['ar'];
     
-    // ترجمة روابط الهيدر (الكمبيوتر)
-    const links = document.querySelectorAll('.links a');
-    if(links.length >= 2) { 
-        links[0].textContent = t.home; 
-        links[1].textContent = t.profile; 
-    }
-    if(document.getElementById('aiBtn')) document.getElementById('aiBtn').textContent = t.ai;
-
-    // ترجمة روابط القائمة الجانبية (الموبايل)
+    // ترجمة روابط القائمة الجانبية (بما أن Links في الهيدر مخفية)
     const sideLinks = document.querySelectorAll('.side-links a');
     if(sideLinks.length >= 2) {
         sideLinks[0].textContent = t.home;
@@ -576,7 +569,6 @@ function applyMainLanguage(lang) {
     if(document.getElementById('imgBtn')) document.getElementById('imgBtn').textContent = t.imgBtn;
     if(document.getElementById('videoBtn')) document.getElementById('videoBtn').textContent = t.videoBtn;
 
-    // تحديد اتجاه الصفحة
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
@@ -608,6 +600,7 @@ onAuthStateChanged(auth, async (user) => {
                     const currentCoins = docSnap.data().coins || 0;
                     if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = currentCoins;
                     if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = currentCoins;
+                    if (document.getElementById("user-coins-float")) document.getElementById("user-coins-float").textContent = currentCoins;
                 }
             });
         }
@@ -778,9 +771,9 @@ if (menuBtn && sideNav && closeBtn) {
     document.addEventListener('click', (event) => { if (!sideNav.contains(event.target) && event.target !== menuBtn) { sideNav.classList.remove("active"); } });
 }
 
-// --- وظيفة الذكاء الاصطناعي ---
+// --- وظيفة الذكاء الاصطناعي (Kirafix AI) ---
 async function askAI(message) {
-    const API_KEY = "YOUR_ACTUAL_API_KEY"; 
+    const API_KEY = "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E"; 
     const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
     try {
         const res = await fetch(URL, {
@@ -794,6 +787,18 @@ async function askAI(message) {
         console.error("AI Error:", e);
         return "حدث خطأ في الاتصال بالذكاء الاصطناعي.";
     }
+}
+
+// تشغيل الـ AI من الزر الجانبي
+const aiBtnSide = document.getElementById("aiBtnSide");
+if(aiBtnSide) {
+    aiBtnSide.onclick = async () => {
+        const prompt = prompt("اسأل Kirafix AI أي شيء:");
+        if(prompt) {
+            const response = await askAI(prompt);
+            alert("Kirafix AI يقول: \n" + response);
+        }
+    };
 }
 </script>
 
