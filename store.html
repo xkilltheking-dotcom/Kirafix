@@ -29,7 +29,6 @@
             padding: 20px;
         }
 
-        /* زر العودة للرئيسية */
         .home-btn {
             display: inline-block;
             margin-bottom: 15px;
@@ -326,6 +325,8 @@ function renderInventory(items, activeColor) {
             await updateDoc(doc(db, "users", auth.currentUser.uid), {
                 activeColor: colorCode
             });
+
+            localStorage.setItem("kirafix-activeColor", colorCode); // 👈 الإضافة الوحيدة
         };
         grid.appendChild(item);
     });
