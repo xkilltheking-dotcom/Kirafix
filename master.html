@@ -530,6 +530,27 @@ if (menuBtn && sideNav && closeBtn) {
     closeBtn.onclick = () => { sideNav.classList.remove("active"); };
     document.addEventListener('click', (event) => { if (!sideNav.contains(event.target) && event.target !== menuBtn) { sideNav.classList.remove("active"); } });
 }
+    async function askAI(message) {
+    const API_KEY = "kirafixaiXXXXXXX";
+
+    const res = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: message }]
+                }]
+            })
+        }
+    );
+
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "مفيش رد";
+}
 </script>
 
 </body>
