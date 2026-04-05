@@ -165,6 +165,7 @@
             gap: 8px;
             margin: 0 10px;
             border: 1px solid #ffd700;
+            cursor: pointer;
         }
 
         #user-coins {
@@ -239,6 +240,7 @@
                 gap: 8px;
                 z-index: 1000;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+                cursor: pointer;
             }
         }
         
@@ -254,6 +256,7 @@
             position: absolute;
             top: 15px;
             left: 15px; 
+            cursor: pointer;
         }
 
         .side-nav-coins #user-coins-side {
@@ -283,7 +286,7 @@
         <div id="sideNav" class="side-nav">
             <div class="close-btn" id="closeBtn">&times;</div>
             
-            <div class="side-nav-coins">
+            <div class="side-nav-coins" onclick="window.location.href='store.html'">
                 <div class="kira-coin" style="width:20px; height:20px;">
                     <div class="coin-front" style="font-size:12px;">K</div>
                 </div>
@@ -293,7 +296,7 @@
             <div class="side-links" style="margin-top: 60px;"> 
                 <a href="#">الرئيسية</a>
                 <a href="profile.html">البروفايل</a>
-                <button id="aiBtnSide">✨ اسأل AI</button>
+                <a href="store.html" id="storeLinkSide">المتجر 🛒</a> <button id="aiBtnSide">✨ اسأل AI</button>
             </div>
         </div>
 
@@ -301,7 +304,7 @@
              onclick="window.location.href='settings.html'">
         <img src="af80e23deeb127837d30554452546196.jpg" id="navProfilePic">
         
-        <div class="coin-container desktop-only" title="Kira Coins">
+        <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
             <div class="kira-coin">
                 <div class="coin-front">K</div>
             </div>
@@ -311,7 +314,7 @@
         <div class="links">
             <a href="#">Home</a>
             <a href="profile.html">Profile</a>
-        </div>
+            <a href="store.html">Store</a> </div>
     </div>
     <div class="center"><div id="but">+</div></div>
     <div class="left"><h2>Kirafix</h2></div>
@@ -340,7 +343,7 @@
 
     <div id="postsContainer"></div>
     
-    <div class="floating-coins mobile-only" title="Kira Coins">
+    <div class="floating-coins mobile-only" title="Kira Coins" onclick="window.location.href='store.html'">
         <div class="kira-coin"><div class="coin-front">K</div></div>
         <span id="user-coins-float">0</span>
     </div>
@@ -473,21 +476,23 @@ window.toggleLike = async (postId, hasLiked) => {
 // --- وظيفة اللغة ---
 function applyMainLanguage(lang) {
     const dict = {
-        ar: { home: "الرئيسية", profile: "البروفايل", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
-        en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
+        ar: { home: "الرئيسية", profile: "البروفايل", store: "المتجر 🛒", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
+        en: { home: "Home", profile: "Profile", store: "Store 🛒", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
     };
     const t = dict[lang] || dict['ar'];
     
     const links = document.querySelectorAll('.links a');
-    if(links.length >= 2) { 
+    if(links.length >= 3) { 
         links[0].textContent = t.home; 
         links[1].textContent = t.profile; 
+        links[2].textContent = t.store;
     }
 
     const sideLinks = document.querySelectorAll('.side-links a');
-    if(sideLinks.length >= 2) {
+    if(sideLinks.length >= 3) {
         sideLinks[0].textContent = t.home;
         sideLinks[1].textContent = t.profile;
+        sideLinks[2].textContent = t.store;
     }
     if(document.getElementById('aiBtnSide')) document.getElementById('aiBtnSide').textContent = t.ai;
 
@@ -549,7 +554,6 @@ onAuthStateChanged(auth, async (user) => {
     }, 1500); 
 });
 
-// --- التحكم في واجهة المنشورات ---
 document.getElementById("but").onclick = () => {
     const box = document.getElementById("composerBox");
     box.style.display = box.style.display === "none" ? "block" : "none";
@@ -625,7 +629,6 @@ function timeAgo(timestamp) {
     return "الآن";
 }
 
-// --- تحديث المنشورات تلقائياً ---
 onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
     const container = document.getElementById("postsContainer");
     if(!container) return;
@@ -684,7 +687,6 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
     });
 });
 
-// --- القائمة الجانبية ---
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
 const closeBtn = document.getElementById("closeBtn");
