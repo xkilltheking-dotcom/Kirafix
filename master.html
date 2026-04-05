@@ -264,6 +264,17 @@
             font-weight: bold;
             font-size: 16px;
         }
+
+        /* ستايلات الألوان الخاصة بالأسماء */
+        .rainbow-text {
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbowBG 2s linear infinite;
+            display: inline-block;
+        }
+        @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
     </style>
 </head>
 <body>
@@ -356,16 +367,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
 function formatCoins(num) {
-    if (num >= 1000000000) {
-        return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
-    }
-    if (num >= 1000000) {
-        return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    }
-    if (num >= 1000) {
-        return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-    }
+    if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     return num;
 }    
 
@@ -384,6 +390,16 @@ const db = getFirestore(app);
 
 let currentUserData = null;
 
+// دالة مساعدة لتطبيق لون الاسم
+function getStyleForName(colorCode) {
+    if (!colorCode || colorCode === '#374151') return "";
+    if (colorCode === 'RAINBOW_SPECIAL') return 'class="rainbow-text"';
+    if (colorCode.includes('gradient')) {
+        return `style="background: ${colorCode}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; font-weight: bold;"`;
+    }
+    return `style="color: ${colorCode}; font-weight: bold;"`;
+}
+
 // --- وظائف نظام العملات ---
 async function addKiraCoins(amount) {
     if (!auth.currentUser) return;
@@ -392,13 +408,9 @@ async function addKiraCoins(amount) {
         const userDoc = await getDoc(userRef);
         let currentCoins = userDoc.data()?.coins || 0;
         let newAmount = amount;
-        if (currentCoins + amount < 0) {
-            newAmount = -currentCoins; 
-        }
+        if (currentCoins + amount < 0) newAmount = -currentCoins; 
         await updateDoc(userRef, { coins: increment(newAmount) });
-    } catch (e) {
-        console.error("Error adding/removing coins:", e);
-    }
+    } catch (e) { console.error("Error adding/removing coins:", e); }
 }
 
 // --- نظام التعليقات ---
@@ -407,9 +419,7 @@ window.toggleComments = (postId) => {
     if (section.style.display === "none" || section.style.display === "") {
         section.style.display = "block";
         loadCommentsRealtime(postId);
-    } else {
-        section.style.display = "none";
-    }
+    } else { section.style.display = "none"; }
 };
 
 window.sendComment = async (postId) => {
@@ -423,16 +433,13 @@ window.sendComment = async (postId) => {
             uid: auth.currentUser.uid,
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
+            userColor: currentUserData?.activeColor || '#374151',
             createdAt: serverTimestamp()
         });
-
         await updateDoc(doc(db, "posts", postId), { commentsCount: increment(1) });
         await addKiraCoins(5); 
         input.value = "";
-    } catch(e) { 
-        console.error("Error sending comment:", e);
-        alert("فشل إرسال التعليق");
-    }
+    } catch(e) { console.error("Error sending comment:", e); alert("فشل إرسال التعليق"); }
 };
 
 function loadCommentsRealtime(postId) {
@@ -442,11 +449,12 @@ function loadCommentsRealtime(postId) {
         list.innerHTML = "";
         snap.forEach(d => {
             const c = d.data();
+            const nameStyle = getStyleForName(c.userColor);
             list.innerHTML += `
                 <div class="comment-item">
                     <img src="${c.userImage}">
                     <div class="comment-bubble">
-                        <div style="font-weight:bold; font-size:11px;">${c.userName}</div>
+                        <div ${nameStyle} style="font-size:11px;">${c.userName}</div>
                         <div>${c.text}</div>
                     </div>
                 </div>`;
@@ -481,9 +489,7 @@ window.toggleLike = async (postId, hasLiked) => {
             await updateDoc(postRef, { likes: arrayUnion(auth.currentUser.uid) });
             addKiraCoins(2); 
         }
-    } catch(e) { 
-        console.error("Error toggling like/coins:", e); 
-    }
+    } catch(e) { console.error("Error toggling like/coins:", e); }
 };
 
 // --- وظيفة اللغة ---
@@ -493,86 +499,54 @@ function applyMainLanguage(lang) {
         en: { home: "Home", profile: "Profile", store: "Store 🛒", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
     };
     const t = dict[lang] || dict['ar'];
-    
-    // تعديل لينكات الكمبيوتر
     const links = document.querySelectorAll('.links a');
-    if(links.length >= 3) { 
-        links[0].textContent = t.home; 
-        links[1].textContent = t.profile; 
-        links[2].textContent = t.store;
-    }
-
-    // تعديل لينكات القائمة الجانبية
+    if(links.length >= 3) { links[0].textContent = t.home; links[1].textContent = t.profile; links[2].textContent = t.store; }
     const sideLinks = document.querySelectorAll('.side-links a');
-    if(sideLinks.length >= 3) {
-        sideLinks[0].textContent = t.home;
-        sideLinks[1].textContent = t.profile;
-        sideLinks[2].textContent = t.store;
-    }
-    
+    if(sideLinks.length >= 3) { sideLinks[0].textContent = t.home; sideLinks[1].textContent = t.profile; sideLinks[2].textContent = t.store; }
     if(document.getElementById('aiBtnSide')) document.getElementById('aiBtnSide').textContent = t.ai;
     if(document.getElementById('tex')) document.getElementById('tex').placeholder = t.placeholder;
     if(document.getElementById('se')) document.getElementById('se').textContent = t.postBtn;
     if(document.getElementById('imgBtn')) document.getElementById('imgBtn').textContent = t.imgBtn;
     if(document.getElementById('videoBtn')) document.getElementById('videoBtn').textContent = t.videoBtn;
-
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
 // --- حالة تسجيل الدخول ---
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { 
-        window.location.href = "index.html"; 
-        return; 
-    }
-
+    if (!user) { window.location.href = "index.html"; return; }
     const userDocRef = doc(db, "users", user.uid);
-    
     try {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
             currentUserData = userDoc.data();
             const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
-            
             if(document.getElementById("navProfilePic")) document.getElementById("navProfilePic").src = userImg;
             const compImg = document.querySelector(".composer-header img");
             if(compImg) compImg.src = userImg;
-
             const nameDisplay = document.getElementById("user-name-display");
             if(nameDisplay) nameDisplay.textContent = currentUserData.name || user.email.split("@")[0];
 
-onSnapshot(userDocRef, (docSnap) => {
-    if (docSnap.exists()) {
-        const rawCoins = docSnap.data().coins || 0;
-        const formatted = formatCoins(rawCoins); // هنا بنحول الرقم لشكل شيك
-
-        if (document.getElementById("user-coins")) 
-            document.getElementById("user-coins").textContent = formatted;
-        
-        if (document.getElementById("user-coins-side")) 
-            document.getElementById("user-coins-side").textContent = formatted;
-            
-        if (document.getElementById("user-coins-float")) 
-            document.getElementById("user-coins-float").textContent = formatted;
-    }
-});
+            onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    currentUserData = docSnap.data(); // تحديث بيانات اليوزر لحظياً
+                    const rawCoins = docSnap.data().coins || 0;
+                    const formatted = formatCoins(rawCoins);
+                    if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
+                    if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = formatted;
+                    if (document.getElementById("user-coins-float")) document.getElementById("user-coins-float").textContent = formatted;
+                }
+            });
         }
-    } catch (error) {
-        console.error("Firebase Error:", error);
-    }
+    } catch (error) { console.error("Firebase Error:", error); }
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
-    
     const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
     applyMainLanguage(savedLang);
 
     setTimeout(() => {
         const loader = document.getElementById("loadingScreen");
-        if(loader) {
-            loader.style.opacity = "0";
-            setTimeout(() => { loader.style.display = "none"; }, 600);
-        }
+        if(loader) { loader.style.opacity = "0"; setTimeout(() => { loader.style.display = "none"; }, 600); }
     }, 1500); 
 });
 
@@ -588,7 +562,6 @@ document.getElementById("imgBtn").onclick = () => imgInput.click();
 document.getElementById("videoBtn").onclick = () => videoInput.click();
 
 let selectedFile = null;
-
 imgInput.onchange = (e) => {
     selectedFile = e.target.files[0];
     if(selectedFile) {
@@ -596,7 +569,6 @@ imgInput.onchange = (e) => {
         mediaPreview.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" style="width:100%; border-radius:10px;">`;
     }
 };
-
 videoInput.onchange = (e) => {
     selectedFile = e.target.files[0];
     if(selectedFile) {
@@ -609,9 +581,7 @@ document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
     if (!text && !selectedFile) { alert("اكتب حاجة أو اختار ميديا!"); return; }
-    
     btn.disabled = true; btn.innerText = "...";
-
     try {
         await addDoc(collection(db, "posts"), {
             text: text,
@@ -619,25 +589,16 @@ document.getElementById("se").onclick = async () => {
             uid: auth.currentUser.uid,
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
+            userColor: currentUserData?.activeColor || '#374151',
             createdAt: serverTimestamp(),
-            image: null, 
-            video: null,
-            likes: [],
-            views: [],
-            commentsCount: 0
+            image: null, video: null, likes: [], views: [], commentsCount: 0
         });
-
         await addKiraCoins(7); 
         document.getElementById("tex").value = "";
-        mediaPreview.innerHTML = "";
-        mediaPreview.style.display = "none";
-        selectedFile = null;
-        btn.disabled = false; btn.innerText = "نشر";
+        mediaPreview.innerHTML = ""; mediaPreview.style.display = "none";
+        selectedFile = null; btn.disabled = false; btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
-    } catch (error) {
-        alert("حصلت مشكلة: " + error.message);
-        btn.disabled = false; btn.innerText = "نشر";
-    }
+    } catch (error) { alert("حصلت مشكلة: " + error.message); btn.disabled = false; btn.innerText = "نشر"; }
 };
 
 function timeAgo(timestamp) {
@@ -668,13 +629,15 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
             en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
         }[currentLang];
 
+        const nameStyle = getStyleForName(post.userColor);
+
         const postHTML = `
         <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
             <div style="padding:15px;">
                 <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                     <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                     <div class="user-info">
-                        <div class="username" style="font-weight:bold;">${post.userName || post.email?.split("@")[0]}</div>
+                        <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
                         <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
                     </div>
                 </div>
