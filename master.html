@@ -123,8 +123,8 @@
         /* ستايل التعليقات المدمجة مع دعم الدارك مود */
         .comments-section {
             display: none;
-            background: #1c1e21;
-            border-top: 1px solid #3e4042;
+            background: #f0f2f5;
+            border-top: 1px solid #e5e7eb;
             padding: 10px;
             border-radius: 0 0 12px 12px;
         }
@@ -133,17 +133,16 @@
         .comment-item { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
         .comment-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
         
-        /* تعديل ظهور نص التعليق */
         .comment-bubble { 
-            background: #f0f2f5; /* لون فاتح للوضع العادي */
+            background: #ffffff; 
             padding: 8px 12px; 
             border-radius: 18px; 
             font-size: 13px; 
             flex: 1; 
             color: #1c1e21; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
-        /* تعديل النص في الدارك مود */
         body.dark-mode .comment-bubble { 
             background: #3a3b3c; 
             color: #e4e6eb; 
@@ -210,21 +209,21 @@
 
         /* الإعدادات الافتراضية (للكمبيوتر) */
         .mobile-only {
-            display: none !important; /* إخفاء العائم في الكمبيوتر */
+            display: none !important; 
         }
 
         .desktop-only {
-            display: flex; /* إظهار عداد الهيدر */
+            display: flex; 
         }
 
         /* الإعدادات للموبايل (أقل من 768px) */
         @media (max-width: 767px) {
             .desktop-only {
-                display: none !important; /* إخفاء عداد الهيدر في الموبايل */
+                display: none !important; 
             }
             
             .mobile-only {
-                display: flex !important; /* إظهار العداد العائم */
+                display: flex !important; 
             }
 
             .floating-coins {
@@ -242,6 +241,7 @@
                 box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             }
         }
+        
         /* تنسيق العداد داخل السايد ناف */
         .side-nav-coins {
             display: flex;
@@ -253,20 +253,13 @@
             border: 1px solid #ffd700;
             position: absolute;
             top: 15px;
-            left: 15px; /* عشان يكون مقابل لعلامة الـ X */
+            left: 15px; 
         }
 
         .side-nav-coins #user-coins-side {
             color: #ffd700;
             font-weight: bold;
             font-size: 16px;
-        }
-
-        /* إخفاء العداد القديم في الموبايل عشان ميبقاش فيه زحمة */
-        @media (max-width: 767px) {
-            .floating-coins.mobile-only {
-                display: none !important; 
-            }
         }
     </style>
 </head>
@@ -318,7 +311,6 @@
         <div class="links">
             <a href="#">Home</a>
             <a href="profile.html">Profile</a>
-
         </div>
     </div>
     <div class="center"><div id="but">+</div></div>
@@ -478,21 +470,6 @@ window.toggleLike = async (postId, hasLiked) => {
     }
 };
 
-// --- إعداد واجهة الرفع ---
-const setupProgressUI = () => {
-    const composer = document.getElementById("composerBox");
-    if (composer && !document.getElementById("uploadProgressContainer")) {
-        const progressHTML = `
-            <div id="uploadProgressContainer" style="display:none; width:100%; background:#e5e7eb; border-radius:10px; height:8px; margin:10px 0; overflow:hidden;">
-                <div id="uploadProgressBar" style="width:0%; background:#2563eb; height:100%; transition: width 0.3s;"></div>
-            </div>
-            <small id="progressText" style="display:none; color:#2563eb; font-weight:bold; margin-bottom:10px; text-align:center;">جاري الرفع: 0%</small>
-        `;
-        const target = document.querySelector(".composer-actions");
-        if(target) target.insertAdjacentHTML('beforebegin', progressHTML);
-    }
-};
-
 // --- وظيفة اللغة ---
 function applyMainLanguage(lang) {
     const dict = {
@@ -501,15 +478,12 @@ function applyMainLanguage(lang) {
     };
     const t = dict[lang] || dict['ar'];
     
-    // ترجمة روابط الهيدر (الكمبيوتر)
     const links = document.querySelectorAll('.links a');
     if(links.length >= 2) { 
         links[0].textContent = t.home; 
         links[1].textContent = t.profile; 
     }
-    if(document.getElementById('aiBtn')) document.getElementById('aiBtn').textContent = t.ai;
 
-    // ترجمة روابط القائمة الجانبية (الموبايل)
     const sideLinks = document.querySelectorAll('.side-links a');
     if(sideLinks.length >= 2) {
         sideLinks[0].textContent = t.home;
@@ -517,13 +491,11 @@ function applyMainLanguage(lang) {
     }
     if(document.getElementById('aiBtnSide')) document.getElementById('aiBtnSide').textContent = t.ai;
 
-    // ترجمة عناصر منطقة النشر
     if(document.getElementById('tex')) document.getElementById('tex').placeholder = t.placeholder;
     if(document.getElementById('se')) document.getElementById('se').textContent = t.postBtn;
     if(document.getElementById('imgBtn')) document.getElementById('imgBtn').textContent = t.imgBtn;
     if(document.getElementById('videoBtn')) document.getElementById('videoBtn').textContent = t.videoBtn;
 
-    // تحديد اتجاه الصفحة
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
@@ -534,7 +506,6 @@ onAuthStateChanged(auth, async (user) => {
         return; 
     }
 
-    setupProgressUI();
     const userDocRef = doc(db, "users", user.uid);
     
     try {
@@ -555,6 +526,7 @@ onAuthStateChanged(auth, async (user) => {
                     const currentCoins = docSnap.data().coins || 0;
                     if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = currentCoins;
                     if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = currentCoins;
+                    if (document.getElementById("user-coins-float")) document.getElementById("user-coins-float").textContent = currentCoins;
                 }
             });
         }
@@ -590,11 +562,9 @@ document.getElementById("imgBtn").onclick = () => imgInput.click();
 document.getElementById("videoBtn").onclick = () => videoInput.click();
 
 let selectedFile = null;
-let fileType = null;
 
 imgInput.onchange = (e) => {
     selectedFile = e.target.files[0];
-    fileType = 'image';
     if(selectedFile) {
         mediaPreview.style.display = "block";
         mediaPreview.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" style="width:100%; border-radius:10px;">`;
@@ -603,7 +573,6 @@ imgInput.onchange = (e) => {
 
 videoInput.onchange = (e) => {
     selectedFile = e.target.files[0];
-    fileType = 'video';
     if(selectedFile) {
         mediaPreview.style.display = "block";
         mediaPreview.innerHTML = `<video src="${URL.createObjectURL(selectedFile)}" controls style="width:100%; border-radius:10px;"></video>`;
@@ -636,7 +605,7 @@ document.getElementById("se").onclick = async () => {
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = "";
         mediaPreview.style.display = "none";
-        selectedFile = null; fileType = null;
+        selectedFile = null;
         btn.disabled = false; btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
     } catch (error) {
@@ -695,7 +664,7 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
                     <button type="button" class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
                         ${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}
                     </button>
-                    <button type="button" class="action-btn" onclick="event.preventDefault(); toggleComments('${postId}')">
+                    <button type="button" class="action-btn" onclick="toggleComments('${postId}')">
                         💬 ${ui.comment}
                     </button>
                 </div>
@@ -703,8 +672,8 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
             <div id="comments-${postId}" class="comments-section" style="display:none;">
                 <div id="list-${postId}"></div>
                 <div class="comment-input-wrapper">
-                    <input type="text" id="input-${postId}" placeholder="${ui.input}" onkeypress="if(event.key === 'Enter') { event.preventDefault(); sendComment('${postId}'); }">
-                    <button type="button" onclick="event.preventDefault(); sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">${ui.publish}</button>
+                    <input type="text" id="input-${postId}" placeholder="${ui.input}" onkeypress="if(event.key === 'Enter') { sendComment('${postId}'); }">
+                    <button type="button" onclick="sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">${ui.publish}</button>
                 </div>
             </div>
         </div>`;
@@ -723,24 +692,6 @@ if (menuBtn && sideNav && closeBtn) {
     menuBtn.onclick = (e) => { e.stopPropagation(); sideNav.classList.add("active"); };
     closeBtn.onclick = () => { sideNav.classList.remove("active"); };
     document.addEventListener('click', (event) => { if (!sideNav.contains(event.target) && event.target !== menuBtn) { sideNav.classList.remove("active"); } });
-}
-
-// --- وظيفة الذكاء الاصطناعي ---
-async function askAI(message) {
-    const API_KEY = "YOUR_ACTUAL_API_KEY"; 
-    const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-    try {
-        const res = await fetch(URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: message }] }] })
-        });
-        const data = await res.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || "عذراً، لم أستطع فهم الطلب حالياً.";
-    } catch (e) {
-        console.error("AI Error:", e);
-        return "حدث خطأ في الاتصال بالذكاء الاصطناعي.";
-    }
 }
 </script>
 
