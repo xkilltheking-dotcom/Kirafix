@@ -500,12 +500,30 @@ function applyMainLanguage(lang) {
         en: { home: "Home", profile: "Profile", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
     };
     const t = dict[lang] || dict['ar'];
+    
+    // ترجمة روابط الهيدر (الكمبيوتر)
     const links = document.querySelectorAll('.links a');
-    if(links.length >= 3) { links[0].textContent = t.home; links[1].textContent = t.profile; links[2].textContent = t.ai; }
+    if(links.length >= 2) { 
+        links[0].textContent = t.home; 
+        links[1].textContent = t.profile; 
+    }
+    if(document.getElementById('aiBtn')) document.getElementById('aiBtn').textContent = t.ai;
+
+    // ترجمة روابط القائمة الجانبية (الموبايل)
+    const sideLinks = document.querySelectorAll('.side-links a');
+    if(sideLinks.length >= 2) {
+        sideLinks[0].textContent = t.home;
+        sideLinks[1].textContent = t.profile;
+    }
+    if(document.getElementById('aiBtnSide')) document.getElementById('aiBtnSide').textContent = t.ai;
+
+    // ترجمة عناصر منطقة النشر
     if(document.getElementById('tex')) document.getElementById('tex').placeholder = t.placeholder;
     if(document.getElementById('se')) document.getElementById('se').textContent = t.postBtn;
     if(document.getElementById('imgBtn')) document.getElementById('imgBtn').textContent = t.imgBtn;
     if(document.getElementById('videoBtn')) document.getElementById('videoBtn').textContent = t.videoBtn;
+
+    // تحديد اتجاه الصفحة
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
