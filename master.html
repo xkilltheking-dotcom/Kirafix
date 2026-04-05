@@ -314,7 +314,8 @@
         <div class="links">
             <a href="#">Home</a>
             <a href="profile.html">Profile</a>
-            <a href="store.html">Store</a> </div>
+            <a href="store.html">Store</a> 
+        </div>
     </div>
     <div class="center"><div id="but">+</div></div>
     <div class="left"><h2>Kirafix</h2></div>
@@ -481,6 +482,7 @@ function applyMainLanguage(lang) {
     };
     const t = dict[lang] || dict['ar'];
     
+    // تعديل لينكات الكمبيوتر
     const links = document.querySelectorAll('.links a');
     if(links.length >= 3) { 
         links[0].textContent = t.home; 
@@ -488,14 +490,15 @@ function applyMainLanguage(lang) {
         links[2].textContent = t.store;
     }
 
+    // تعديل لينكات القائمة الجانبية
     const sideLinks = document.querySelectorAll('.side-links a');
     if(sideLinks.length >= 3) {
         sideLinks[0].textContent = t.home;
         sideLinks[1].textContent = t.profile;
         sideLinks[2].textContent = t.store;
     }
+    
     if(document.getElementById('aiBtnSide')) document.getElementById('aiBtnSide').textContent = t.ai;
-
     if(document.getElementById('tex')) document.getElementById('tex').placeholder = t.placeholder;
     if(document.getElementById('se')) document.getElementById('se').textContent = t.postBtn;
     if(document.getElementById('imgBtn')) document.getElementById('imgBtn').textContent = t.imgBtn;
