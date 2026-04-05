@@ -390,12 +390,16 @@ const db = getFirestore(app);
 
 let currentUserData = null;
 
-// دالة مساعدة لتطبيق لون الاسم
+// دالة مساعدة لتطبيق لون الاسم (معدلة لتشمل الجرادينت والاسم الافتراضي)
 function getStyleForName(colorCode) {
-    if (!colorCode || colorCode === '#374151') return "";
-    if (colorCode === 'RAINBOW_SPECIAL') return 'class="rainbow-text"';
+    if (!colorCode || colorCode === '#374151' || colorCode === 'default') {
+        return 'style="color: #374151; font-weight: bold;"';
+    }
+    if (colorCode === 'RAINBOW_SPECIAL') {
+        return 'class="rainbow-text" style="font-weight: bold; display: inline-block;"';
+    }
     if (colorCode.includes('gradient')) {
-        return `style="background: ${colorCode}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; font-weight: bold;"`;
+        return `style="background: ${colorCode}; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; display: inline-block; font-weight: bold;"`;
     }
     return `style="color: ${colorCode}; font-weight: bold;"`;
 }
@@ -528,7 +532,7 @@ onAuthStateChanged(auth, async (user) => {
 
             onSnapshot(userDocRef, (docSnap) => {
                 if (docSnap.exists()) {
-                    currentUserData = docSnap.data(); // تحديث بيانات اليوزر لحظياً
+                    currentUserData = docSnap.data(); 
                     const rawCoins = docSnap.data().coins || 0;
                     const formatted = formatCoins(rawCoins);
                     if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
