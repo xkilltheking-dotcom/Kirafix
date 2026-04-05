@@ -390,7 +390,6 @@ const db = getFirestore(app);
 
 let currentUserData = null;
 
-// دالة مساعدة لتطبيق لون الاسم (معدلة لتشمل الجرادينت والاسم الافتراضي)
 function getStyleForName(colorCode) {
     if (!colorCode || colorCode === '#374151' || colorCode === 'default') {
         return 'style="color: #374151; font-weight: bold;"';
@@ -404,7 +403,6 @@ function getStyleForName(colorCode) {
     return `style="color: ${colorCode}; font-weight: bold;"`;
 }
 
-// --- وظائف نظام العملات ---
 async function addKiraCoins(amount) {
     if (!auth.currentUser) return;
     const userRef = doc(db, "users", auth.currentUser.uid);
@@ -417,7 +415,6 @@ async function addKiraCoins(amount) {
     } catch (e) { console.error("Error adding/removing coins:", e); }
 }
 
-// --- نظام التعليقات ---
 window.toggleComments = (postId) => {
     const section = document.getElementById(`comments-${postId}`);
     if (section.style.display === "none" || section.style.display === "") {
@@ -466,7 +463,6 @@ function loadCommentsRealtime(postId) {
     });
 }
 
-// --- نظام المشاهدات ---
 const viewObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -481,7 +477,6 @@ const viewObserver = new IntersectionObserver((entries) => {
     });
 }, { threshold: 0.6 });
 
-// --- نظام الإعجاب ---
 window.toggleLike = async (postId, hasLiked) => {
     if(!auth.currentUser) return;
     const postRef = doc(db, "posts", postId);
@@ -496,7 +491,6 @@ window.toggleLike = async (postId, hasLiked) => {
     } catch(e) { console.error("Error toggling like/coins:", e); }
 };
 
-// --- وظيفة اللغة ---
 function applyMainLanguage(lang) {
     const dict = {
         ar: { home: "الرئيسية", profile: "البروفايل", store: "المتجر 🛒", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
@@ -515,7 +509,6 @@ function applyMainLanguage(lang) {
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
-// --- حالة تسجيل الدخول ---
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "index.html"; return; }
     const userDocRef = doc(db, "users", user.uid);
@@ -585,8 +578,6 @@ document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
     
-    console.log("اللون اللي هيتنشره حالياً هو:", currentUserData?.activeColor);
-
     if (!text && !selectedFile) { alert("اكتب حاجة أو اختار ميديا!"); return; }
     btn.disabled = true; btn.innerText = "...";
     try {
@@ -628,10 +619,8 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
         const postId = docSnap.id;
         const currentUid = auth.currentUser?.uid;
 
-        // --- التعديل الآمن هنا لمنع الـ Uncaught TypeError ---
         const likes = Array.isArray(post.likes) ? post.likes : [];
         const views = Array.isArray(post.views) ? post.views : [];
-        // --------------------------------------------------
 
         const hasLiked = likes.includes(currentUid);
         const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
