@@ -3,34 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirafix Ai</title>
-    <link rel="stylesheet" href="ai.css">
+    <title>مساعد الإعلانات الذكي</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .chat-container { width: 400px; height: 600px; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+        .chat-header { background: #25d366; color: white; padding: 20px; text-align: center; font-weight: bold; }
+        #chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .message { padding: 10px 15px; border-radius: 10px; max-width: 80%; }
+        .user { background: #e1ffc7; align-self: flex-start; }
+        .bot { background: #f0f0f0; align-self: flex-end; }
+        .ad-card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-top: 5px; border-right: 4px solid #25d366; }
+        .input-area { display: flex; padding: 15px; border-top: 1px solid #eee; }
+        input { flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 5px; outline: none; }
+        button { background: #25d366; color: white; border: none; padding: 10px 15px; margin-right: 5px; border-radius: 5px; cursor: pointer; }
+    </style>
 </head>
 <body>
 
 <div class="chat-container">
-
-    <div class="chat-header">
-        <div class="status-dot"></div>
-        <h1>Kirafix Ai</h1>
+    <div class="chat-header">AI الإعلانات المساعد</div>
+    <div id="chat-box">
+        <div class="message bot">أهلاً بك! تقدر تسألني عن أي مطعم أو محل وهدورلك في الإعلانات.</div>
     </div>
-
-    <div id="chat-box" class="chat-box">
-        <div class="message ai-msg">
-            أهلاً بك 👋
-        </div>
-    </div>
-
-    <div class="input-area">
-        <input type="text" id="user-input"
-               placeholder="اكتب سؤالك..."
-               onkeypress="handleKeyPress(event)">
-        <button onclick="sendMessage()">إرسال</button>
-    </div>
-
+    <form class="input-area" id="chat-form">
+        <input type="text" id="user-input" placeholder="مثلاً: عايز مطعم بيتزا..." required>
+        <button type="submit">إرسال</button>
+    </form>
 </div>
 
-<script src="script.js"></script>
+<script>
+    const form = document.getElementById('chat-form');
+    const chatBox = document.getElementById('chat-box');
+
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('user-input');
+        const message = input.value;
+        
+        // إضافة رسالة المستخدم للواجهة
+        chatBox.innerHTML += `<div class="message user">${message}</div>`;
+        input.value = '';
+
+        const formData = new FormData();
+        formData.append('message', message);
+
+        const response = await fetch('/chat', { method: 'POST', body: formData });
+        const data = await response.json();
+
+        // إضافة رد الـ AI
+        let botReply = `<div class="message bot">${data.reply}`;
+        if (data.ads.length > 0) {
+            data.ads.forEach(ad => {
+                botReply += `
+                    <div class="ad-card">
+                        <strong>${ad.title}</strong><br>
+                        <small>${ad.content}</small><br>
+                        <a href="${ad.link}" style="color: #25d366; font-size: 12px;">زيارة الإعلان ←</a>
+                    </div>`;
+            });
+        }
+        botReply += `</div>`;
+        chatBox.innerHTML += botReply;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    };
+</script>
 
 </body>
 </html>
