@@ -551,6 +551,15 @@ if (menuBtn && sideNav && closeBtn) {
     const data = await res.json();
     return data.candidates?.[0]?.content?.parts?.[0]?.text || "مفيش رد";
 }
+    document.getElementById("aiBtn").onclick = async () => {
+    const text = prompt("اكتب سؤالك للـ AI:");
+
+    if (!text) return;
+
+    const reply = await askAI(text);
+
+    alert(reply);
+};
 </script>
 
 </body>
