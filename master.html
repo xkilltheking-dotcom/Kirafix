@@ -268,6 +268,43 @@
                 display: none !important; 
             }
         }
+        <style>
+    /* تأكد أن زر المنيو يظهر دائماً */
+    .menu-icon {
+        display: block !important; 
+        cursor: pointer;
+        font-size: 24px;
+        margin-left: 15px;
+    }
+
+    /* إخفاء الروابط القديمة إذا كانت لا تزال موجودة في ملف style.css */
+    .links {
+        display: none !important;
+    }
+
+    /* جعل القائمة الجانبية تعمل بشكل جيد على الكمبيوتر */
+    .side-nav {
+        width: 300px; /* عرض مناسب للكمبيوتر */
+    }
+
+    /* إخفاء عداد العملات داخل السايد بار في حالة الكمبيوتر فقط */
+    @media (min-width: 768px) {
+        .side-nav-coins {
+            display: none !important;
+        }
+    }
+    
+    /* تنسيق الروابط داخل القائمة لتناسب الكمبيوتر والموبايل */
+    .side-links a, .side-links button {
+        display: block;
+        padding: 15px 25px;
+        text-decoration: none;
+        color: inherit;
+        font-size: 18px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        text-align: right;
+    }
+</style>
     </style>
 </head>
 <body>
@@ -290,8 +327,7 @@
         <div id="sideNav" class="side-nav">
             <div class="close-btn" id="closeBtn">&times;</div>
             
-            <div class="side-nav-coins">
-                <div class="kira-coin" style="width:20px; height:20px;">
+            <div class="side-nav-coins mobile-only"> <div class="kira-coin" style="width:20px; height:20px;">
                     <div class="coin-front" style="font-size:12px;">K</div>
                 </div>
                 <span id="user-coins-side">0</span>
@@ -301,7 +337,7 @@
                 <a href="#">الرئيسية</a>
                 <a href="profile.html">البروفايل</a>
                 <button id="aiBtnSide">✨ اسأل AI</button>
-            </div>
+                </div>
         </div>
 
         <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" id="ht" style="cursor:pointer;" 
@@ -315,12 +351,7 @@
             <span id="user-coins">0</span>
         </div>
 
-        <div class="links">
-            <a href="#">Home</a>
-            <a href="profile.html">Profile</a>
-            <button id="aiBtn">✨ اسأل AI</button>
         </div>
-    </div>
     <div class="center"><div id="but">+</div></div>
     <div class="left"><h2>Kirafix</h2></div>
 </header>
