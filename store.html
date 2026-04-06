@@ -6,83 +6,210 @@
     <title>Kirafix - Store 🎡</title>
     <link rel="stylesheet" href="style.css?v=2">
     <style>
-        :root { --gold: #ffd700; --dark-bg: #111827; }
-        body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding-bottom: 50px; }
-        body.dark-mode { background-color: var(--dark-bg); color: white; }
-        .container { max-width: 600px; margin: 20px auto; padding: 20px; }
-        
-        .store-card, .inventory-section, .badges-section {
-            background: white; border-radius: 20px; padding: 25px;
-            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            margin-bottom: 20px; border: 1px solid #eee;
+        :root {
+            --gold: #ffd700;
+            --dark-bg: #111827;
         }
-        body.dark-mode .store-card, body.dark-mode .inventory-section, body.dark-mode .badges-section { 
-            background: #1f2937; border-color: #374151; 
+
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding-bottom: 50px;
+        }
+
+        /* رجوع الـ Dark Mode الأساسي */
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: white;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .home-btn {
+            display: inline-block;
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            background: #fff;
+            color: #111;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        body.dark-mode .home-btn { background: #1f2937; color: white; }
+        .home-btn:hover { transform: scale(1.05); background: var(--gold); color: black; }
+
+        .store-card, .inventory-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 2px solid var(--gold);
+            margin-bottom: 20px;
+        }
+        body.dark-mode .store-card, body.dark-mode .inventory-section { 
+            background: #1f2937; 
+            border-color: #374151; 
         }
 
         .balance-box {
-            background: var(--gold); color: #000; padding: 10px 25px;
-            border-radius: 50px; display: inline-flex; align-items: center;
-            gap: 10px; font-weight: bold; margin-bottom: 20px;
+            background: var(--gold);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            margin-bottom: 20px;
         }
-
-        /* ستايل البادجات في المتجر */
-        .badge-market {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;
-        }
-        .badge-item {
-            background: #f9fafb; border: 2px solid #e5e7eb; padding: 15px;
-            border-radius: 15px; cursor: pointer; transition: 0.3s;
-        }
-        body.dark-mode .badge-item { background: #111827; border-color: #374151; }
-        .badge-item:hover { border-color: var(--gold); transform: translateY(-3px); }
-        .badge-icon { font-size: 24px; display: block; margin-bottom: 5px; }
-        .badge-price { color: #059669; font-weight: bold; font-size: 14px; }
 
         /* ستايل العجلة */
-        .wheel-container { position: relative; width: 250px; height: 250px; margin: 20px auto; }
-        #wheel-canvas { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #374151; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
-        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 30px; height: 30px; background: red; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
-        
-        .spin-btn { background: #2563eb; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .spin-btn:disabled { background: #9ca3af; }
+        .wheel-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 20px auto;
+        }
+        #wheel-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid #374151;
+            transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
+        }
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: red;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 10;
+        }
 
-        .color-grid, .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 15px; margin-top: 15px; }
-        .color-item, .my-badge-item { width: 50px; height: 50px; border-radius: 12px; cursor: pointer; border: 3px solid transparent; position: relative; display: flex; align-items: center; justify-content: center; background: #eee; }
-        body.dark-mode .my-badge-item { background: #111827; }
-        .color-item.active, .my-badge-item.active { border-color: var(--gold); }
+        .spin-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+        .spin-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+
+        /* ستايل سوق الأوسمة */
+        .badge-market {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .badge-buy-card {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        body.dark-mode .badge-buy-card { background: #111827; border-color: #374151; }
+        .badge-buy-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+
+        /* ستايل الـ Inventory */
+        .color-grid, .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .item-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: 0.2s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eee;
+        }
+        body.dark-mode .item-box { background: #111827; }
+
+        .item-box.active { border-color: var(--gold); transform: scale(1.1); }
+        .item-box.active::after {
+            content: '✓';
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: var(--gold);
+            color: black;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .rainbow { 
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) !important;
+            background-size: 200% 200% !important;
+            animation: rainbowBG 2s linear infinite;
+        }
+        @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <a href="index.html" style="text-decoration:none; color:inherit;">🏠 العودة للرئيسية</a>
+    <a href="index.html" class="home-btn">🏠 العودة للرئيسية</a>
 
     <div class="store-card">
+        <h2>🎡 Kirafix Lucky Wheel</h2>
         <div class="balance-box">
-            <span>رصيدك:</span> <span id="user-coins">0</span> <span>🪙</span>
+            <span>رصيدك:</span>
+            <span id="user-coins">0</span>
+            <span>🪙</span>
         </div>
         
-        <h3>🎡 عجلة الحظ</h3>
+        <p>تكلفة اللفة 100 كوين</p>
         <div class="wheel-container">
             <div class="pointer"></div>
             <canvas id="wheel-canvas" width="500" height="500"></canvas>
         </div>
-        <button id="spinBtn" class="spin-btn">إبدأ اللف (100 🪙)</button>
+        <button id="spinBtn" class="spin-btn">إبدأ اللف الآن!</button>
     </div>
 
-    <div class="badges-section">
+    <div class="store-card">
         <h3>🎖️ متجر الأوسمة والتوثيق</h3>
-        <div class="badge-market" id="badge-market">
-            </div>
+        <div class="badge-market" id="badge-market"></div>
     </div>
 
     <div class="inventory-section">
-        <h3>🎒 حقيبتك الخاصة</h3>
-        <p>الألوان المفتوحة:</p>
+        <h3>🎒 حقيبتك (Inventory)</h3>
+        <p style="font-size: 13px; color: #888;">الألوان المفتوحة:</p>
         <div id="color-grid" class="color-grid"></div>
-        <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-        <p>الأوسمة المفتوحة:</p>
+        
+        <p style="font-size: 13px; color: #888; margin-top: 20px;">الأوسمة المفتوحة:</p>
         <div id="badge-grid" class="badge-grid"></div>
     </div>
 </div>
@@ -105,22 +232,19 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// إعدادات الألوان والبادجات
 const colors = [
     { name: 'أحمر', code: 'linear-gradient(135deg, #ff4d4d, #cc0000)', chance: 24.0 },
     { name: 'أخضر', code: 'linear-gradient(135deg, #4dff4d, #00cc00)', chance: 24.0 },
-    { name: 'أصفر', code: 'linear-gradient(135deg, #ffff4d, #cccc00)', chance: 24.0 },
     { name: 'أزرق', code: 'linear-gradient(135deg, #4d4dff, #0000cc)', chance: 24.0 },
-    { name: 'بنفسجي', code: 'linear-gradient(135deg, #b34dff, #7700cc)', chance: 24.0 },
     { name: 'جولد', code: 'linear-gradient(135deg, #ffd700, #b8860b)', chance: 1.0 },
+    { name: 'دموي', code: 'linear-gradient(135deg, #8a0303, #4a0000)', chance: 1.0 },
     { name: 'رينبو', code: 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)', chance: 0.1 }
 ];
 
 const availableBadges = [
     { id: 'verified', name: 'توثيق الحساب', icon: '✔️', price: 5000 },
     { id: 'king', name: 'الملك', icon: '👑', price: 3000 },
-    { id: 'vip', name: 'عضو VIP', icon: '✨', price: 1500 },
-    { id: 'fire', name: 'متفاعل نار', icon: '🔥', price: 800 }
+    { id: 'vip', name: 'عضو VIP', icon: '✨', price: 1500 }
 ];
 
 // رسم العجلة
@@ -143,35 +267,28 @@ function drawWheel() {
 drawWheel();
 
 // عرض بادجات المتجر
-function renderBadgeMarket() {
-    const market = document.getElementById("badge-market");
-    market.innerHTML = availableBadges.map(b => `
-        <div class="badge-item" onclick="window.buyBadge('${b.id}', ${b.price})">
-            <span class="badge-icon">${b.icon}</span>
-            <span style="display:block; font-size:12px; font-weight:bold;">${b.name}</span>
-            <span class="badge-price">${b.price} 🪙</span>
+function renderMarket() {
+    const m = document.getElementById("badge-market");
+    m.innerHTML = availableBadges.map(b => `
+        <div class="badge-buy-card" onclick="window.buyBadge('${b.id}', ${b.price})">
+            <div style="font-size:24px">${b.icon}</div>
+            <div style="font-size:12px; font-weight:bold">${b.name}</div>
+            <div style="color:#10b981; font-size:13px">${b.price} 🪙</div>
         </div>
     `).join('');
 }
-renderBadgeMarket();
+renderMarket();
 
-// وظيفة شراء البادج
-window.buyBadge = async (badgeId, price) => {
-    const user = auth.currentUser;
-    const userRef = doc(db, "users", user.uid);
-    const userDoc = await getDoc(userRef);
-    const coins = userDoc.data().coins || 0;
-    const myBadges = userDoc.data().inventoryBadges || [];
+window.buyBadge = async (id, price) => {
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    const snap = await getDoc(userRef);
+    const data = snap.data();
+    if ((data.inventoryBadges || []).includes(id)) return alert("تمتلكه بالفعل!");
+    if ((data.coins || 0) < price) return alert("رصيدك لا يكفي!");
 
-    if (myBadges.includes(badgeId)) return alert("أنت تمتلك هذا الوسام بالفعل!");
-    if (coins < price) return alert("رصيدك لا يكفي لشراء هذا الوسام");
-
-    if (confirm(`هل تريد شراء وسام ${badgeId} مقابل ${price} كوين؟`)) {
-        await updateDoc(userRef, {
-            coins: increment(-price),
-            inventoryBadges: arrayUnion(badgeId)
-        });
-        alert("مبروك! تم إضافة الوسام لحقيبتك.");
+    if(confirm("شراء هذا الوسام؟")) {
+        await updateDoc(userRef, { coins: increment(-price), inventoryBadges: arrayUnion(id) });
+        alert("تم الشراء بنجاح!");
     }
 };
 
@@ -180,59 +297,68 @@ onAuthStateChanged(auth, (user) => {
     onSnapshot(doc(db, "users", user.uid), (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
-            document.getElementById("user-coins").textContent = data.coins || 0;
+            const rawCoins = data.coins || 0;
+            document.getElementById("user-coins").textContent = rawCoins >= 1000000 ? (rawCoins/1000000).toFixed(1) + 'M' : rawCoins;
             renderInventory(data.inventory || [], data.activeColor);
-            renderBadgeInventory(data.inventoryBadges || [], data.activeBadge);
+            renderBadgeInv(data.inventoryBadges || [], data.activeBadge);
         }
     });
 });
 
-function renderInventory(items, activeColor) {
+function renderInventory(items, active) {
     const grid = document.getElementById("color-grid");
     grid.innerHTML = "";
-    [...new Set(items)].forEach(code => {
-        const div = document.createElement("div");
-        div.className = `color-item ${activeColor === code ? 'active' : ''}`;
-        div.style.background = code;
-        div.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeColor: code });
-        grid.appendChild(div);
+    ['#374151', ...new Set(items)].forEach(code => {
+        const d = document.createElement("div");
+        d.className = `item-box ${active === code ? 'active' : ''} ${code.includes('red, orange') ? 'rainbow' : ''}`;
+        if(!code.includes('red, orange')) d.style.background = code;
+        d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeColor: code });
+        grid.appendChild(d);
     });
 }
 
-function renderBadgeInventory(myBadges, activeBadge) {
+function renderBadgeInv(badges, active) {
     const grid = document.getElementById("badge-grid");
     grid.innerHTML = "";
-    myBadges.forEach(id => {
-        const badgeData = availableBadges.find(b => b.id === id);
-        if (!badgeData) return;
-        const div = document.createElement("div");
-        div.className = `my-badge-item ${activeBadge === id ? 'active' : ''}`;
-        div.innerHTML = `<span>${badgeData.icon}</span>`;
-        div.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
-        grid.appendChild(div);
+    (badges || []).forEach(id => {
+        const bData = availableBadges.find(x => x.id === id);
+        const d = document.createElement("div");
+        d.className = `item-box ${active === id ? 'active' : ''}`;
+        d.innerHTML = bData.icon;
+        d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
+        grid.appendChild(d);
     });
 }
 
-// كود اللف (Spin) نفس اللي عندك مع تغيير بسيط في الـ Inventory
-let currentRotation = 0;
+let rotation = 0;
 document.getElementById("spinBtn").onclick = async () => {
     const userRef = doc(db, "users", auth.currentUser.uid);
-    const userDoc = await getDoc(userRef);
-    if ((userDoc.data().coins || 0) < 100) return alert("لا يوجد كوينز!");
+    const snap = await getDoc(userRef);
+    if ((snap.data().coins || 0) < 100) return alert("رصيدك لا يكفي!");
     
     document.getElementById("spinBtn").disabled = true;
     await updateDoc(userRef, { coins: increment(-100) });
 
-    let winningIndex = Math.floor(Math.random() * colors.length); // تبسيط للتيست
-    currentRotation += (360 * 5) + (360 - (winningIndex * (360/colors.length)));
-    canvas.style.transform = `rotate(${currentRotation}deg)`;
+    let winningIndex = 0;
+    let totalWeight = colors.reduce((s, c) => s + c.chance, 0);
+    let random = Math.random() * totalWeight;
+    let sum = 0;
+    for (let i = 0; i < colors.length; i++) {
+        sum += colors[i].chance;
+        if (random <= sum) { winningIndex = i; break; }
+    }
+
+    rotation += (360 * 8) + (360 - (winningIndex * (360/colors.length)) - (360/colors.length/2));
+    canvas.style.transform = `rotate(${rotation}deg)`;
 
     setTimeout(async () => {
         await updateDoc(userRef, { inventory: arrayUnion(colors[winningIndex].code) });
+        alert(`مبروك! حصلت على ${colors[winningIndex].name}`);
         document.getElementById("spinBtn").disabled = false;
     }, 4000);
 };
 
+if(localStorage.getItem('kirafix-dark') === 'true') document.body.classList.add('dark-mode');
 </script>
 </body>
 </html>
