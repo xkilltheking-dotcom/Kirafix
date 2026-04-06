@@ -207,11 +207,11 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const colors = [
-    { name: 'أحمر', code: '#ff4d4d', chance: 24.0 },
-    { name: 'أخضر', code: '#4dff4d', chance: 24.0 },
-    { name: 'أصفر', code: '#ffff4d', chance: 24.0 },
-    { name: 'أزرق', code: '#4d4dff', chance: 24.0 },
-    { name: 'بنفسجي', code: '#b34dff', chance: 24.0 },
+    { name: 'أحمر', code: 'linear-gradient(135deg, #ff4d4d, #cc0000)', chance: 24.0 },
+    { name: 'أخضر', code: 'linear-gradient(135deg, #4dff4d, #00cc00)', chance: 24.0 },
+    { name: 'أصفر', code: 'linear-gradient(135deg, #ffff4d, #cccc00)', chance: 24.0 },
+    { name: 'أزرق', code: 'linear-gradient(135deg, #4d4dff, #0000cc)', chance: 24.0 },
+    { name: 'بنفسجي', code: 'linear-gradient(135deg, #b34dff, #7700cc)', chance: 24.0 },
     { name: 'جولد', code: 'linear-gradient(135deg, #ffd700, #b8860b)', chance: 1.0 },
     { name: 'دموي', code: 'linear-gradient(135deg, #8a0303, #4a0000)', chance: 1.0 },
     { name: 'خشبي', code: 'linear-gradient(135deg, #8b4513, #5d2e0a)', chance: 1.0 },
