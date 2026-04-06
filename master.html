@@ -402,7 +402,7 @@ function getStyleForName(colorCode) {
         return `style="background: ${colorCode}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: bold; display: inline-block;"`;
     }
     // للألوان العادية: نقوم بإلغاء أي تأثيرات خلفية قديمة ونضع اللون مباشرة
-    return `style="background: none; -webkit-text-fill-color: initial; color: ${colorCode}; font-weight: bold; display: inline-block;"`;
+   return `style="background: none !important; -webkit-background-clip: unset !important; background-clip: unset !important; -webkit-text-fill-color: ${colorCode} !important; color: ${colorCode}; font-weight: bold;"`;
 }
 
 async function addKiraCoins(amount) {
