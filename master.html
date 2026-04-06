@@ -398,7 +398,7 @@ function getStyleForName(colorCode) {
         return 'class="rainbow-text" style="font-weight: bold; display: inline-block;"';
     }
     if (colorCode.includes('gradient')) {
-        return `style="background: ${colorCode}; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; display: inline-block; font-weight: bold;"`;
+        return `style="background: ${colorCode}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: bold; display: inline-block;"`;
     }
     return `style="color: ${colorCode}; font-weight: bold;"`;
 }
