@@ -630,7 +630,11 @@ onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) =
             en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
         }[currentLang];
 
-        const nameStyle = getStyleForName(post.userColor);
+        const nameStyle = getStyleForName(
+    (post.uid === currentUid && currentUserData?.activeColor) 
+        ? currentUserData.activeColor 
+        : post.userColor
+);
 
         const postHTML = `
         <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
