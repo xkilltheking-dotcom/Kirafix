@@ -390,6 +390,7 @@ const db = getFirestore(app);
 
 let currentUserData = null;
 
+// التعديل هنا لضمان ظهور الألوان العادية والـ Gradient بشكل صحيح
 function getStyleForName(colorCode) {
     if (!colorCode || colorCode === '#374151' || colorCode === 'default') {
         return 'style="-webkit-text-fill-color: initial; color: #374151; font-weight: bold;"';
@@ -400,7 +401,8 @@ function getStyleForName(colorCode) {
     if (colorCode.includes('gradient')) {
         return `style="background: ${colorCode}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: bold; display: inline-block;"`;
     }
-    return `style="-webkit-text-fill-color: initial; color: ${colorCode}; font-weight: bold;"`;
+    // للألوان العادية: نقوم بإلغاء أي تأثيرات خلفية قديمة ونضع اللون مباشرة
+    return `style="background: none; -webkit-text-fill-color: initial; color: ${colorCode}; font-weight: bold; display: inline-block;"`;
 }
 
 async function addKiraCoins(amount) {
@@ -644,6 +646,7 @@ function startPostsListener() {
                 en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
             }[currentLang];
 
+            // تحديد الستايل بناءً على لون صاحب البوست (مع تحديث لحظي لليوزر الحالي)
             const nameStyle = getStyleForName(
                 (post.uid === currentUid && currentUserData?.activeColor) 
                     ? currentUserData.activeColor 
