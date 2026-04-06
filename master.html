@@ -393,16 +393,15 @@ let currentUserData = null;
 // التعديل هنا لضمان ظهور الألوان العادية والـ Gradient بشكل صحيح
 function getStyleForName(colorCode) {
     if (!colorCode || colorCode === '#374151' || colorCode === 'default') {
-        return 'style="-webkit-text-fill-color: initial; color: #374151; font-weight: bold;"';
+        return 'style="background: none; -webkit-text-fill-color: #374151; color: #374151; font-weight: bold;"';
     }
     if (colorCode === 'RAINBOW_SPECIAL') {
-        return 'class="rainbow-text" style="font-weight: bold; display: inline-block;"';
+        return 'style="background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: bold; display: inline-block; animation: rainbowBG 2s linear infinite;"';
     }
     if (colorCode.includes('gradient')) {
         return `style="background: ${colorCode}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: bold; display: inline-block;"`;
     }
-    // للألوان العادية: نقوم بإلغاء أي تأثيرات خلفية قديمة ونضع اللون مباشرة
-   return `style="background: none !important; -webkit-background-clip: unset !important; background-clip: unset !important; -webkit-text-fill-color: ${colorCode} !important; color: ${colorCode}; font-weight: bold;"`;
+    return `style="background: none; -webkit-text-fill-color: ${colorCode}; color: ${colorCode}; font-weight: bold;"`;
 }
 
 async function addKiraCoins(amount) {
