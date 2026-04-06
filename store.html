@@ -18,7 +18,6 @@
             padding-bottom: 50px;
         }
 
-        /* رجوع الـ Dark Mode الأساسي */
         body.dark-mode {
             background-color: var(--dark-bg);
             color: white;
@@ -45,19 +44,15 @@
         body.dark-mode .home-btn { background: #1f2937; color: white; }
         .home-btn:hover { transform: scale(1.05); background: var(--gold); color: black; }
 
-        .store-card, .inventory-section {
+        .store-card {
             background: white;
             border-radius: 20px;
             padding: 30px;
             text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             border: 2px solid var(--gold);
-            margin-bottom: 20px;
         }
-        body.dark-mode .store-card, body.dark-mode .inventory-section { 
-            background: #1f2937; 
-            border-color: #374151; 
-        }
+        body.dark-mode .store-card { background: #1f2937; border-color: #374151; }
 
         .balance-box {
             background: var(--gold);
@@ -71,13 +66,13 @@
             margin-bottom: 20px;
         }
 
-        /* ستايل العجلة */
         .wheel-container {
             position: relative;
             width: 250px;
             height: 250px;
             margin: 20px auto;
         }
+
         #wheel-canvas {
             width: 100%;
             height: 100%;
@@ -85,6 +80,7 @@
             border: 5px solid #374151;
             transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
         }
+
         .pointer {
             position: absolute;
             top: -10px;
@@ -111,33 +107,22 @@
         }
         .spin-btn:disabled { background: #9ca3af; cursor: not-allowed; }
 
-        /* ستايل سوق الأوسمة */
-        .badge-market {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+        .inventory-section {
+            margin-top: 40px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
         }
-        .badge-buy-card {
-            background: #f9fafb;
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid #e5e7eb;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        body.dark-mode .badge-buy-card { background: #111827; border-color: #374151; }
-        .badge-buy-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+        body.dark-mode .inventory-section { background: #1f2937; }
 
-        /* ستايل الـ Inventory */
-        .color-grid, .badge-grid {
+        .color-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
             gap: 15px;
             margin-top: 15px;
         }
 
-        .item-box {
+        .color-item {
             width: 50px;
             height: 50px;
             border-radius: 12px;
@@ -145,15 +130,17 @@
             border: 3px solid transparent;
             transition: 0.2s;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #eee;
         }
-        body.dark-mode .item-box { background: #111827; }
 
-        .item-box.active { border-color: var(--gold); transform: scale(1.1); }
-        .item-box.active::after {
+        .color-item.rainbow { 
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+            background-size: 200% 200%;
+            animation: rainbowBG 2s linear infinite;
+        }
+        @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+
+        .color-item.active { border-color: var(--gold); transform: scale(1.1); }
+        .color-item.active::after {
             content: '✓';
             position: absolute;
             bottom: -5px;
@@ -161,21 +148,14 @@
             background: var(--gold);
             color: black;
             border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
         }
-
-        .rainbow { 
-            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) !important;
-            background-size: 200% 200% !important;
-            animation: rainbowBG 2s linear infinite;
-        }
-        @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
     </style>
 </head>
 <body>
@@ -191,26 +171,20 @@
             <span>🪙</span>
         </div>
         
-        <p>تكلفة اللفة 100 كوين</p>
+        <p>تكلفة اللفة الواحدة 100 كوين</p>
+
         <div class="wheel-container">
             <div class="pointer"></div>
             <canvas id="wheel-canvas" width="500" height="500"></canvas>
         </div>
-        <button id="spinBtn" class="spin-btn">إبدأ اللف الآن!</button>
-    </div>
 
-    <div class="store-card">
-        <h3>🎖️ متجر الأوسمة والتوثيق</h3>
-        <div class="badge-market" id="badge-market"></div>
+        <button id="spinBtn" class="spin-btn">إبدأ اللف الآن!</button>
     </div>
 
     <div class="inventory-section">
         <h3>🎒 حقيبتك (Inventory)</h3>
-        <p style="font-size: 13px; color: #888;">الألوان المفتوحة:</p>
+        <p style="font-size: 13px; color: #666;">اختر لوناً لتطبيقه على اسمك في التعليقات والمنشورات</p>
         <div id="color-grid" class="color-grid"></div>
-        
-        <p style="font-size: 13px; color: #888; margin-top: 20px;">الأوسمة المفتوحة:</p>
-        <div id="badge-grid" class="badge-grid"></div>
     </div>
 </div>
 
@@ -235,62 +209,43 @@ const db = getFirestore(app);
 const colors = [
     { name: 'أحمر', code: 'linear-gradient(135deg, #ff4d4d, #cc0000)', chance: 24.0 },
     { name: 'أخضر', code: 'linear-gradient(135deg, #4dff4d, #00cc00)', chance: 24.0 },
+    { name: 'أصفر', code: 'linear-gradient(135deg, #ffff4d, #cccc00)', chance: 24.0 },
     { name: 'أزرق', code: 'linear-gradient(135deg, #4d4dff, #0000cc)', chance: 24.0 },
+    { name: 'بنفسجي', code: 'linear-gradient(135deg, #b34dff, #7700cc)', chance: 24.0 },
     { name: 'جولد', code: 'linear-gradient(135deg, #ffd700, #b8860b)', chance: 1.0 },
     { name: 'دموي', code: 'linear-gradient(135deg, #8a0303, #4a0000)', chance: 1.0 },
+    { name: 'خشبي', code: 'linear-gradient(135deg, #8b4513, #5d2e0a)', chance: 1.0 },
+    { name: 'سيلفر', code: 'linear-gradient(135deg, #e0e0e0, #757575)', chance: 1.0 },
     { name: 'رينبو', code: 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)', chance: 0.1 }
 ];
 
-const availableBadges = [
-    { id: 'verified', name: 'توثيق الحساب', icon: '✔️', price: 5000 },
-    { id: 'king', name: 'الملك', icon: '👑', price: 3000 },
-    { id: 'vip', name: 'عضو VIP', icon: '✨', price: 1500 }
-];
-
-// رسم العجلة
 const canvas = document.getElementById("wheel-canvas");
 const ctx = canvas.getContext("2d");
+let currentRotation = 0;
+
 function drawWheel() {
     const sliceAngle = (2 * Math.PI) / colors.length;
     colors.forEach((color, i) => {
         ctx.beginPath();
-        ctx.fillStyle = color.code.includes('gradient') ? '#ffd700' : color.code;
+        if (color.code === 'RAINBOW_SPECIAL') {
+            ctx.fillStyle = '#ffffff'; 
+        } else {
+            ctx.fillStyle = color.code.includes('gradient') ? '#ffd700' : color.code;
+        }
         ctx.moveTo(250, 250);
         ctx.arc(250, 250, 250, i * sliceAngle, (i + 1) * sliceAngle);
         ctx.fill();
+        
         ctx.save();
-        ctx.translate(250, 250); ctx.rotate(i * sliceAngle + sliceAngle / 2);
-        ctx.fillStyle = "white"; ctx.font = "bold 16px Arial";
-        ctx.fillText(color.name[0], 180, 5); ctx.restore();
+        ctx.translate(250, 250);
+        ctx.rotate(i * sliceAngle + sliceAngle / 2);
+        ctx.fillStyle = "white";
+        ctx.font = "bold 16px Arial";
+        ctx.fillText(color.name[0], 180, 5); 
+        ctx.restore();
     });
 }
 drawWheel();
-
-// عرض بادجات المتجر
-function renderMarket() {
-    const m = document.getElementById("badge-market");
-    m.innerHTML = availableBadges.map(b => `
-        <div class="badge-buy-card" onclick="window.buyBadge('${b.id}', ${b.price})">
-            <div style="font-size:24px">${b.icon}</div>
-            <div style="font-size:12px; font-weight:bold">${b.name}</div>
-            <div style="color:#10b981; font-size:13px">${b.price} 🪙</div>
-        </div>
-    `).join('');
-}
-renderMarket();
-
-window.buyBadge = async (id, price) => {
-    const userRef = doc(db, "users", auth.currentUser.uid);
-    const snap = await getDoc(userRef);
-    const data = snap.data();
-    if ((data.inventoryBadges || []).includes(id)) return alert("تمتلكه بالفعل!");
-    if ((data.coins || 0) < price) return alert("رصيدك لا يكفي!");
-
-    if(confirm("شراء هذا الوسام؟")) {
-        await updateDoc(userRef, { coins: increment(-price), inventoryBadges: arrayUnion(id) });
-        alert("تم الشراء بنجاح!");
-    }
-};
 
 onAuthStateChanged(auth, (user) => {
     if (!user) { window.location.href = "index.html"; return; }
@@ -300,65 +255,87 @@ onAuthStateChanged(auth, (user) => {
             const rawCoins = data.coins || 0;
             document.getElementById("user-coins").textContent = rawCoins >= 1000000 ? (rawCoins/1000000).toFixed(1) + 'M' : rawCoins;
             renderInventory(data.inventory || [], data.activeColor);
-            renderBadgeInv(data.inventoryBadges || [], data.activeBadge);
         }
     });
 });
 
-function renderInventory(items, active) {
-    const grid = document.getElementById("color-grid");
-    grid.innerHTML = "";
-    ['#374151', ...new Set(items)].forEach(code => {
-        const d = document.createElement("div");
-        d.className = `item-box ${active === code ? 'active' : ''} ${code.includes('red, orange') ? 'rainbow' : ''}`;
-        if(!code.includes('red, orange')) d.style.background = code;
-        d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeColor: code });
-        grid.appendChild(d);
-    });
-}
-
-function renderBadgeInv(badges, active) {
-    const grid = document.getElementById("badge-grid");
-    grid.innerHTML = "";
-    (badges || []).forEach(id => {
-        const bData = availableBadges.find(x => x.id === id);
-        const d = document.createElement("div");
-        d.className = `item-box ${active === id ? 'active' : ''}`;
-        d.innerHTML = bData.icon;
-        d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
-        grid.appendChild(d);
-    });
-}
-
-let rotation = 0;
-document.getElementById("spinBtn").onclick = async () => {
+async function spin() {
     const userRef = doc(db, "users", auth.currentUser.uid);
-    const snap = await getDoc(userRef);
-    if ((snap.data().coins || 0) < 100) return alert("رصيدك لا يكفي!");
-    
-    document.getElementById("spinBtn").disabled = true;
+    const userDoc = await getDoc(userRef);
+    const coins = userDoc.data().coins || 0;
+
+    if (coins < 100) { alert("رصيدك لا يكفي (100 كوين)"); return; }
+
+    const btn = document.getElementById("spinBtn");
+    btn.disabled = true;
+
     await updateDoc(userRef, { coins: increment(-100) });
 
-    let winningIndex = 0;
     let totalWeight = colors.reduce((s, c) => s + c.chance, 0);
     let random = Math.random() * totalWeight;
+    let winningIndex = 0;
+    
     let sum = 0;
     for (let i = 0; i < colors.length; i++) {
         sum += colors[i].chance;
-        if (random <= sum) { winningIndex = i; break; }
+        if (random <= sum) {
+            winningIndex = i;
+            break;
+        }
     }
 
-    rotation += (360 * 8) + (360 - (winningIndex * (360/colors.length)) - (360/colors.length/2));
-    canvas.style.transform = `rotate(${rotation}deg)`;
+    const sliceAngle = 360 / colors.length;
+    const extraSpins = 8 * 360; 
+    const stopAngle = extraSpins + (360 - (winningIndex * sliceAngle) - (sliceAngle/2));
+    
+    currentRotation += stopAngle;
+    canvas.style.transform = `rotate(${currentRotation}deg)`;
 
     setTimeout(async () => {
-        await updateDoc(userRef, { inventory: arrayUnion(colors[winningIndex].code) });
-        alert(`مبروك! حصلت على ${colors[winningIndex].name}`);
-        document.getElementById("spinBtn").disabled = false;
+        const winner = colors[winningIndex];
+        alert(`🎉 مبروك! حصلت على لون: ${winner.name}`);
+        
+        await updateDoc(userRef, {
+            inventory: arrayUnion(winner.code)
+        });
+        btn.disabled = false;
     }, 4000);
-};
+}
+
+function renderInventory(items, activeColor) {
+    const grid = document.getElementById("color-grid");
+    grid.innerHTML = "";
+    
+    const defaultColor = '#374151';
+    const allItems = [defaultColor, ...new Set(items)];
+
+    allItems.forEach(colorCode => {
+        const item = document.createElement("div");
+        item.className = `color-item ${activeColor === colorCode ? 'active' : ''}`;
+        
+        if (colorCode === 'RAINBOW_SPECIAL') {
+            item.classList.add('rainbow');
+        } else if (colorCode.includes('gradient')) {
+            item.style.background = colorCode;
+        } else {
+            item.style.backgroundColor = colorCode;
+        }
+        
+        item.onclick = async () => {
+            await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                activeColor: colorCode
+            });
+
+            localStorage.setItem("kirafix-activeColor", colorCode); // 👈 الإضافة الوحيدة
+        };
+        grid.appendChild(item);
+    });
+}
+
+document.getElementById("spinBtn").onclick = spin;
 
 if(localStorage.getItem('kirafix-dark') === 'true') document.body.classList.add('dark-mode');
 </script>
+
 </body>
 </html>
