@@ -392,7 +392,7 @@ let currentUserData = null;
 
 function getStyleForName(colorCode) {
     if (!colorCode || colorCode === '#374151' || colorCode === 'default') {
-        return 'style="color: #374151; font-weight: bold;"';
+        return 'style="-webkit-text-fill-color: initial; color: #374151; font-weight: bold;"';
     }
     if (colorCode === 'RAINBOW_SPECIAL') {
         return 'class="rainbow-text" style="font-weight: bold; display: inline-block;"';
@@ -400,7 +400,7 @@ function getStyleForName(colorCode) {
     if (colorCode.includes('gradient')) {
         return `style="background: ${colorCode}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: bold; display: inline-block;"`;
     }
-    return `style="color: ${colorCode}; font-weight: bold;"`;
+    return `style="-webkit-text-fill-color: initial; color: ${colorCode}; font-weight: bold;"`;
 }
 
 async function addKiraCoins(amount) {
