@@ -523,23 +523,30 @@ onAuthStateChanged(auth, async (user) => {
             const nameDisplay = document.getElementById("user-name-display");
             if(nameDisplay) nameDisplay.textContent = currentUserData.name || user.email.split("@")[0];
 
-            let postsListenerStarted = false;
-            onSnapshot(userDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    currentUserData = docSnap.data(); 
-                    const rawCoins = docSnap.data().coins || 0;
-                    const formatted = formatCoins(rawCoins);
-                    if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
-                    if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = formatted;
-                    if (document.getElementById("user-coins-float")) document.getElementById("user-coins-float").textContent = formatted;
-                    localStorage.setItem("kirafix-activeColor", currentUserData.activeColor || '#374151');
+let postsListenerStarted = false;
+let lastActiveColor = null;
+let unsubscribePosts = null;
 
-                    if (!postsListenerStarted) {
-                        postsListenerStarted = true;
-                        startPostsListener();
-                    }
-                }
-            });
+onSnapshot(userDocRef, (docSnap) => {
+    if (docSnap.exists()) {
+        currentUserData = docSnap.data(); 
+        const rawCoins = docSnap.data().coins || 0;
+        const formatted = formatCoins(rawCoins);
+        if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
+        if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = formatted;
+        if (document.getElementById("user-coins-float")) document.getElementById("user-coins-float").textContent = formatted;
+        localStorage.setItem("kirafix-activeColor", currentUserData.activeColor || '#374151');
+
+        const colorChanged = currentUserData.activeColor !== lastActiveColor;
+        lastActiveColor = currentUserData.activeColor;
+
+        if (!postsListenerStarted || colorChanged) {
+            postsListenerStarted = true;
+            if (unsubscribePosts) unsubscribePosts();
+            unsubscribePosts = startPostsListener();
+        }
+    }
+});
         }
     } catch (error) { console.error("Firebase Error:", error); }
 
@@ -618,7 +625,7 @@ function timeAgo(timestamp) {
 }
 
 function startPostsListener() {
-    onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
+    return onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
         const container = document.getElementById("postsContainer");
         if(!container) return;
         container.innerHTML = "";
