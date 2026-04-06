@@ -523,16 +523,17 @@ onAuthStateChanged(auth, async (user) => {
             const nameDisplay = document.getElementById("user-name-display");
             if(nameDisplay) nameDisplay.textContent = currentUserData.name || user.email.split("@")[0];
 
-            onSnapshot(userDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    currentUserData = docSnap.data(); 
-                    const rawCoins = docSnap.data().coins || 0;
-                    const formatted = formatCoins(rawCoins);
-                    if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
-                    if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = formatted;
-                    if (document.getElementById("user-coins-float")) document.getElementById("user-coins-float").textContent = formatted;
-                }
-            });
+onSnapshot(userDocRef, (docSnap) => {
+    if (docSnap.exists()) {
+        currentUserData = docSnap.data(); 
+        const rawCoins = docSnap.data().coins || 0;
+        const formatted = formatCoins(rawCoins);
+        if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
+        if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = formatted;
+        if (document.getElementById("user-coins-float")) document.getElementById("user-coins-float").textContent = formatted;
+        localStorage.setItem("kirafix-activeColor", currentUserData.activeColor || '#374151'); // ✅ السطر الجديد
+    }
+});
         }
     } catch (error) { console.error("Firebase Error:", error); }
 
