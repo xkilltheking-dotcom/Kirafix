@@ -404,18 +404,6 @@ function getStyleForName(colorCode) {
     return `style="background: none; -webkit-text-fill-color: ${colorCode}; color: ${colorCode}; font-weight: bold;"`;
 }
 
-// دالة لتحويل الأوسمة من نصوص لأيقونات
-function getUserBadges(badges) {
-    if (!badges || !Array.isArray(badges)) return '';
-    const badgeMap = {
-        'VIP': '💎',
-        'DEVELOPER': '🛠️',
-        'TOP_USER': '🔥',
-        'VERIFIED': '✅'
-    };
-    return badges.map(b => `<span title="${b}" style="margin-right:4px; font-size:14px;">${badgeMap[b] || '🏅'}</span>`).join('');
-}
-
 async function addKiraCoins(amount) {
     if (!auth.currentUser) return;
     const userRef = doc(db, "users", auth.currentUser.uid);
@@ -448,7 +436,6 @@ window.sendComment = async (postId) => {
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
             userColor: currentUserData?.activeColor || '#374151',
-            userBadges: currentUserData?.badges || [], // تخزين الأوسمة في التعليق
             createdAt: serverTimestamp()
         });
         await updateDoc(doc(db, "posts", postId), { commentsCount: increment(1) });
@@ -469,9 +456,7 @@ function loadCommentsRealtime(postId) {
                 <div class="comment-item">
                     <img src="${c.userImage}">
                     <div class="comment-bubble">
-                        <div ${nameStyle} style="font-size:11px; display: flex; align-items: center; gap: 4px;">
-                            ${c.userName} ${getUserBadges(c.userBadges)}
-                        </div>
+                        <div ${nameStyle} style="font-size:11px;">${c.userName}</div>
                         <div>${c.text}</div>
                     </div>
                 </div>`;
@@ -618,7 +603,6 @@ document.getElementById("se").onclick = async () => {
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
             userColor: currentUserData?.activeColor || '#374151', 
-            userBadges: currentUserData?.badges || [], // تخزين الأوسمة في البوست
             createdAt: serverTimestamp(),
             image: null, video: null, likes: [], views: [], commentsCount: 0
         });
@@ -674,9 +658,7 @@ function startPostsListener() {
                     <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                         <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                         <div class="user-info">
-                            <div class="username" ${nameStyle} style="display: flex; align-items: center; gap: 4px;">
-                                ${post.userName || post.email?.split("@")[0]} ${getUserBadges(post.userBadges)}
-                            </div>
+                            <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
                             <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
                         </div>
                     </div>
