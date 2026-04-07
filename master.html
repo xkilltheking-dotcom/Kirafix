@@ -690,7 +690,10 @@ function startPostsListener() {
             if (change.type === "modified") {
                 const existingPost = container.querySelector(`[data-id="${postId}"]`);
                 if (existingPost) {
-                    // تحديث اللايكات والمشاهدات فقط دون إعادة رسم البوست كاملاً
+                    // حماية الـ Focus: لا نحدّث الجزء الذي يحتوي على الـ input إذا كان المستخدم يكتب فيه
+                    const activeEl = document.activeElement;
+                    const isInputActive = activeEl && activeEl.id === `input-${postId}`;
+
                     existingPost.setAttribute('data-views', JSON.stringify(views));
                     existingPost.querySelector(".likes-count").innerHTML = `👍 ${likes.length} ${ui.like}`;
                     existingPost.querySelector(".views-comments-count").innerHTML = `${views.length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}`;
@@ -699,6 +702,18 @@ function startPostsListener() {
                     likeBtn.className = `action-btn like-btn ${hasLiked ? 'liked' : ''}`;
                     likeBtn.innerHTML = `${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}`;
                     likeBtn.onclick = () => toggleLike(postId, hasLiked);
+
+                    // تحديث حالة ظهور قسم التعليقات دون لمس الـ Input نفسه
+                    const commSection = existingPost.querySelector(`#comments-${postId}`);
+                    if (commSection) {
+                        const shouldShow = openCommentsTracking.has(postId);
+                        if (commSection.style.display === "none" && shouldShow) {
+                            commSection.style.display = "block";
+                            loadCommentsRealtime(postId);
+                        } else if (commSection.style.display === "block" && !shouldShow) {
+                            commSection.style.display = "none";
+                        }
+                    }
                 }
             }
 
