@@ -384,7 +384,6 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUserData = null;
-// متغير لمتابعة التعليقات المفتوحة حالياً
 let openCommentsTracking = new Set();
 
 function getStyleForName(colorCode) {
@@ -446,6 +445,7 @@ window.sendComment = async (postId) => {
 
 function loadCommentsRealtime(postId) {
     const list = document.getElementById(`list-${postId}`);
+    if (!list) return;
     const q = query(collection(db, "posts", postId, "comments"), orderBy("createdAt", "asc"));
     onSnapshot(q, (snap) => {
         list.innerHTML = "";
@@ -626,80 +626,86 @@ function timeAgo(timestamp) {
 }
 
 function startPostsListener() {
-    return onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
+    return onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc")), (snap) => {
         const container = document.getElementById("postsContainer");
-        if(!container) return;
-        
-        // بدلاً من مسح كل شيء، نقوم بجمع المحتوى الجديد أولاً
-        let finalHTML = "";
-        
-        snap.forEach((docSnap) => {
-            const post = docSnap.data();
-            const postId = docSnap.id;
+        if (!container) return;
+
+        snap.docChanges().forEach((change) => {
+            const post = change.doc.data();
+            const postId = change.doc.id;
             const currentUid = auth.currentUser?.uid;
-            const likes = Array.isArray(post.likes) ? post.likes : [];
-            const views = Array.isArray(post.views) ? post.views : [];
-            const hasLiked = likes.includes(currentUid);
             const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
             const ui = {
                 ar: { like: 'إعجاب', liked: 'تم الإعجاب', comment: 'تعليق', views: 'مشاهدة', comments: 'تعليق', input: 'اكتب تعليقاً...', publish: 'نشر' },
                 en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
             }[currentLang];
 
-            const nameStyle = getStyleForName(
-                (post.uid === currentUid && currentUserData?.activeColor) 
-                    ? currentUserData.activeColor 
-                    : post.userColor
-            );
+            const likes = Array.isArray(post.likes) ? post.likes : [];
+            const views = Array.isArray(post.views) ? post.views : [];
+            const hasLiked = likes.includes(currentUid);
+            const nameStyle = getStyleForName((post.uid === currentUid && currentUserData?.activeColor) ? currentUserData.activeColor : post.userColor);
 
-            // التحقق إذا كانت التعليقات يجب أن تظل مفتوحة
-            const isCommentOpen = openCommentsTracking.has(postId);
-            const commentDisplayStyle = isCommentOpen ? "block" : "none";
-
-            finalHTML += `
-            <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
-                <div style="padding:15px;">
-                    <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                        <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
-                        <div class="user-info">
-                            <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
-                            <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
+            if (change.type === "added") {
+                const isCommentOpen = openCommentsTracking.has(postId);
+                const postHTML = `
+                <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
+                    <div style="padding:15px;">
+                        <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                            <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+                            <div class="user-info">
+                                <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
+                                <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
+                            </div>
+                        </div>
+                        <div class="post-text" style="margin-bottom:12px; line-height:1.5;">${post.text || ""}</div>
+                        ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
+                        ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
+                        <div class="post-stats">
+                            <span class="likes-count">👍 ${likes.length} ${ui.like}</span>
+                            <span class="views-comments-count">${views.length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}</span>
+                        </div>
+                        <div class="post-actions">
+                            <button type="button" class="action-btn like-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
+                                ${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}
+                            </button>
+                            <button type="button" class="action-btn" onclick="toggleComments('${postId}')">
+                                💬 ${ui.comment}
+                            </button>
                         </div>
                     </div>
-                    <div class="post-text" style="margin-bottom:12px; line-height:1.5;">${post.text || ""}</div>
-                    ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
-                    ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
-                    <div class="post-stats">
-                        <span>👍 ${likes.length} ${ui.like}</span>
-                        <span>${views.length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}</span>
+                    <div id="comments-${postId}" class="comments-section" style="display:${isCommentOpen ? 'block' : 'none'};">
+                        <div id="list-${postId}"></div>
+                        <div class="comment-input-wrapper">
+                            <input type="text" id="input-${postId}" placeholder="${ui.input}" onkeypress="if(event.key === 'Enter') { sendComment('${postId}'); }">
+                            <button type="button" onclick="sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">${ui.publish}</button>
+                        </div>
                     </div>
-                    <div class="post-actions">
-                        <button type="button" class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
-                            ${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}
-                        </button>
-                        <button type="button" class="action-btn" onclick="toggleComments('${postId}')">
-                            💬 ${ui.comment}
-                        </button>
-                    </div>
-                </div>
-                <div id="comments-${postId}" class="comments-section" style="display:${commentDisplayStyle};">
-                    <div id="list-${postId}"></div>
-                    <div class="comment-input-wrapper">
-                        <input type="text" id="input-${postId}" placeholder="${ui.input}" onkeypress="if(event.key === 'Enter') { sendComment('${postId}'); }">
-                        <button type="button" onclick="sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">${ui.publish}</button>
-                    </div>
-                </div>
-            </div>`;
-        });
-        
-        container.innerHTML = finalHTML;
-        
-        // إعادة تفعيل الـ Observer والتعليقات المفتوحة
-        snap.forEach((docSnap) => {
-            const postId = docSnap.id;
-            const postNode = container.querySelector(`[data-id="${postId}"]`);
-            if(postNode) viewObserver.observe(postNode);
-            if(openCommentsTracking.has(postId)) loadCommentsRealtime(postId);
+                </div>`;
+                const postNode = document.createRange().createContextualFragment(postHTML).firstElementChild;
+                container.appendChild(postNode);
+                viewObserver.observe(postNode);
+                if (isCommentOpen) loadCommentsRealtime(postId);
+            }
+
+            if (change.type === "modified") {
+                const existingPost = container.querySelector(`[data-id="${postId}"]`);
+                if (existingPost) {
+                    // تحديث اللايكات والمشاهدات فقط دون إعادة رسم البوست كاملاً
+                    existingPost.setAttribute('data-views', JSON.stringify(views));
+                    existingPost.querySelector(".likes-count").innerHTML = `👍 ${likes.length} ${ui.like}`;
+                    existingPost.querySelector(".views-comments-count").innerHTML = `${views.length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}`;
+                    
+                    const likeBtn = existingPost.querySelector(".like-btn");
+                    likeBtn.className = `action-btn like-btn ${hasLiked ? 'liked' : ''}`;
+                    likeBtn.innerHTML = `${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}`;
+                    likeBtn.onclick = () => toggleLike(postId, hasLiked);
+                }
+            }
+
+            if (change.type === "removed") {
+                const existingPost = container.querySelector(`[data-id="${postId}"]`);
+                if (existingPost) existingPost.remove();
+            }
         });
     });
 }
