@@ -384,8 +384,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUserData = null;
+// متغير لمتابعة التعليقات المفتوحة حالياً
+let openCommentsTracking = new Set();
 
-// التعديل هنا لضمان ظهور الألوان العادية والـ Gradient بشكل صحيح
 function getStyleForName(colorCode) {
     if (!colorCode || colorCode === '#374151' || colorCode === 'default') {
         return 'style="background: none; -webkit-text-fill-color: #374151; color: #374151; font-weight: bold;"';
@@ -415,8 +416,12 @@ window.toggleComments = (postId) => {
     const section = document.getElementById(`comments-${postId}`);
     if (section.style.display === "none" || section.style.display === "") {
         section.style.display = "block";
+        openCommentsTracking.add(postId);
         loadCommentsRealtime(postId);
-    } else { section.style.display = "none"; }
+    } else { 
+        section.style.display = "none"; 
+        openCommentsTracking.delete(postId);
+    }
 };
 
 window.sendComment = async (postId) => {
@@ -624,15 +629,16 @@ function startPostsListener() {
     return onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
         const container = document.getElementById("postsContainer");
         if(!container) return;
-        container.innerHTML = "";
+        
+        // بدلاً من مسح كل شيء، نقوم بجمع المحتوى الجديد أولاً
+        let finalHTML = "";
+        
         snap.forEach((docSnap) => {
             const post = docSnap.data();
             const postId = docSnap.id;
             const currentUid = auth.currentUser?.uid;
-
             const likes = Array.isArray(post.likes) ? post.likes : [];
             const views = Array.isArray(post.views) ? post.views : [];
-
             const hasLiked = likes.includes(currentUid);
             const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
             const ui = {
@@ -640,14 +646,17 @@ function startPostsListener() {
                 en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
             }[currentLang];
 
-            // تحديد الستايل بناءً على لون صاحب البوست (مع تحديث لحظي لليوزر الحالي)
             const nameStyle = getStyleForName(
                 (post.uid === currentUid && currentUserData?.activeColor) 
                     ? currentUserData.activeColor 
                     : post.userColor
             );
 
-            const postHTML = `
+            // التحقق إذا كانت التعليقات يجب أن تظل مفتوحة
+            const isCommentOpen = openCommentsTracking.has(postId);
+            const commentDisplayStyle = isCommentOpen ? "block" : "none";
+
+            finalHTML += `
             <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
                 <div style="padding:15px;">
                     <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
@@ -673,7 +682,7 @@ function startPostsListener() {
                         </button>
                     </div>
                 </div>
-                <div id="comments-${postId}" class="comments-section" style="display:none;">
+                <div id="comments-${postId}" class="comments-section" style="display:${commentDisplayStyle};">
                     <div id="list-${postId}"></div>
                     <div class="comment-input-wrapper">
                         <input type="text" id="input-${postId}" placeholder="${ui.input}" onkeypress="if(event.key === 'Enter') { sendComment('${postId}'); }">
@@ -681,10 +690,16 @@ function startPostsListener() {
                     </div>
                 </div>
             </div>`;
-
-            const postNode = document.createRange().createContextualFragment(postHTML).firstElementChild;
-            container.appendChild(postNode);
-            viewObserver.observe(postNode);
+        });
+        
+        container.innerHTML = finalHTML;
+        
+        // إعادة تفعيل الـ Observer والتعليقات المفتوحة
+        snap.forEach((docSnap) => {
+            const postId = docSnap.id;
+            const postNode = container.querySelector(`[data-id="${postId}"]`);
+            if(postNode) viewObserver.observe(postNode);
+            if(openCommentsTracking.has(postId)) loadCommentsRealtime(postId);
         });
     });
 }
