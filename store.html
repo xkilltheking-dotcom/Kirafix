@@ -258,10 +258,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// --- 🔊 نظام الأصوات المحدث ---
-// صوت دوران مستمر وواقعي
-const spinSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2005/2005-preview.mp3');
-const winSound = new Audio('https://www.myinstants.com/media/sounds/tada.mp3');
+// --- 🔊 نظام الأصوات الجديد (أصوات أنعم وأشيك) ---
+// صوت دوران العجلة (صوت تروس ميكانيكية ناعمة)
+const spinSound = new Audio('https://assets.mixkit.co/active_storage/sfx/1471/1471-preview.mp3');
+// صوت الفوز (صوت سحري خفيف)
+const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3');
 
 const colors = [
     { name: 'أحمر', code: 'linear-gradient(135deg, #ff4d4d, #cc0000)', chance: 24.0 },
@@ -394,8 +395,9 @@ document.getElementById("spinBtn").onclick = async () => {
     
     document.getElementById("spinBtn").disabled = true;
     
-    // 🔊 تشغيل صوت اللف (البدء من الصفر)
+    // تشغيل صوت اللف الجديد
     spinSound.currentTime = 0;
+    spinSound.loop = true; // نخليه يلف طول فترة الحركة
     spinSound.play().catch(e => console.log("الصوت يحتاج تفاعل"));
     
     await updateDoc(userRef, { coins: increment(-100) });
@@ -414,9 +416,10 @@ document.getElementById("spinBtn").onclick = async () => {
     canvas.style.transform = `rotate(${rotation}deg)`;
 
     setTimeout(async () => {
-        // 🔇 إيقاف صوت اللف وتشغيل صوت الفوز
-        spinSound.pause();
-        winSound.play();
+        spinSound.pause(); // وقف صوت اللف
+        spinSound.loop = false;
+        
+        winSound.play(); // شغل صوت الفوز "الرايق"
 
         const winner = colors[winningIndex];
         await updateDoc(userRef, { inventory: arrayUnion(winner.code) });
