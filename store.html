@@ -353,8 +353,9 @@ function renderBadgeInv(badges, active) {
 
         d.className = `item-box ${active === id ? 'active' : ''} ${specialClass}`;
         
-        if (id === 'admin') d.innerHTML = "ADM";
-        else if (id === 'editor') d.innerHTML = "EDT⚒️";
+        // التعديل هنا لإضافة الإيموجي بجانب الاسم في الحقيبة
+        if (id === 'admin') d.innerHTML = "ADM 🛡️";
+        else if (id === 'editor') d.innerHTML = "EDT ⚒️";
         else d.innerHTML = bData ? bData.icon : "🎖️";
 
         d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
