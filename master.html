@@ -423,17 +423,40 @@ const storage = getStorage(app);
 
 let currentUserData = null;
 
-function getBadgeHTML(badge) {
-    if (!badge || badge === "none") return "";
+// --- دور على الدالة دي واستبدلها بالنسخة دي ---
+function getBadgeHTML(badgeId) {
+    if (!badgeId || badgeId === "none") return "";
+    
+    // التعديل هنا للرتب الخاصة اللي طلبتها
+    if (badgeId === 'admin') {
+        return `<span class="user-badge" style="background: #ef4444; color: #fff; padding: 2px 8px;">ADMIN 🛡️</span>`;
+    }
+    
+    if (badgeId === 'editor') {
+        return `<span class="user-badge" style="background: #3b82f6; color: #fff; padding: 2px 8px; font-size: 9px; text-transform: none;">editorXkill_kin ⚒️</span>`;
+    }
+
+    // الرتب التانية اللي موجودة في الـ switch القديم عندك
     let style = "";
-    switch(badge) {
+    let label = badgeId;
+    switch(badgeId) {
         case "DEVELOPER": style = "background: #10b981; color: #fff;"; break;
-        case "ADMIN": style = "background: #ef4444; color: #fff;"; break;
-        case "VIP": style = "background: #f59e0b; color: #fff;"; break;
+        case "VIP": 
+            style = "background: #f59e0b; color: #fff;"; 
+            label = "عضو VIP ✨";
+            break;
+        case "verified": 
+            style = "background: #2563eb; color: #fff;"; 
+            label = "موثق ✔️";
+            break;
+        case "king": 
+            style = "background: #ffd700; color: #000;"; 
+            label = "الملك 👑";
+            break;
         case "MOD": style = "background: #3b82f6; color: #fff;"; break;
         default: style = "background: #6b7280; color: #fff;";
     }
-    return `<span class="user-badge" style="${style}">${badge}</span>`;
+    return `<span class="user-badge" style="${style}">${label}</span>`;
 }
 
 function getStyleForName(colorCode) {
