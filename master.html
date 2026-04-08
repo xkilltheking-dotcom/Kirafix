@@ -433,7 +433,17 @@ function getBadgeHTML(badgeId) {
     }
     
     if (badgeId === 'editor') {
-        return `<span class="user-badge" style="background: #3b82f6; color: #fff; padding: 2px 8px; font-size: 9px; text-transform: none;">editor⚒️</span>`;
+        return <span class="user-badge" style="
+            background: linear-gradient(45deg, #000428, #004e92); /* تدرج أزرق ليلي فخم */
+            color: #fff; 
+            padding: 3px 10px; 
+            font-size: 10px; 
+            text-transform: none; 
+            border: 1px solid #00d2ff; /* إطار مضيء خفيف */
+            box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); /* تأثير توهج */
+            letter-spacing: 0.5px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        ">Editor⚒️</span>`;
     }
 
     // الرتب التانية اللي موجودة في الـ switch القديم عندك
