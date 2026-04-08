@@ -1,477 +1,429 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kirafix - Store 🎡</title>
-<style>
-:root {
---gold: #ffd700;
---dark-bg: #111827;
-}
-body {
-background-color: #f3f4f6;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-margin: 0;
-padding-bottom: 50px;
-transition: 0.3s;
-}
-body.dark-mode {
-background-color: var(--dark-bg);
-color: white;
-}
-.container {
-max-width: 600px;
-margin: 20px auto;
-padding: 20px;
-}
-.home-btn {
-display: inline-block;
-margin-bottom: 15px;
-padding: 10px 20px;
-background: #fff;
-color: #111;
-text-decoration: none;
-border-radius: 12px;
-font-weight: bold;
-box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-transition: 0.3s;
-}
-body.dark-mode .home-btn {
-background: #1f2937;
-color: white;
-}
-.home-btn:hover {
-transform: scale(1.05);
-background: var(--gold);
-color: black;
-}
-.store-card, .inventory-section {
-background: white;
-border-radius: 20px;
-padding: 30px;
-text-align: center;
-box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-border: 2px solid var(--gold);
-margin-bottom: 20px;
-}
-body.dark-mode .store-card,
-body.dark-mode .inventory-section {
-background: #1f2937;
-border-color: #374151;
-}
-.balance-box {
-background: var(--gold);
-color: #000;
-padding: 10px 20px;
-border-radius: 50px;
-display: inline-flex;
-align-items: center;
-gap: 10px;
-font-weight: bold;
-margin-bottom: 20px;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirafix - Store 🎡</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --gold: #ffd700;
+            --dark-bg: #111827;
+        }
 
-/* Lucky Wheel */
-.wheel-container {
-position: relative;
-width: 250px;
-height: 250px;
-margin: 20px auto;
-}
-#wheel-canvas {
-width: 100%;
-height: 100%;
-border-radius: 50%;
-border: 5px solid #374151;
-transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
-}
-.pointer {
-position: absolute;
-top: -10px;
-left: 50%;
-transform: translateX(-50%);
-width: 30px;
-height: 30px;
-background: red;
-clip-path: polygon(50% 100%, 0 0, 100% 0);
-z-index: 10;
-}
-.spin-btn {
-background: #2563eb;
-color: white;
-border: none;
-padding: 15px 40px;
-border-radius: 30px;
-font-size: 18px;
-font-weight: bold;
-cursor: pointer;
-margin-top: 10px;
-transition: 0.3s;
-}
-.spin-btn:disabled {
-background: #9ca3af;
-cursor: not-allowed;
-}
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding-bottom: 50px;
+            transition: 0.3s;
+        }
 
-/* Badge Market */
-.badge-market {
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-gap: 15px;
-margin: 20px 0;
-}
-.badge-buy-card {
-background: #f9fafb;
-padding: 15px;
-border-radius: 15px;
-border: 1px solid #e5e7eb;
-cursor: pointer;
-transition: 0.3s;
-}
-body.dark-mode .badge-buy-card {
-background: #111827;
-border-color: #374151;
-}
-.badge-buy-card:hover {
-border-color: var(--gold);
-transform: translateY(-3px);
-}
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: white;
+        }
 
-/* Grid for Inventory Items */
-.color-grid, .badge-grid {
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-gap: 15px;
-margin-top: 15px;
-justify-items: center;
-}
-.item-box {
-width: 50px;
-height: 50px;
-border-radius: 12px;
-cursor: pointer;
-border: 3px solid transparent;
-transition: 0.2s;
-position: relative;
-display: flex;
-align-items: center;
-justify-content: center;
-background: #eee;
-font-size: 18px;
-}
-body.dark-mode .item-box {
-background: #111827;
-}
-.item-box.active {
-border-color: var(--gold);
-transform: scale(1.1);
-}
-.item-box.active::after {
-content: '✓';
-position: absolute;
-bottom: -5px;
-right: -5px;
-background: var(--gold);
-color: black;
-border-radius: 50%;
-width: 18px;
-height: 18px;
-font-size: 10px;
-display: flex;
-align-items: center;
-justify-content: center;
-font-weight: bold;
-}
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+        }
 
-/* Special Badges */
-.badge-admin {
-background: linear-gradient(135deg, #ff0000, #8b0000) !important;
-color: white !important;
-box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-border: 1px solid #ff4d4d !important;
-font-weight: 900 !important;
-text-shadow: 0 0 5px rgba(255,255,255,0.5);
-}
-.badge-editor {
-background: linear-gradient(135deg, #a855f7, #6b21a8) !important;
-color: white !important;
-box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
-border: 1px solid #c084fc !important;
-}
+        .home-btn {
+            display: inline-block;
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            background: #fff;
+            color: #111;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        body.dark-mode .home-btn { background: #1f2937; color: white; }
+        .home-btn:hover { transform: scale(1.05); background: var(--gold); color: black; }
 
-/* Animated Rainbow */
-.item-box.rainbow {
-background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) !important;
-background-size: 200% 200% !important;
-animation: rainbowBG 2s linear infinite !important;
-}
-@keyframes rainbowBG {
-0%{background-position:0% 50%}
-100%{background-position:100% 50%}
-}
+        .store-card, .inventory-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 2px solid var(--gold);
+            margin-bottom: 20px;
+            position: relative;
+        }
+        body.dark-mode .store-card, body.dark-mode .inventory-section { 
+            background: #1f2937; 
+            border-color: #374151; 
+        }
 
-.section-title {
-font-size: 14px;
-color: #888;
-margin-top: 20px;
-text-align: right;
-width: 100%;
-}
-</style>
+        .balance-box {
+            background: var(--gold);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* Daily Reward Button */
+        .daily-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: block;
+            width: 100%;
+            transition: 0.3s;
+        }
+        .daily-btn:disabled { background: #6b7280; cursor: not-allowed; }
+
+        /* Lucky Wheel */
+        .wheel-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 20px auto;
+        }
+        #wheel-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid #374151;
+            transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
+        }
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: red;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 10;
+        }
+
+        .spin-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        .spin-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+
+        /* Badge Market */
+        .badge-market {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .badge-buy-card {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        body.dark-mode .badge-buy-card { background: #111827; border-color: #374151; }
+        .badge-buy-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+
+        /* Inventory */
+        .color-grid, .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+            justify-items: center;
+        }
+        .item-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: 0.2s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eee;
+            font-size: 18px;
+        }
+        body.dark-mode .item-box { background: #111827; }
+        .item-box.active { border-color: var(--gold); transform: scale(1.1); }
+        .item-box.active::after {
+            content: '✓';
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: var(--gold);
+            color: black;
+            border-radius: 50%; width: 18px; height: 18px; font-size: 10px;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, #ff0000, #8b0000) !important;
+            color: white !important;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+            border: 1px solid #ff4d4d !important;
+            font-weight: 900 !important;
+        }
+        .badge-editor {
+            background: linear-gradient(135deg, #a855f7, #6b21a8) !important;
+            color: white !important;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+            border: 1px solid #c084fc !important;
+        }
+
+        .item-box.rainbow {
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) !important;
+            background-size: 200% 200% !important;
+            animation: rainbowBG 2s linear infinite !important;
+        }
+        @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+        .section-title { font-size: 14px; color: #888; margin-top: 20px; text-align: right; width: 100%; }
+    </style>
 </head>
-
 <body>
+
 <div class="container">
-<a href="index.html" class="home-btn">🏠 العودة للرئيسية</a>
+    <a href="index.html" class="home-btn">🏠 العودة للرئيسية</a>
 
-<div class="store-card">
-<h2>🎡 Kirafix Lucky Wheel</h2>
+    <div class="store-card">
+        <button id="dailyBtn" class="daily-btn">🎁 استلام الهدية اليومية</button>
+        <h2>🎡 Kirafix Lucky Wheel</h2>
+        <div class="balance-box">
+            <span>رصيدك:</span>
+            <span id="user-coins">0</span>
+            <span>🪙</span>
+        </div>
+        
+        <p>تكلفة اللفة: 100 كوين</p>
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <canvas id="wheel-canvas" width="500" height="500"></canvas>
+        </div>
+        <button id="spinBtn" class="spin-btn">إبدأ اللف الآن!</button>
+    </div>
 
-<div class="balance-box">
-<span>رصيدك:</span>
-<span id="user-coins">0</span>
-<span>🪙</span>
-</div>
+    <div class="store-card">
+        <h3>🎖️ متجر الأوسمة والتوثيق</h3>
+        <div class="badge-market" id="badge-market"></div>
+    </div>
 
-<p>تكلفة اللفة: 100 كوين</p>
-
-<div class="wheel-container">
-<div class="pointer"></div>
-<canvas id="wheel-canvas" width="500" height="500"></canvas>
-</div>
-
-<button id="spinBtn" class="spin-btn">إبدأ اللف الآن!</button>
-</div>
-
-<div class="store-card">
-<h3>🎖️ متجر الأوسمة والتوثيق</h3>
-<div class="badge-market" id="badge-market"></div>
-</div>
-
-<div class="inventory-section">
-<h3>🎒 حقيبتك (Inventory)</h3>
-
-<div class="section-title">🎨 الألوان المفتوحة:</div>
-<div id="color-grid" class="color-grid"></div>
-
-<div class="section-title">🎖️ الأوسمة المفتوحة:</div>
-<div id="badge-grid" class="badge-grid"></div>
-</div>
+    <div class="inventory-section">
+        <h3>🎒 حقيبتك (Inventory)</h3>
+        <div class="section-title">🎨 الألوان المفتوحة:</div>
+        <div id="color-grid" class="color-grid"></div>
+        <div class="section-title">🎖️ الأوسمة المفتوحة:</div>
+        <div id="badge-grid" class="badge-grid"></div>
+    </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, arrayUnion, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc, arrayUnion, increment, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
-authDomain: "kirafix-a0ed2.firebaseapp.com",
-projectId: "kirafix-a0ed2",
-storageBucket: "kirafix-a0ed2.firebasestorage.app",
-messagingSenderId: "1038377831293",
-appId: "1:103837103837:web:c4763c6157addb25a1da14"
+    apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
+    authDomain: "kirafix-a0ed2.firebaseapp.com",
+    projectId: "kirafix-a0ed2",
+    storageBucket: "kirafix-a0ed2.firebasestorage.app",
+    messagingSenderId: "1038377831293",
+    appId: "1:103837103837:web:c4763c6157addb25a1da14"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// البيانات الأساسية
+// --- 🔊 نظام الأصوات ---
+const spinSound = new Audio('https://www.soundjay.com/misc/sounds/wheel-fortune-1.mp3');
+const winSound = new Audio('https://www.myinstants.com/media/sounds/tada.mp3');
+
 const colors = [
-{ name: 'أحمر', code: 'linear-gradient(135deg, #ff4d4d, #cc0000)', chance: 24.0 },
-{ name: 'أخضر', code: 'linear-gradient(135deg, #4dff4d, #00cc00)', chance: 24.0 },
-{ name: 'أزرق', code: 'linear-gradient(135deg, #4d4dff, #0000cc)', chance: 24.0 },
-{ name: 'جولد', code: 'linear-gradient(135deg, #ffd700, #b8860b)', chance: 1.0 },
-{ name: 'دموي', code: 'linear-gradient(135deg, #8a0303, #4a0000)', chance: 1.0 },
-{ name: 'رينبو', code: 'RAINBOW_SPECIAL', chance: 0.1 }
+    { name: 'أحمر', code: 'linear-gradient(135deg, #ff4d4d, #cc0000)', chance: 24.0 },
+    { name: 'أخضر', code: 'linear-gradient(135deg, #4dff4d, #00cc00)', chance: 24.0 },
+    { name: 'أزرق', code: 'linear-gradient(135deg, #4d4dff, #0000cc)', chance: 24.0 },
+    { name: 'جولد', code: 'linear-gradient(135deg, #ffd700, #b8860b)', chance: 1.0 },
+    { name: 'دموي', code: 'linear-gradient(135deg, #8a0303, #4a0000)', chance: 1.0 },
+    { name: 'رينبو', code: 'RAINBOW_SPECIAL', chance: 0.1 }
 ];
 
 const availableBadges = [
-{ id: 'verified', name: 'توثيق الحساب', icon: '✔️', price: 5000 },
-{ id: 'king', name: 'الملك', icon: '👑', price: 3000 },
-{ id: 'vip', name: 'عضو VIP', icon: '✨', price: 1500 }
+    { id: 'verified', name: 'توثيق الحساب', icon: '✔️', price: 5000 },
+    { id: 'king', name: 'الملك', icon: '👑', price: 3000 },
+    { id: 'vip', name: 'عضو VIP', icon: '✨', price: 1500 }
 ];
 
-// --- 1. رسم العجلة ---
 const canvas = document.getElementById("wheel-canvas");
 const ctx = canvas.getContext("2d");
 
 function drawWheel() {
-const sliceAngle = (2 * Math.PI) / colors.length;
-
-colors.forEach((color, i) => {
-ctx.beginPath();
-ctx.fillStyle = color.code.includes('gradient') ? '#ffd700' : (color.code === 'RAINBOW_SPECIAL' ? '#ffffff' : color.code);
-ctx.moveTo(250, 250);
-ctx.arc(250, 250, 250, i * sliceAngle, (i + 1) * sliceAngle);
-ctx.fill();
-
-ctx.save();
-ctx.translate(250, 250);
-ctx.rotate(i * sliceAngle + sliceAngle / 2);
-ctx.fillStyle = "white";
-ctx.font = "bold 16px Arial";
-ctx.fillText(color.name[0], 180, 5);
-ctx.restore();
-});
+    const sliceAngle = (2 * Math.PI) / colors.length;
+    colors.forEach((color, i) => {
+        ctx.beginPath();
+        ctx.fillStyle = color.code.includes('gradient') ? '#ffd700' : (color.code === 'RAINBOW_SPECIAL' ? '#ffffff' : color.code);
+        ctx.moveTo(250, 250);
+        ctx.arc(250, 250, 250, i * sliceAngle, (i + 1) * sliceAngle);
+        ctx.fill();
+        ctx.save();
+        ctx.translate(250, 250); ctx.rotate(i * sliceAngle + sliceAngle / 2);
+        ctx.fillStyle = "white"; ctx.font = "bold 16px Arial";
+        ctx.fillText(color.name[0], 180, 5); ctx.restore();
+    });
 }
-
 drawWheel();
 
-// --- 2. التحكم بالمتجر والعملات ---
 function renderMarket() {
-const m = document.getElementById("badge-market");
-m.innerHTML = availableBadges.map(b =>
-<div class="badge-buy-card" onclick="window.buyBadge('${b.id}', ${b.price})">
-<div style="font-size:24px">${b.icon}</div>
-<div style="font-size:12px; font-weight:bold">${b.name}</div>
-<div style="color:#10b981; font-size:13px">${b.price} 🪙</div>
-</div>
-).join('');
+    const m = document.getElementById("badge-market");
+    m.innerHTML = availableBadges.map(b => `
+        <div class="badge-buy-card" onclick="window.buyBadge('${b.id}', ${b.price})">
+            <div style="font-size:24px">${b.icon}</div>
+            <div style="font-size:12px; font-weight:bold">${b.name}</div>
+            <div style="color:#10b981; font-size:13px">${b.price} 🪙</div>
+        </div>
+    `).join('');
 }
-
 renderMarket();
 
 window.buyBadge = async (id, price) => {
-const userRef = doc(db, "users", auth.currentUser.uid);
-const snap = await getDoc(userRef);
-const data = snap.data();
-
-if ((data.inventoryBadges || []).includes(id)) return alert("تمتلكه بالفعل!");
-if ((data.coins || 0) < price) return alert("رصيدك لا يكفي!");
-
-if(confirm("شراء هذا الوسام؟")) {
-await updateDoc(userRef, {
-coins: increment(-price),
-inventoryBadges: arrayUnion(id)
-});
-alert("تم الشراء بنجاح!");
-}
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    const snap = await getDoc(userRef);
+    const data = snap.data();
+    if ((data.inventoryBadges || []).includes(id)) return alert("تمتلكه بالفعل!");
+    if ((data.coins || 0) < price) return alert("رصيدك لا يكفي!");
+    if(confirm("شراء هذا الوسام؟")) {
+        await updateDoc(userRef, { coins: increment(-price), inventoryBadges: arrayUnion(id) });
+        alert("تم الشراء بنجاح!");
+    }
 };
 
-// --- 3. تحديث البيانات (Real-time) ---
 onAuthStateChanged(auth, (user) => {
-if (!user) {
-window.location.href = "index.html";
-return;
-}
-
-onSnapshot(doc(db, "users", user.uid), (docSnap) => {
-if (docSnap.exists()) {
-const data = docSnap.data();
-const rawCoins = data.coins || 0;
-
-document.getElementById("user-coins").textContent =
-rawCoins >= 1000000 ? (rawCoins/1000000).toFixed(1) + 'M' : rawCoins;
-
-renderInventory(data.inventory || [], data.activeColor);
-renderBadgeInv(data.inventoryBadges || [], data.activeBadge);
-}
-});
+    if (!user) { window.location.href = "index.html"; return; }
+    onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            document.getElementById("user-coins").textContent = data.coins >= 1000000 ? (data.coins/1000000).toFixed(1) + 'M' : data.coins || 0;
+            renderInventory(data.inventory || [], data.activeColor);
+            renderBadgeInv(data.inventoryBadges || [], data.activeBadge);
+            checkDailyStatus(data.lastDaily);
+        }
+    });
 });
 
-// --- 4. عرض الحقيبة ---
+// --- 🏆 المكافأة اليومية ---
+async function checkDailyStatus(lastDaily) {
+    const btn = document.getElementById("dailyBtn");
+    if (!lastDaily) return;
+    const lastDate = lastDaily.toDate().toLocaleDateString();
+    const today = new Date().toLocaleDateString();
+    if (lastDate === today) {
+        btn.disabled = true;
+        btn.textContent = "✅ تم استلام هدية اليوم";
+    }
+}
+
+document.getElementById("dailyBtn").onclick = async () => {
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    await updateDoc(userRef, { 
+        coins: increment(50), 
+        lastDaily: serverTimestamp() 
+    });
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    alert("🎁 حصلت على 50 كوين هدية يومية!");
+};
+
 function renderInventory(items, active) {
-const grid = document.getElementById("color-grid");
-grid.innerHTML = "";
-
-['#374151', ...new Set(items)].forEach(code => {
-const d = document.createElement("div");
-
-const isRainbow = (code === 'RAINBOW_SPECIAL' || code.includes('red, orange'));
-
-d.className = `item-box ${active === code ? 'active' : ''} ${isRainbow ? 'rainbow' : ''}`;
-
-if(!isRainbow) d.style.background = code;
-
-d.onclick = () =>
-updateDoc(doc(db, "users", auth.currentUser.uid), {
-activeColor: code
-});
-
-grid.appendChild(d);
-});
+    const grid = document.getElementById("color-grid");
+    grid.innerHTML = "";
+    ['#374151', ...new Set(items)].forEach(code => {
+        const d = document.createElement("div");
+        const isRainbow = (code === 'RAINBOW_SPECIAL' || code.includes('red, orange'));
+        d.className = `item-box ${active === code ? 'active' : ''} ${isRainbow ? 'rainbow' : ''}`;
+        if(!isRainbow) d.style.background = code;
+        d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeColor: code });
+        grid.appendChild(d);
+    });
 }
 
 function renderBadgeInv(badges, active) {
-const grid = document.getElementById("badge-grid");
-grid.innerHTML = "";
+    const grid = document.getElementById("badge-grid");
+    grid.innerHTML = "";
+    (badges || []).forEach(id => {
+        const bData = availableBadges.find(x => x.id === id);
+        const d = document.createElement("div");
+        let specialClass = "";
+        if(id === 'admin') specialClass = "badge-admin";
+        if(id === 'editor') specialClass = "badge-editor";
+        d.className = `item-box ${active === id ? 'active' : ''} ${specialClass}`;
+        if (id === 'admin') d.innerHTML = "<span style='font-size:10px'>ADM🛡️</span>";
+        else if (id === 'editor') d.innerHTML = "<span style='font-size:10px'>EDI⚒️</span>";
+        else d.innerHTML = bData ? bData.icon : "🎖️";
+        d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
+        grid.appendChild(d);
+    });
+}
 
-(badges || []).forEach(id => {
-const bData = availableBadges.find(x => x.id === id);
-
-const d = document.createElement("div");
-
-let specialClass = "";
-if(id === 'admin') specialClass = "badge-admin";
-if(id === 'editor') specialClass = "badge-editor";
-
-d.className = `item-box ${active === id ? 'active' : ''} ${specialClass}`;
-
-if (id === 'admin') d.innerHTML = "<span style='font-size:10px'>ADM🛡️</span>";
-else if (id === 'editor') d.innerHTML = "<span style='font-size:10px'>EDI⚒️</span>";
-else d.innerHTML = bData ? bData.icon : "🎖️";
-
-d.onclick = () =>
-updateDoc(doc(db, "users", auth.currentUser.uid), {
-activeBadge: id
-});
-
-grid.appendChild(d);
-});
-
-// --- 5. دوران العجلة ---
 let rotation = 0;
-
 document.getElementById("spinBtn").onclick = async () => {
-const userRef = doc(db, "users", auth.currentUser.uid);
-const snap = await getDoc(userRef);
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    const snap = await getDoc(userRef);
+    if ((snap.data().coins || 0) < 100) return alert("رصيدك لا يكفي!");
+    
+    document.getElementById("spinBtn").disabled = true;
+    spinSound.play(); // 🔊 تشغيل صوت اللف
+    
+    await updateDoc(userRef, { coins: increment(-100) });
 
-if ((snap.data().coins || 0) < 100)
-return alert("رصيدك لا يكفي!");
+    let winningIndex = 0;
+    let totalWeight = colors.reduce((s, c) => s + c.chance, 0);
+    let random = Math.random() * totalWeight;
+    let sum = 0;
+    for (let i = 0; i < colors.length; i++) {
+        sum += colors[i].chance;
+        if (random <= sum) { winningIndex = i; break; }
+    }
 
-document.getElementById("spinBtn").disabled = true;
+    const sliceAngle = 360 / colors.length;
+    rotation += (360 * 8) + (360 - (winningIndex * sliceAngle) - (sliceAngle / 2));
+    canvas.style.transform = `rotate(${rotation}deg)`;
 
-await updateDoc(userRef, {
-coins: increment(-100)
-});
+    setTimeout(async () => {
+        const winner = colors[winningIndex];
+        await updateDoc(userRef, { inventory: arrayUnion(winner.code) });
+        
+        // 🎆 احتفالات Confetti و 🔊 صوت الفوز
+        winSound.play();
+        confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
 
-let winningIndex = 0;
-let totalWeight = colors.reduce((s, c) => s + c.chance, 0);
-let random = Math.random() * totalWeight;
-let sum = 0;
-
-for (let i = 0; i < colors.length; i++) {
-sum += colors[i].chance;
-if (random <= sum) {
-winningIndex = i;
-break;
-}
-}
-
-const sliceAngle = 360 / colors.length;
-
-rotation += (360 * 8) + (360 - (winningIndex * sliceAngle) - (sliceAngle / 2));
-
-canvas.style.transform = `rotate(${rotation}deg)`;
-
-setTimeout(async () => {
-const winner = colors[winningIndex];
-
-await updateDoc(userRef, {
-inventory: arrayUnion(winner.code)
-});
-
-alert(`مبروك! حصلت على ${winner.name}`);
-
-document.getElementById("spinBtn").disabled = false;
-}, 4000);
+        alert(`مبروك! حصلت على لون ${winner.name}`);
+        document.getElementById("spinBtn").disabled = false;
+    }, 4000);
 };
 
-if(localStorage.getItem('kirafix-dark') === 'true')
-document.body.classList.add('dark-mode');
+if(localStorage.getItem('kirafix-dark') === 'true') document.body.classList.add('dark-mode');
 </script>
 </body>
 </html>
