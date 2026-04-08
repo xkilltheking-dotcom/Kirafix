@@ -378,6 +378,12 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
 
+// --- إعدادات الرفع الخارجية (عدل البيانات دي) ---
+const IMGBB_API_KEY = "ضع_هنا_api_key_الخاص_بـ_imgbb"; 
+const CLOUDINARY_UPLOAD_PRESET = "ضع_هنا_الـ_preset_الخاص_بـ_cloudinary";
+const CLOUDINARY_CLOUD_NAME = "ضع_هنا_الـ_cloud_name_الخاص_بك";
+// ------------------------------------------
+
 function formatCoins(num) {
     if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -401,7 +407,6 @@ const storage = getStorage(app);
 
 let currentUserData = null;
 
-// وظيفة جلب الرتبة
 function getBadgeHTML(badge) {
     if (!badge || badge === "none") return "";
     let style = "";
@@ -629,9 +634,30 @@ document.getElementById("se").onclick = async () => {
     let fileUrl = null;
     try {
         if (selectedFile) {
-            const fileRef = ref(storage, `posts/${Date.now()}_${selectedFile.name}`);
-            await uploadBytes(fileRef, selectedFile);
-            fileUrl = await getDownloadURL(fileRef);
+            if (fileType === 'image') {
+                // الرفع إلى imgBB
+                const formData = new FormData();
+                formData.append("image", selectedFile);
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success) fileUrl = data.data.url;
+                else throw new Error("فشل رفع الصورة لـ imgBB");
+            } else if (fileType === 'video') {
+                // الرفع إلى Cloudinary
+                const formData = new FormData();
+                formData.append("file", selectedFile);
+                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`, {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.secure_url) fileUrl = data.secure_url;
+                else throw new Error("فشل رفع الفيديو لـ Cloudinary");
+            }
         }
 
         await addDoc(collection(db, "posts"), {
@@ -653,7 +679,11 @@ document.getElementById("se").onclick = async () => {
         mediaPreview.innerHTML = ""; mediaPreview.style.display = "none";
         selectedFile = null; fileType = null; btn.disabled = false; btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
-    } catch (error) { alert("حصلت مشكلة: " + error.message); btn.disabled = false; btn.innerText = "نشر"; }
+    } catch (error) { 
+        console.error(error);
+        alert("حصلت مشكلة: " + error.message); 
+        btn.disabled = false; btn.innerText = "نشر"; 
+    }
 };
 
 function timeAgo(timestamp) {
