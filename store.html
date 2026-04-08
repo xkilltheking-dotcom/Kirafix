@@ -169,6 +169,28 @@
             justify-content: center;
             font-weight: bold;
         }
+        /* رتبة الأدمن - أحمر متوهج */
+.badge-admin {
+    background: linear-gradient(135deg, #ff0000, #8b0000) !important;
+    color: white !important;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+    border: 1px solid #ff4d4d !important;
+    font-weight: 900 !important;
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+/* رتبة الإيديتور - بنفسجي احترافي */
+.badge-editor {
+    background: linear-gradient(135deg, #a855f7, #6b21a8) !important;
+    color: white !important;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+    border: 1px solid #c084fc !important;
+    font-weight: bold !important;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
 
         .rainbow { 
             background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) !important;
@@ -320,11 +342,25 @@ function renderInventory(items, active) {
 function renderBadgeInv(badges, active) {
     const grid = document.getElementById("badge-grid");
     grid.innerHTML = "";
+    
+    // الأوسمة اللي ممكن تكون عندك في الـ Inventory (بما فيها الرتب الخاصة)
     (badges || []).forEach(id => {
+        // بنشوف لو ده وسام عادي من المتجر ولا رتبة خاصة
         const bData = availableBadges.find(x => x.id === id);
         const d = document.createElement("div");
-        d.className = `item-box ${active === id ? 'active' : ''}`;
-        d.innerHTML = bData.icon;
+        
+        // لو الرتبة "admin" أو "editor" بنضيف كلاس الستايل بتاعها
+        let specialClass = "";
+        if(id === 'admin') specialClass = "badge-admin";
+        if(id === 'editor') specialClass = "badge-editor";
+
+        d.className = `item-box ${active === id ? 'active' : ''} ${specialClass}`;
+        
+        // تحديد الأيقونة أو النص اللي هيظهر جوه المربع في الشنطة
+        if (id === 'admin') d.innerHTML = "ADM";
+        else if (id === 'editor') d.innerHTML = "EDT";
+        else d.innerHTML = bData ? bData.icon : "🎖️";
+
         d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
         grid.appendChild(d);
     });
