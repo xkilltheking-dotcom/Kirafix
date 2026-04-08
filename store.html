@@ -192,12 +192,13 @@
     border-radius: 6px;
 }
 
-                .color-item.rainbow { 
-            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
-            background-size: 200% 200%;
-            animation: rainbowBG 2s linear infinite;
-        }
-        @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+/* تعديل اسم الكلاس ليتطابق مع الـ JS وضمان عمل الأنيميشن */
+.item-box.rainbow { 
+    background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) !important;
+    background-size: 200% 200% !important;
+    animation: rainbowBG 2s linear infinite !important;
+}
+@keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
     </style>
 </head>
 <body>
@@ -332,13 +333,8 @@ function renderInventory(items, active) {
     grid.innerHTML = "";
     ['#374151', ...new Set(items)].forEach(code => {
         const d = document.createElement("div");
-        const isRainbow = code.includes('red, orange');
-        d.className = `item-box ${active === code ? 'active' : ''} ${isRainbow ? 'rainbow' : ''}`;
-        
-        if(!isRainbow) {
-            d.style.background = code;
-        }
-        
+        d.className = `item-box ${active === code ? 'active' : ''} ${code.includes('red, orange') ? 'rainbow' : ''}`;
+        if(!code.includes('red, orange')) d.style.background = code;
         d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeColor: code });
         grid.appendChild(d);
     });
