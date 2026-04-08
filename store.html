@@ -258,8 +258,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// --- 🔊 نظام الأصوات ---
-const spinSound = new Audio('https://www.soundjay.com/misc/sounds/wheel-fortune-1.mp3');
+// --- 🔊 نظام الأصوات المحدث ---
+// صوت دوران مستمر وواقعي
+const spinSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2005/2005-preview.mp3');
 const winSound = new Audio('https://www.myinstants.com/media/sounds/tada.mp3');
 
 const colors = [
@@ -333,7 +334,6 @@ onAuthStateChanged(auth, (user) => {
     });
 });
 
-// --- 🏆 المكافأة اليومية ---
 async function checkDailyStatus(lastDaily) {
     const btn = document.getElementById("dailyBtn");
     if (!lastDaily) return;
@@ -393,7 +393,10 @@ document.getElementById("spinBtn").onclick = async () => {
     if ((snap.data().coins || 0) < 100) return alert("رصيدك لا يكفي!");
     
     document.getElementById("spinBtn").disabled = true;
-    spinSound.play(); // 🔊 تشغيل صوت اللف
+    
+    // 🔊 تشغيل صوت اللف (البدء من الصفر)
+    spinSound.currentTime = 0;
+    spinSound.play().catch(e => console.log("الصوت يحتاج تفاعل"));
     
     await updateDoc(userRef, { coins: increment(-100) });
 
@@ -411,11 +414,13 @@ document.getElementById("spinBtn").onclick = async () => {
     canvas.style.transform = `rotate(${rotation}deg)`;
 
     setTimeout(async () => {
+        // 🔇 إيقاف صوت اللف وتشغيل صوت الفوز
+        spinSound.pause();
+        winSound.play();
+
         const winner = colors[winningIndex];
         await updateDoc(userRef, { inventory: arrayUnion(winner.code) });
         
-        // 🎆 احتفالات Confetti و 🔊 صوت الفوز
-        winSound.play();
         confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
 
         alert(`مبروك! حصلت على لون ${winner.name}`);
