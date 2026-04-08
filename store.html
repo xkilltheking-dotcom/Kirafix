@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kirafix - Store 🎡</title>
-    <link rel="stylesheet" href="style.css?v=2">
     <style>
         :root {
             --gold: #ffd700;
@@ -16,9 +15,9 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding-bottom: 50px;
+            transition: 0.3s;
         }
 
-        /* رجوع الـ Dark Mode الأساسي */
         body.dark-mode {
             background-color: var(--dark-bg);
             color: white;
@@ -71,7 +70,7 @@
             margin-bottom: 20px;
         }
 
-        /* ستايل العجلة */
+        /* Lucky Wheel */
         .wheel-container {
             position: relative;
             width: 250px;
@@ -106,12 +105,12 @@
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 10px;
             transition: 0.3s;
         }
         .spin-btn:disabled { background: #9ca3af; cursor: not-allowed; }
 
-        /* ستايل سوق الأوسمة */
+        /* Badge Market */
         .badge-market {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -129,12 +128,13 @@
         body.dark-mode .badge-buy-card { background: #111827; border-color: #374151; }
         .badge-buy-card:hover { border-color: var(--gold); transform: translateY(-3px); }
 
-        /* ستايل الـ Inventory */
+        /* Grid for Inventory Items */
         .color-grid, .badge-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
             gap: 15px;
             margin-top: 15px;
+            justify-items: center;
         }
 
         .item-box {
@@ -149,6 +149,7 @@
             align-items: center;
             justify-content: center;
             background: #eee;
+            font-size: 18px;
         }
         body.dark-mode .item-box { background: #111827; }
 
@@ -169,36 +170,33 @@
             justify-content: center;
             font-weight: bold;
         }
-        /* رتبة الأدمن - أحمر متوهج */
-.badge-admin {
-    background: linear-gradient(135deg, #ff0000, #8b0000) !important;
-    color: white !important;
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-    border: 1px solid #ff4d4d !important;
-    font-weight: 900 !important;
-    text-shadow: 0 0 5px rgba(255,255,255,0.5);
-    padding: 2px 8px;
-    border-radius: 6px;
-}
 
-/* رتبة الإيديتور - بنفسجي احترافي */
-.badge-editor {
-    background: linear-gradient(135deg, #a855f7, #6b21a8) !important;
-    color: white !important;
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
-    border: 1px solid #c084fc !important;
-    font-weight: bold !important;
-    padding: 2px 8px;
-    border-radius: 6px;
-}
+        /* Special Badges */
+        .badge-admin {
+            background: linear-gradient(135deg, #ff0000, #8b0000) !important;
+            color: white !important;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+            border: 1px solid #ff4d4d !important;
+            font-weight: 900 !important;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
 
-/* تعديل اسم الكلاس ليتطابق مع الـ JS وضمان عمل الأنيميشن */
-.item-box.rainbow { 
-    background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) !important;
-    background-size: 200% 200% !important;
-    animation: rainbowBG 2s linear infinite !important;
-}
-@keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+        .badge-editor {
+            background: linear-gradient(135deg, #a855f7, #6b21a8) !important;
+            color: white !important;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+            border: 1px solid #c084fc !important;
+        }
+
+        /* Animated Rainbow */
+        .item-box.rainbow { 
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) !important;
+            background-size: 200% 200% !important;
+            animation: rainbowBG 2s linear infinite !important;
+        }
+        @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+        
+        .section-title { font-size: 14px; color: #888; margin-top: 20px; text-align: right; width: 100%; }
     </style>
 </head>
 <body>
@@ -214,7 +212,7 @@
             <span>🪙</span>
         </div>
         
-        <p>تكلفة اللفة 100 كوين</p>
+        <p>تكلفة اللفة: 100 كوين</p>
         <div class="wheel-container">
             <div class="pointer"></div>
             <canvas id="wheel-canvas" width="500" height="500"></canvas>
@@ -229,10 +227,11 @@
 
     <div class="inventory-section">
         <h3>🎒 حقيبتك (Inventory)</h3>
-        <p style="font-size: 13px; color: #888;">الألوان المفتوحة:</p>
+        
+        <div class="section-title">🎨 الألوان المفتوحة:</div>
         <div id="color-grid" class="color-grid"></div>
         
-        <p style="font-size: 13px; color: #888; margin-top: 20px;">الأوسمة المفتوحة:</p>
+        <div class="section-title">🎖️ الأوسمة المفتوحة:</div>
         <div id="badge-grid" class="badge-grid"></div>
     </div>
 </div>
@@ -255,13 +254,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// البيانات الأساسية
 const colors = [
     { name: 'أحمر', code: 'linear-gradient(135deg, #ff4d4d, #cc0000)', chance: 24.0 },
     { name: 'أخضر', code: 'linear-gradient(135deg, #4dff4d, #00cc00)', chance: 24.0 },
     { name: 'أزرق', code: 'linear-gradient(135deg, #4d4dff, #0000cc)', chance: 24.0 },
     { name: 'جولد', code: 'linear-gradient(135deg, #ffd700, #b8860b)', chance: 1.0 },
     { name: 'دموي', code: 'linear-gradient(135deg, #8a0303, #4a0000)', chance: 1.0 },
-    { name: 'رينبو', code: 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)', chance: 0.1 }
+    { name: 'رينبو', code: 'RAINBOW_SPECIAL', chance: 0.1 }
 ];
 
 const availableBadges = [
@@ -270,14 +270,14 @@ const availableBadges = [
     { id: 'vip', name: 'عضو VIP', icon: '✨', price: 1500 }
 ];
 
-// رسم العجلة
+// --- 1. رسم العجلة ---
 const canvas = document.getElementById("wheel-canvas");
 const ctx = canvas.getContext("2d");
 function drawWheel() {
     const sliceAngle = (2 * Math.PI) / colors.length;
     colors.forEach((color, i) => {
         ctx.beginPath();
-        ctx.fillStyle = color.code.includes('gradient') ? '#ffd700' : color.code;
+        ctx.fillStyle = color.code.includes('gradient') ? '#ffd700' : (color.code === 'RAINBOW_SPECIAL' ? '#ffffff' : color.code);
         ctx.moveTo(250, 250);
         ctx.arc(250, 250, 250, i * sliceAngle, (i + 1) * sliceAngle);
         ctx.fill();
@@ -289,7 +289,7 @@ function drawWheel() {
 }
 drawWheel();
 
-// عرض بادجات المتجر
+// --- 2. التحكم بالمتجر والعملات ---
 function renderMarket() {
     const m = document.getElementById("badge-market");
     m.innerHTML = availableBadges.map(b => `
@@ -315,6 +315,7 @@ window.buyBadge = async (id, price) => {
     }
 };
 
+// --- 3. تحديث البيانات (Real-time) ---
 onAuthStateChanged(auth, (user) => {
     if (!user) { window.location.href = "index.html"; return; }
     onSnapshot(doc(db, "users", user.uid), (docSnap) => {
@@ -328,13 +329,15 @@ onAuthStateChanged(auth, (user) => {
     });
 });
 
+// --- 4. عرض الحقيبة ---
 function renderInventory(items, active) {
     const grid = document.getElementById("color-grid");
     grid.innerHTML = "";
     ['#374151', ...new Set(items)].forEach(code => {
         const d = document.createElement("div");
-        d.className = `item-box ${active === code ? 'active' : ''} ${code.includes('red, orange') ? 'rainbow' : ''}`;
-        if(!code.includes('red, orange')) d.style.background = code;
+        const isRainbow = (code === 'RAINBOW_SPECIAL' || code.includes('red, orange'));
+        d.className = `item-box ${active === code ? 'active' : ''} ${isRainbow ? 'rainbow' : ''}`;
+        if(!isRainbow) d.style.background = code;
         d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeColor: code });
         grid.appendChild(d);
     });
@@ -343,33 +346,25 @@ function renderInventory(items, active) {
 function renderBadgeInv(badges, active) {
     const grid = document.getElementById("badge-grid");
     grid.innerHTML = "";
-    
     (badges || []).forEach(id => {
         const bData = availableBadges.find(x => x.id === id);
         const d = document.createElement("div");
-        
         let specialClass = "";
         if(id === 'admin') specialClass = "badge-admin";
         if(id === 'editor') specialClass = "badge-editor";
 
         d.className = `item-box ${active === id ? 'active' : ''} ${specialClass}`;
         
-        if (id === 'admin') {
-            d.innerHTML = "ADM🛡️"; 
-        } 
-        else if (id === 'editor') {
-            d.innerHTML = "EDI ⚒️"; 
-            d.style.fontSize = "9px"; 
-        } 
-        else {
-            d.innerHTML = bData ? bData.icon : "🎖️";
-        }
+        if (id === 'admin') d.innerHTML = "<span style='font-size:10px'>ADM🛡️</span>";
+        else if (id === 'editor') d.innerHTML = "<span style='font-size:10px'>EDI⚒️</span>";
+        else d.innerHTML = bData ? bData.icon : "🎖️";
 
         d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
         grid.appendChild(d);
     });
 }
 
+// --- 5. دوران العجلة ---
 let rotation = 0;
 document.getElementById("spinBtn").onclick = async () => {
     const userRef = doc(db, "users", auth.currentUser.uid);
@@ -388,12 +383,14 @@ document.getElementById("spinBtn").onclick = async () => {
         if (random <= sum) { winningIndex = i; break; }
     }
 
-    rotation += (360 * 8) + (360 - (winningIndex * (360/colors.length)) - (360/colors.length/2));
+    const sliceAngle = 360 / colors.length;
+    rotation += (360 * 8) + (360 - (winningIndex * sliceAngle) - (sliceAngle / 2));
     canvas.style.transform = `rotate(${rotation}deg)`;
 
     setTimeout(async () => {
-        await updateDoc(userRef, { inventory: arrayUnion(colors[winningIndex].code) });
-        alert(`مبروك! حصلت على ${colors[winningIndex].name}`);
+        const winner = colors[winningIndex];
+        await updateDoc(userRef, { inventory: arrayUnion(winner.code) });
+        alert(`مبروك! حصلت على ${winner.name}`);
         document.getElementById("spinBtn").disabled = false;
     }, 4000);
 };
