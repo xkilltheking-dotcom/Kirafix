@@ -343,20 +343,16 @@ function renderBadgeInv(badges, active) {
     const grid = document.getElementById("badge-grid");
     grid.innerHTML = "";
     
-    // الأوسمة اللي ممكن تكون عندك في الـ Inventory (بما فيها الرتب الخاصة)
     (badges || []).forEach(id => {
-        // بنشوف لو ده وسام عادي من المتجر ولا رتبة خاصة
         const bData = availableBadges.find(x => x.id === id);
         const d = document.createElement("div");
         
-        // لو الرتبة "admin" أو "editor" بنضيف كلاس الستايل بتاعها
         let specialClass = "";
         if(id === 'admin') specialClass = "badge-admin";
         if(id === 'editor') specialClass = "badge-editor";
 
         d.className = `item-box ${active === id ? 'active' : ''} ${specialClass}`;
         
-        // تحديد الأيقونة أو النص اللي هيظهر جوه المربع في الشنطة
         if (id === 'admin') d.innerHTML = "ADM";
         else if (id === 'editor') d.innerHTML = "EDT⚒️";
         else d.innerHTML = bData ? bData.icon : "🎖️";
