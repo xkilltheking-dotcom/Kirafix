@@ -332,8 +332,13 @@ function renderInventory(items, active) {
     grid.innerHTML = "";
     ['#374151', ...new Set(items)].forEach(code => {
         const d = document.createElement("div");
-        d.className = `item-box ${active === code ? 'active' : ''} ${code.includes('red, orange') ? 'rainbow' : ''}`;
-        if(!code.includes('red, orange')) d.style.background = code;
+        const isRainbow = code.includes('red, orange');
+        d.className = `item-box ${active === code ? 'active' : ''} ${isRainbow ? 'rainbow' : ''}`;
+        
+        if(!isRainbow) {
+            d.style.background = code;
+        }
+        
         d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeColor: code });
         grid.appendChild(d);
     });
@@ -353,13 +358,12 @@ function renderBadgeInv(badges, active) {
 
         d.className = `item-box ${active === id ? 'active' : ''} ${specialClass}`;
         
-        // التعديل هنا بالأسماء اللي طلبتها
         if (id === 'admin') {
             d.innerHTML = "ADM🛡️"; 
         } 
         else if (id === 'editor') {
-            d.innerHTML = "EDI ⚒️"; // الاسم الجديد مع الإيموجي
-            d.style.fontSize = "9px"; // صغرنا الخط سنة عشان الاسم طويل ويكفي المربع
+            d.innerHTML = "EDI ⚒️"; 
+            d.style.fontSize = "9px"; 
         } 
         else {
             d.innerHTML = bData ? bData.icon : "🎖️";
