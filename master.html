@@ -363,7 +363,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-// --- الإعدادات والبيانات الأساسية ---
+// --- الإعدادات ---
 const firebaseConfig = {
     apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
     authDomain: "kirafix-a0ed2.firebaseapp.com",
@@ -383,12 +383,32 @@ let postsListenerStarted = false;
 let lastActiveColor = null;
 let unsubscribePosts = null;
 
-// مفاتيح الرفع (Media Keys)
 const IMGBB_KEY = "a870d9c05acad152564a134e6f4228c9";
 const CLOUD_NAME = "dno9n87sc";
 const UPLOAD_PRESET = "kirafix_posts";
 
-// --- الدوال المساعدة (Formatting & UI) ---
+// --- تنسيق الـ CSS للـ Progress Bar الجديد ---
+const style = document.createElement('style');
+style.innerHTML = `
+    .upload-progress-container {
+        width: 100%;
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 10px;
+        margin: 10px 0;
+        display: none; /* مخفي افتراضياً */
+        overflow: hidden;
+    }
+    .upload-progress-bar {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #2563eb, #3b82f6);
+        transition: width 0.3s ease;
+    }
+`;
+document.head.appendChild(style);
+
+// --- الدوال المساعدة ---
 function formatCoins(num) {
     if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -409,25 +429,37 @@ function getStyleForName(colorCode) {
     return `style="background: none; -webkit-text-fill-color: ${colorCode}; color: ${colorCode}; font-weight: bold;"`;
 }
 
+// تحديث الـ Progress Bar داخل الـ Composer
 function setProgress(p) {
-    let bar = document.getElementById("uploadProgress");
-    if(!bar){
-        bar = document.createElement("div");
-        bar.id = "uploadProgress";
-        bar.style.cssText = "position:fixed; top:0; left:0; height:4px; background:#2563eb; width:0%; z-index:9999; transition: width 0.3s;";
-        document.body.appendChild(bar);
+    let container = document.getElementById("p-container");
+    let bar = document.getElementById("p-bar");
+    
+    if(!container) {
+        // إنشاء الـ Bar برمجياً إذا لم يكن موجوداً داخل الـ mediaPreview
+        const mediaBox = document.getElementById("mediaPreview");
+        container = document.createElement("div");
+        container.id = "p-container";
+        container.className = "upload-progress-container";
+        container.innerHTML = `<div id="p-bar" class="upload-progress-bar"></div>`;
+        mediaBox.after(container);
+        bar = document.getElementById("p-bar");
     }
+
+    container.style.display = "block";
     bar.style.width = p + "%";
-    if(p >= 100) setTimeout(() => bar.style.width = "0%", 1000);
+    
+    if(p >= 100) {
+        setTimeout(() => { container.style.display = "none"; bar.style.width = "0%"; }, 1500);
+    }
 }
 
-// --- دوال الرفع (Media Upload) ---
+// --- الرفع ---
 async function uploadImage(file) {
     const formData = new FormData();
     formData.append("image", file);
     setProgress(20);
     const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: formData });
-    setProgress(80);
+    setProgress(70);
     const data = await res.json();
     setProgress(100);
     return data.data.url;
@@ -439,7 +471,7 @@ async function uploadVideo(file) {
     formData.append("upload_preset", UPLOAD_PRESET);
     setProgress(20);
     const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`, { method: "POST", body: formData });
-    setProgress(80);
+    setProgress(70);
     const data = await res.json();
     setProgress(100);
     return data.secure_url;
@@ -455,7 +487,7 @@ async function addKiraCoins(amount) {
         let newAmount = amount;
         if (currentCoins + amount < 0) newAmount = -currentCoins; 
         await updateDoc(userRef, { coins: increment(newAmount) });
-    } catch (e) { console.error("Error updating coins:", e); }
+    } catch (e) { console.error(e); }
 }
 
 window.toggleLike = async (postId, hasLiked) => {
@@ -469,10 +501,9 @@ window.toggleLike = async (postId, hasLiked) => {
             await updateDoc(postRef, { likes: arrayUnion(auth.currentUser.uid) });
             addKiraCoins(2); 
         }
-    } catch(e) { console.error("Error toggling like:", e); }
+    } catch(e) { console.error(e); }
 };
 
-// --- التعليقات ---
 window.toggleComments = (postId) => {
     const section = document.getElementById(`comments-${postId}`);
     if (section.style.display === "none" || section.style.display === "") {
@@ -485,11 +516,9 @@ window.sendComment = async (postId) => {
     const input = document.getElementById(`input-${postId}`);
     const text = input.value.trim();
     if (!text || !auth.currentUser) return;
-
     try {
         await addDoc(collection(db, "posts", postId, "comments"), {
-            text: text,
-            uid: auth.currentUser.uid,
+            text: text, uid: auth.currentUser.uid,
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
             userColor: currentUserData?.activeColor || '#374151',
@@ -498,7 +527,7 @@ window.sendComment = async (postId) => {
         await updateDoc(doc(db, "posts", postId), { commentsCount: increment(1) });
         await addKiraCoins(5); 
         input.value = "";
-    } catch(e) { alert("فشل إرسال التعليق"); }
+    } catch(e) { console.error(e); }
 };
 
 function loadCommentsRealtime(postId) {
@@ -521,7 +550,6 @@ function loadCommentsRealtime(postId) {
     });
 }
 
-// --- المشاهدات (Intersection Observer) ---
 const viewObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -535,7 +563,7 @@ const viewObserver = new IntersectionObserver((entries) => {
     });
 }, { threshold: 0.6 });
 
-// --- النشر (Composer) ---
+// --- النشر ---
 document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
@@ -554,18 +582,12 @@ document.getElementById("se").onclick = async () => {
         }
 
         await addDoc(collection(db, "posts"), {
-            text: text,
-            email: auth.currentUser.email,
-            uid: auth.currentUser.uid,
+            text: text, email: auth.currentUser.email, uid: auth.currentUser.uid,
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
             userColor: currentUserData?.activeColor || '#374151', 
             createdAt: serverTimestamp(),
-            image: imageURL, 
-            video: videoURL, 
-            likes: [], 
-            views: [], 
-            commentsCount: 0
+            image: imageURL, video: videoURL, likes: [], views: [], commentsCount: 0
         });
 
         await addKiraCoins(7); 
@@ -573,10 +595,9 @@ document.getElementById("se").onclick = async () => {
         mediaPreview.innerHTML = ""; mediaPreview.style.display = "none";
         selectedFile = null; btn.disabled = false; btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
-    } catch (error) { alert("حصلت مشكلة: " + error.message); btn.disabled = false; btn.innerText = "نشر"; }
+    } catch (error) { alert(error.message); btn.disabled = false; btn.innerText = "نشر"; }
 };
 
-// --- الوقت والمستمع (Posts Listener) ---
 function timeAgo(timestamp) {
     if (!timestamp) return "الآن";
     const seconds = Math.floor((new Date() - timestamp.toDate()) / 1000);
@@ -598,11 +619,9 @@ function startPostsListener() {
             const postId = docSnap.id;
             const currentUid = auth.currentUser?.uid;
             const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
-            
-            const likes = Array.isArray(post.likes) ? post.likes : [];
-            const views = Array.isArray(post.views) ? post.views : [];
+            const likes = post.likes || [];
+            const views = post.views || [];
             const hasLiked = likes.includes(currentUid);
-
             const ui = {
                 ar: { like: 'إعجاب', liked: 'تم الإعجاب', comment: 'تعليق', views: 'مشاهدة', comments: 'تعليق', input: 'اكتب تعليقاً...', publish: 'نشر' },
                 en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
@@ -628,9 +647,7 @@ function startPostsListener() {
                         <span>${views.length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}</span>
                     </div>
                     <div class="post-actions">
-                        <button class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
-                            ${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}
-                        </button>
+                        <button class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}</button>
                         <button class="action-btn" onclick="toggleComments('${postId}')">💬 ${ui.comment}</button>
                     </div>
                 </div>
@@ -642,7 +659,6 @@ function startPostsListener() {
                     </div>
                 </div>
             </div>`;
-
             const postNode = document.createRange().createContextualFragment(postHTML).firstElementChild;
             container.appendChild(postNode);
             viewObserver.observe(postNode);
@@ -650,21 +666,7 @@ function startPostsListener() {
     });
 }
 
-// --- اللغات ---
-function applyMainLanguage(lang) {
-    const dict = {
-        ar: { home: "الرئيسية", profile: "البروفايل", store: "المتجر 🛒", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
-        en: { home: "Home", profile: "Profile", store: "Store 🛒", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
-    };
-    const t = dict[lang] || dict['ar'];
-    document.querySelectorAll('.links a').forEach((el, i) => { if(i<3) el.textContent = [t.home, t.profile, t.store][i]; });
-    if(document.getElementById('aiBtnSide')) document.getElementById('aiBtnSide').textContent = t.ai;
-    if(document.getElementById('tex')) document.getElementById('tex').placeholder = t.placeholder;
-    if(document.getElementById('se')) document.getElementById('se').textContent = t.postBtn;
-    document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-}
-
-// --- مراقبة حالة المستخدم (Auth & Realtime User Data) ---
+// --- Auth & Profile Image Sync ---
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "index.html"; return; }
     const userDocRef = doc(db, "users", user.uid);
@@ -672,16 +674,19 @@ onAuthStateChanged(auth, async (user) => {
     onSnapshot(userDocRef, (docSnap) => {
         if (docSnap.exists()) {
             currentUserData = docSnap.data();
+            const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
+            
+            // تحديث صور البروفايل في كل مكان (Nav + Composer)
+            if(document.getElementById("navProfilePic")) document.getElementById("navProfilePic").src = userImg;
+            if(document.getElementById("composerProfilePic")) document.getElementById("composerProfilePic").src = userImg;
+            
             const formatted = formatCoins(currentUserData.coins || 0);
             if(document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
             if(document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = formatted;
+            if(document.getElementById("user-name-display")) document.getElementById("user-name-display").textContent = currentUserData.name || user.email.split("@")[0];
             
-            document.getElementById("navProfilePic").src = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
-            document.getElementById("user-name-display").textContent = currentUserData.name || user.email.split("@")[0];
-            
-            const colorChanged = currentUserData.activeColor !== lastActiveColor;
-            lastActiveColor = currentUserData.activeColor;
-            if (!postsListenerStarted || colorChanged) {
+            if (!postsListenerStarted || currentUserData.activeColor !== lastActiveColor) {
+                lastActiveColor = currentUserData.activeColor;
                 postsListenerStarted = true;
                 if (unsubscribePosts) unsubscribePosts();
                 unsubscribePosts = startPostsListener();
@@ -689,20 +694,14 @@ onAuthStateChanged(auth, async (user) => {
         }
     });
 
-    applyMainLanguage(localStorage.getItem('kirafix-lang') || 'ar');
-    if (localStorage.getItem('kirafix-dark') === 'true') document.body.classList.add('dark-mode');
-
-    // 🔥 إخفاء شاشة التحميل بعد التأكد من جلب البيانات
+    // إخفاء الـ Loading
     setTimeout(() => {
         const loader = document.getElementById("loadingScreen");
-        if(loader) { 
-            loader.style.opacity = "0"; 
-            setTimeout(() => { loader.style.display = "none"; }, 600); 
-        }
+        if(loader) { loader.style.opacity = "0"; setTimeout(() => { loader.style.display = "none"; }, 600); }
     }, 1200);
 });
 
-// --- الأزرار والمدخلات ---
+// --- الأزرار ---
 document.getElementById("but").onclick = () => {
     const box = document.getElementById("composerBox");
     box.style.display = box.style.display === "none" ? "block" : "none";
@@ -720,6 +719,8 @@ imgInput.onchange = (e) => {
     if(selectedFile) {
         mediaPreview.style.display = "block";
         mediaPreview.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" style="width:100%; border-radius:10px;">`;
+        // تصفير الـ Progress Bar عند اختيار ملف جديد
+        if(document.getElementById("p-container")) document.getElementById("p-container").style.display = "none";
     }
 };
 
@@ -728,15 +729,9 @@ videoInput.onchange = (e) => {
     if(selectedFile) {
         mediaPreview.style.display = "block";
         mediaPreview.innerHTML = `<video src="${URL.createObjectURL(selectedFile)}" controls style="width:100%; border-radius:10px;"></video>`;
+        if(document.getElementById("p-container")) document.getElementById("p-container").style.display = "none";
     }
 };
-
-const menuBtn = document.getElementById("menuBtn");
-const sideNav = document.getElementById("sideNav");
-if (menuBtn && sideNav) {
-    menuBtn.onclick = (e) => { e.stopPropagation(); sideNav.classList.add("active"); };
-    document.getElementById("closeBtn").onclick = () => sideNav.classList.remove("active");
-}
 </script>
 
 </body>
