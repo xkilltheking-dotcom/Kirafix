@@ -55,7 +55,8 @@ box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 border: 2px solid var(--gold);
 margin-bottom: 20px;
 }
-body.dark-mode .store-card, body.dark-mode .inventory-section {
+body.dark-mode .store-card,
+body.dark-mode .inventory-section {
 background: #1f2937;
 border-color: #374151;
 }
@@ -70,6 +71,7 @@ gap: 10px;
 font-weight: bold;
 margin-bottom: 20px;
 }
+
 /* Lucky Wheel */
 .wheel-container {
 position: relative;
@@ -111,6 +113,7 @@ transition: 0.3s;
 background: #9ca3af;
 cursor: not-allowed;
 }
+
 /* Badge Market */
 .badge-market {
 display: grid;
@@ -134,6 +137,7 @@ border-color: #374151;
 border-color: var(--gold);
 transform: translateY(-3px);
 }
+
 /* Grid for Inventory Items */
 .color-grid, .badge-grid {
 display: grid;
@@ -179,6 +183,7 @@ align-items: center;
 justify-content: center;
 font-weight: bold;
 }
+
 /* Special Badges */
 .badge-admin {
 background: linear-gradient(135deg, #ff0000, #8b0000) !important;
@@ -194,6 +199,7 @@ color: white !important;
 box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
 border: 1px solid #c084fc !important;
 }
+
 /* Animated Rainbow */
 .item-box.rainbow {
 background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) !important;
@@ -204,6 +210,7 @@ animation: rainbowBG 2s linear infinite !important;
 0%{background-position:0% 50%}
 100%{background-position:100% 50%}
 }
+
 .section-title {
 font-size: 14px;
 color: #888;
@@ -213,8 +220,8 @@ width: 100%;
 }
 </style>
 </head>
-<body>
 
+<body>
 <div class="container">
 <a href="index.html" class="home-btn">🏠 العودة للرئيسية</a>
 
@@ -254,7 +261,6 @@ width: 100%;
 </div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc, arrayUnion, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
@@ -272,6 +278,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// البيانات الأساسية
 const colors = [
 { name: 'أحمر', code: 'linear-gradient(135deg, #ff4d4d, #cc0000)', chance: 24.0 },
 { name: 'أخضر', code: 'linear-gradient(135deg, #4dff4d, #00cc00)', chance: 24.0 },
@@ -287,6 +294,7 @@ const availableBadges = [
 { id: 'vip', name: 'عضو VIP', icon: '✨', price: 1500 }
 ];
 
+// --- 1. رسم العجلة ---
 const canvas = document.getElementById("wheel-canvas");
 const ctx = canvas.getContext("2d");
 
@@ -312,15 +320,15 @@ ctx.restore();
 
 drawWheel();
 
+// --- 2. التحكم بالمتجر والعملات ---
 function renderMarket() {
 const m = document.getElementById("badge-market");
-
 m.innerHTML = availableBadges.map(b =>
-`<div class="badge-buy-card" onclick="window.buyBadge('${b.id}', ${b.price})">
+<div class="badge-buy-card" onclick="window.buyBadge('${b.id}', ${b.price})">
 <div style="font-size:24px">${b.icon}</div>
 <div style="font-size:12px; font-weight:bold">${b.name}</div>
 <div style="color:#10b981; font-size:13px">${b.price} 🪙</div>
-</div>`
+</div>
 ).join('');
 }
 
@@ -343,6 +351,7 @@ alert("تم الشراء بنجاح!");
 }
 };
 
+// --- 3. تحديث البيانات (Real-time) ---
 onAuthStateChanged(auth, (user) => {
 if (!user) {
 window.location.href = "index.html";
@@ -363,12 +372,14 @@ renderBadgeInv(data.inventoryBadges || [], data.activeBadge);
 });
 });
 
+// --- 4. عرض الحقيبة ---
 function renderInventory(items, active) {
 const grid = document.getElementById("color-grid");
 grid.innerHTML = "";
 
 ['#374151', ...new Set(items)].forEach(code => {
 const d = document.createElement("div");
+
 const isRainbow = (code === 'RAINBOW_SPECIAL' || code.includes('red, orange'));
 
 d.className = `item-box ${active === code ? 'active' : ''} ${isRainbow ? 'rainbow' : ''}`;
@@ -390,6 +401,7 @@ grid.innerHTML = "";
 
 (badges || []).forEach(id => {
 const bData = availableBadges.find(x => x.id === id);
+
 const d = document.createElement("div");
 
 let specialClass = "";
@@ -409,15 +421,16 @@ activeBadge: id
 
 grid.appendChild(d);
 });
-}
 
+// --- 5. دوران العجلة ---
 let rotation = 0;
 
 document.getElementById("spinBtn").onclick = async () => {
 const userRef = doc(db, "users", auth.currentUser.uid);
 const snap = await getDoc(userRef);
 
-if ((snap.data().coins || 0) < 100) return alert("رصيدك لا يكفي!");
+if ((snap.data().coins || 0) < 100)
+return alert("رصيدك لا يكفي!");
 
 document.getElementById("spinBtn").disabled = true;
 
@@ -452,14 +465,13 @@ inventory: arrayUnion(winner.code)
 });
 
 alert(`مبروك! حصلت على ${winner.name}`);
+
 document.getElementById("spinBtn").disabled = false;
 }, 4000);
 };
 
 if(localStorage.getItem('kirafix-dark') === 'true')
 document.body.classList.add('dark-mode');
-
 </script>
-
 </body>
 </html>
