@@ -672,7 +672,8 @@ document.getElementById("se").onclick = async () => {
                 const formData = new FormData();
                 
                 if (fileType === 'image') {
-                    formData.append("image", selectedFile);
+                    formData.append("file", selectedFile);
+                    formData.append("upload_preset", "kirafix_posts"); // تأكد من استخدامه للصور أيضاً أو API key
                     xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
                 } else if (fileType === 'video') {
                     formData.append("file", selectedFile);
@@ -685,15 +686,20 @@ document.getElementById("se").onclick = async () => {
                 };
 
                 xhr.onload = () => {
-                    const res = JSON.parse(xhr.responseText);
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        resolve(res.secure_url || (res.data ? res.data.url : null));
-                    } else {
-                        reject(new Error(res.error?.message || "فشل الرفع"));
-                    }
+                    try {
+                        const res = JSON.parse(xhr.responseText);
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            // التحقق من مكان الروابط في كل منصة
+                            const finalUrl = res.secure_url || (res.data ? res.data.url : null);
+                            if (finalUrl) resolve(finalUrl);
+                            else reject(new Error("لم يتم العثور على رابط الملف"));
+                        } else {
+                            reject(new Error(res.error?.message || "فشل في عملية الرفع"));
+                        }
+                    } catch(e) { reject(new Error("رد غير صالح من السيرفر")); }
                 };
 
-                xhr.onerror = () => reject(new Error("خطأ في الشبكة"));
+                xhr.onerror = () => reject(new Error("خطأ في الاتصال بالشبكة"));
                 xhr.send(formData);
             });
         }
@@ -719,7 +725,7 @@ document.getElementById("se").onclick = async () => {
         document.getElementById("composerBox").style.display = "none";
     } catch (error) { 
         console.error(error);
-        alert("حصلت مشكلة في النشر: " + error.message); 
+        alert("مشكلة في النشر: " + error.message); 
         btn.disabled = false; btn.innerText = "نشر"; 
     }
 };
