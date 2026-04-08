@@ -623,7 +623,6 @@ document.getElementById("videoBtn").onclick = () => videoInput.click();
 let selectedFile = null;
 let fileType = null;
 
-// دالة لتحديث شريط التحميل
 function updateProgressBar(percent) {
     const container = document.getElementById("uploadProgressContainer");
     const bar = document.getElementById("uploadProgressBar");
@@ -668,45 +667,35 @@ document.getElementById("se").onclick = async () => {
     let fileUrl = null;
     try {
         if (selectedFile) {
-            // استخدام XMLHttpRequest بدلاً من fetch لمتابعة نسبة التحميل
-            if (fileType === 'image') {
+            fileUrl = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
                 const formData = new FormData();
-                formData.append("image", selectedFile);
                 
-                fileUrl = await new Promise((resolve, reject) => {
-                    const xhr = new XMLHttpRequest();
+                if (fileType === 'image') {
+                    formData.append("image", selectedFile);
                     xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
-                    xhr.upload.onprogress = (e) => {
-                        if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100);
-                    };
-                    xhr.onload = () => {
-                        const res = JSON.parse(xhr.responseText);
-                        if (res.success) resolve(res.data.url);
-                        else reject(new Error("فشل الرفع لـ imgBB"));
-                    };
-                    xhr.onerror = () => reject(new Error("خطأ في الشبكة"));
-                    xhr.send(formData);
-                });
-            } else if (fileType === 'video') {
-                const formData = new FormData();
-                formData.append("file", selectedFile);
-                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-                fileUrl = await new Promise((resolve, reject) => {
-                    const xhr = new XMLHttpRequest();
+                } else if (fileType === 'video') {
+                    formData.append("file", selectedFile);
+                    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
                     xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`);
-                    xhr.upload.onprogress = (e) => {
-                        if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100);
-                    };
-                    xhr.onload = () => {
-                        const res = JSON.parse(xhr.responseText);
-                        if (res.secure_url) resolve(res.secure_url);
-                        else reject(new Error("فشل الرفع لـ Cloudinary"));
-                    };
-                    xhr.onerror = () => reject(new Error("خطأ في الشبكة"));
-                    xhr.send(formData);
-                });
-            }
+                }
+
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100);
+                };
+
+                xhr.onload = () => {
+                    const res = JSON.parse(xhr.responseText);
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(res.secure_url || (res.data ? res.data.url : null));
+                    } else {
+                        reject(new Error(res.error?.message || "فشل الرفع"));
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error("خطأ في الشبكة"));
+                xhr.send(formData);
+            });
         }
 
         await addDoc(collection(db, "posts"), {
@@ -730,7 +719,7 @@ document.getElementById("se").onclick = async () => {
         document.getElementById("composerBox").style.display = "none";
     } catch (error) { 
         console.error(error);
-        alert("حصلت مشكلة: " + error.message); 
+        alert("حصلت مشكلة في النشر: " + error.message); 
         btn.disabled = false; btn.innerText = "نشر"; 
     }
 };
