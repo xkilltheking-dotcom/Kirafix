@@ -435,6 +435,7 @@ window.sendComment = async (postId) => {
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
             userColor: currentUserData?.activeColor || '#374151',
+            userBadge: currentUserData?.badge || "",
             createdAt: serverTimestamp()
         });
         await updateDoc(doc(db, "posts", postId), { commentsCount: increment(1) });
@@ -452,11 +453,15 @@ function loadCommentsRealtime(postId) {
         snap.forEach(d => {
             const c = d.data();
             const nameStyle = getStyleForName(c.userColor);
+            const badgeHTML = c.userBadge ? `<span style="background:#e5e7eb; color:#374151; font-size:9px; padding:2px 5px; border-radius:4px; margin-right:5px; vertical-align:middle;">${c.userBadge}</span>` : "";
             list.innerHTML += `
                 <div class="comment-item">
                     <img src="${c.userImage}">
                     <div class="comment-bubble">
-                        <div ${nameStyle} style="font-size:11px;">${c.userName}</div>
+                        <div style="display:flex; align-items:center; gap:5px; margin-bottom:2px;">
+                            <span ${nameStyle} style="font-size:11px;">${c.userName}</span>
+                            ${badgeHTML}
+                        </div>
                         <div>${c.text}</div>
                     </div>
                 </div>`;
@@ -603,6 +608,7 @@ document.getElementById("se").onclick = async () => {
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
             userColor: currentUserData?.activeColor || '#374151', 
+            userBadge: currentUserData?.badge || "",
             createdAt: serverTimestamp(),
             image: null, video: null, likes: [], views: [], commentsCount: 0
         });
@@ -644,6 +650,7 @@ function startPostsListener() {
             const views = Array.isArray(post.views) ? post.views : [];
             const hasLiked = likes.includes(currentUid);
             const nameStyle = getStyleForName((post.uid === currentUid && currentUserData?.activeColor) ? currentUserData.activeColor : post.userColor);
+            const badgeHTML = post.userBadge ? `<span style="background:#f3f4f6; color:#1f2937; font-size:10px; padding:3px 7px; border-radius:6px; font-weight:600;">${post.userBadge}</span>` : "";
 
             if (change.type === "added") {
                 const isCommentOpen = openCommentsTracking.has(postId);
@@ -653,7 +660,10 @@ function startPostsListener() {
                         <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                             <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                             <div class="user-info">
-                                <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
+                                    ${badgeHTML}
+                                </div>
                                 <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
                             </div>
                         </div>
@@ -690,7 +700,6 @@ function startPostsListener() {
             if (change.type === "modified") {
                 const existingPost = container.querySelector(`[data-id="${postId}"]`);
                 if (existingPost) {
-                    // تحديث الأرقام والبيانات فقط دون تغيير حالة عرض العناصر (ممنوع تغيير الـ style هنا)
                     existingPost.setAttribute('data-views', JSON.stringify(views));
                     existingPost.querySelector(".likes-count").innerHTML = `👍 ${likes.length} ${ui.like}`;
                     existingPost.querySelector(".views-comments-count").innerHTML = `${views.length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}`;
