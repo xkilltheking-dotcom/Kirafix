@@ -353,10 +353,17 @@ function renderBadgeInv(badges, active) {
 
         d.className = `item-box ${active === id ? 'active' : ''} ${specialClass}`;
         
-        // التعديل هنا لإضافة الإيموجي بجانب الاسم في الحقيبة
-        if (id === 'admin') d.innerHTML = "ADM 🛡️";
-        else if (id === 'editor') d.innerHTML = "EDT ⚒️";
-        else d.innerHTML = bData ? bData.icon : "🎖️";
+        // التعديل هنا بالأسماء اللي طلبتها
+        if (id === 'admin') {
+            d.innerHTML = "ADMIN 🛡️"; 
+        } 
+        else if (id === 'editor') {
+            d.innerHTML = "editor ⚒️"; // الاسم الجديد مع الإيموجي
+            d.style.fontSize = "9px"; // صغرنا الخط سنة عشان الاسم طويل ويكفي المربع
+        } 
+        else {
+            d.innerHTML = bData ? bData.icon : "🎖️";
+        }
 
         d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
         grid.appendChild(d);
