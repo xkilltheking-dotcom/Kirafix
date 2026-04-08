@@ -358,7 +358,7 @@ function renderBadgeInv(badges, active) {
         
         // تحديد الأيقونة أو النص اللي هيظهر جوه المربع في الشنطة
         if (id === 'admin') d.innerHTML = "ADM";
-        else if (id === 'editor') d.innerHTML = "EDT";
+        else if (id === 'editor') d.innerHTML = "EDT⚒️";
         else d.innerHTML = bData ? bData.icon : "🎖️";
 
         d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
