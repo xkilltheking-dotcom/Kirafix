@@ -6,63 +6,112 @@
     <title>Kirafix - Home</title>
     <link rel="stylesheet" href="style.css?v=2">
     <style>
-        /* التنسيقات الإضافية لشاشة التحميل ومنطقة النشر */
-        #loadingScreen {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            top: 0;
-            left: 0;
-            z-index: 9999;
-            transition: opacity 0.6s ease;
-        }
-        
+/* شاشة التحميل الفخمة الجديدة */
+#loadingScreen {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #0f172a; /* خلفية كحلي غامق جداً تليق بالفخامة */
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-        .welcome-box-final {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            font-size: 28px;
-            font-weight: bold;
-            color: #fff;
-            background-color: #374151;
-            padding: 15px 20px;
-            border-radius: 10px;
-        }
+/* حاوية اللوجو والأنيميشن */
+.loader-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        .loading-area-final {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            width: 260px;
-        }
+/* الدائرة الأساسية (العملة الذهبية) */
+.main-glow-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 35px;
+    color: #fff;
+    font-weight: 900;
+    box-shadow: 0 0 30px rgba(218, 165, 32, 0.5);
+    z-index: 2;
+    animation: pulseGold 2s infinite ease-in-out;
+}
 
-        .rolling-box-final {
-            position: absolute;
-            top: -70px;
-            left: 0;
-            width: 60px;
-            height: 60px;
-            background-color: #374151;
-            border-radius: 10px;
-            animation: rollAcross 3s infinite ease-in-out;
-        }
+/* الحلقات الخارجية المضيئة */
+.loader-ring {
+    position: absolute;
+    border: 2px solid transparent;
+    border-top-color: #ffd700;
+    border-radius: 50%;
+    animation: spinRing 1.5s linear infinite;
+}
 
-        .loading-text-final {
-            font-size: 22px;
-            margin: 0;
-            color: #333;
-            font-weight: bold;
-        }
+.loader-ring.one {
+    width: 110px;
+    height: 110px;
+    border-top-color: #ffd700;
+    opacity: 0.7;
+}
 
-        @keyframes rollAcross {
-            0% { left: 0; transform: rotate(0deg); }
-            50% { left: calc(100% - 60px); transform: rotate(360deg); }
-            100% { left: 0; transform: rotate(720deg); }
-        }
+.loader-ring.two {
+    width: 130px;
+    height: 130px;
+    border-bottom-color: #b8860b;
+    animation-duration: 2s;
+    animation-direction: reverse;
+    opacity: 0.4;
+}
+
+/* نص التحميل الشيك */
+.loading-text-final {
+    margin-top: 40px;
+    font-family: 'Segoe UI', sans-serif;
+    letter-spacing: 4px;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #ffd700;
+    font-weight: 300;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    animation: fadeText 1.5s infinite alternate;
+}
+
+/* الأنيميشن */
+@keyframes spinRing {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulseGold {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(218, 165, 32, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(218, 165, 32, 0.7); }
+}
+
+@keyframes fadeText {
+    from { opacity: 0.3; }
+    to { opacity: 1; }
+}
+
+/* إضافة لمسة فنية للخلفية */
+#loadingScreen::after {
+    content: "";
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%);
+    z-index: 1;
+}
 
         /* ستايل منطقة كتابة البوست الجديد */
         .composer {
@@ -311,14 +360,11 @@
 <body>
 
 <div id="loadingScreen">
-    <div class="welcome-box-final">
-        Welcome <span id="user-name-display">...</span>
-    </div>
-
-    <div class="loading-area-final">
-        <div class="rolling-box-final"></div>
-        <p class="loading-text-final">loading</p>
-    </div>
+    <div class="loader-wrapper">
+        <div class="loader-ring one"></div>
+        <div class="loader-ring two"></div>
+        <div class="main-glow-circle">K</div> </div>
+    <p class="loading-text-final">Kirafix is loading</p>
 </div>
 
 <header class="header">
