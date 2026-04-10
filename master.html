@@ -813,6 +813,8 @@ function timeAgo(timestamp) {
 }
 
 function startPostsListener() {
+    let firstLoad = true;
+
     return onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
         const container = document.getElementById("postsContainer");
         if(!container) return;
@@ -840,63 +842,26 @@ function startPostsListener() {
                     : post.userColor
             );
 
-            const postHTML = `
-            <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
-                <div style="padding:15px;">
-                    <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                        <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
-                           <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
-                        </a>
-                        <div class="user-info">
-                            <div style="display:flex; align-items:center;">
-                                ${getBadgeHTML(post.uid === currentUid ? currentUserData?.activeBadge : post.userBadge)}
-                                <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
-                                   <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
-                                </a>
-                            </div>
-                            <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
-                        </div>
-                    </div>
-                    <div class="post-text" style="margin-bottom:12px; line-height:1.5;">${post.text || ""}</div>
-                    ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
-                    ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
-                    <div class="post-stats">
-                        <span>👍 ${likes.length} ${ui.like}</span>
-                        <span>${views.length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}</span>
-                    </div>
-                    <div class="post-actions">
-                        <button type="button" class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
-                            ${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}
-                        </button>
-                        <button type="button" class="action-btn" onclick="toggleComments('${postId}')">
-                            💬 ${ui.comment}
-                        </button>
-                    </div>
-                </div>
-                <div id="comments-${postId}" class="comments-section" style="display:none;">
-                    <div id="list-${postId}"></div>
-                    <div class="comment-input-wrapper">
-                        <input type="text" id="input-${postId}" placeholder="${ui.input}" onkeypress="if(event.key === 'Enter') { sendComment('${postId}'); }">
-                        <button type="button" onclick="sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">${ui.publish}</button>
-                    </div>
-                </div>
-            </div>`;
+            const postHTML = `...`; // زي ما هو عندك بالظبط
 
             const postNode = document.createRange().createContextualFragment(postHTML).firstElementChild;
             container.appendChild(postNode);
             viewObserver.observe(postNode);
         });
 
-        // ✅ هنا الحل الحقيقي
-        const loader = document.getElementById("loadingScreen");
-        if (loader) {
-            loader.style.opacity = "0";
-            setTimeout(() => {
-                loader.style.display = "none";
-            }, 500);
+        // ✅ أهم سطر (يقفل اللودر أول ما الداتا تيجي)
+        if (firstLoad) {
+            const loader = document.getElementById("loadingScreen");
+            if (loader) {
+                loader.style.opacity = "0";
+                setTimeout(() => {
+                    loader.style.display = "none";
+                }, 400);
+            }
+            firstLoad = false;
         }
     });
-}
+}}
 
 // بعد ما تتأكد إن المستخدم سجل دخول (onAuthStateChanged)
 function listenForNotifications(myId) {
