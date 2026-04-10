@@ -466,7 +466,6 @@ const storage = getStorage(app);
 
 let currentUserData = null;
 
-// --- دور على الدالة دي واستبدلها بالنسخة دي ---
 function getBadgeHTML(badgeId) {
     if (!badgeId || badgeId === "none") return "";
     
@@ -476,13 +475,13 @@ function getBadgeHTML(badgeId) {
     
     if (badgeId === 'editor') {
         return `<span class="user-badge" style="
-            background: linear-gradient(45deg, #000428, #004e92); /* تدرج أزرق ليلي فخم */
+            background: linear-gradient(45deg, #000428, #004e92); 
             color: #fff; 
             padding: 3px 10px; 
             font-size: 10px; 
             text-transform: none; 
-            border: 1px solid #00d2ff; /* إطار مضيء خفيف */
-            box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); /* تأثير توهج */
+            border: 1px solid #00d2ff; 
+            box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); 
             letter-spacing: 0.5px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         ">Editor⚒️</span>`;
@@ -638,7 +637,16 @@ function applyMainLanguage(lang) {
 }
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = "index.html"; return; }
+    // دالة لإخفاء اللودر عشان نكررها في النجاح والفشل
+    const hideLoader = () => {
+        const loader = document.getElementById("loadingScreen");
+        if(loader) { 
+            loader.style.opacity = "0"; 
+            setTimeout(() => { loader.style.display = "none"; }, 600); 
+        }
+    };
+
+    if (!user) { window.location.href = "index.html"; hideLoader(); return; }
     listenForNotifications(user.uid);
     const userDocRef = doc(db, "users", user.uid);
     try {
@@ -674,18 +682,19 @@ onAuthStateChanged(auth, async (user) => {
                     }
                 }
             });
+            hideLoader(); // اخفي اللودر هنا لما البيانات تخلص لود
+        } else {
+            hideLoader(); // اخفيه حتى لو الداتا مش موجودة
         }
-    } catch (error) { console.error("Firebase Error:", error); }
+    } catch (error) { 
+        console.error("Firebase Error:", error); 
+        hideLoader(); // اخفيه لو حصل ايرور عشان ميعلقش
+    }
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
     const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
     applyMainLanguage(savedLang);
-
-    setTimeout(() => {
-        const loader = document.getElementById("loadingScreen");
-        if(loader) { loader.style.opacity = "0"; setTimeout(() => { loader.style.display = "none"; }, 600); }
-    }, 1500); 
 });
 
 document.getElementById("but").onclick = () => {
@@ -893,22 +902,17 @@ function startPostsListener() {
         });
     });
 }
-    import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-// بعد ما تتأكد إن المستخدم سجل دخول (onAuthStateChanged)
 function listenForNotifications(myId) {
-    const db = getFirestore();
     const q = query(
         collection(db, "chats"),
-        where("receiverId", "==", myId), // بيراقب المحادثات اللي أنا مستلمها
-        where("isRead", "==", false)     // وتكون لسه ملقرأتش
+        where("receiverId", "==", myId), 
+        where("isRead", "==", false)     
     );
 
     onSnapshot(q, (snapshot) => {
         if (!snapshot.empty) {
-            // هنا الكود اللي هيتنفذ لما تيجي رسالة
             alert("لديك رسالة جديدة في الشات!"); 
-            // تقدر تستبدل الـ alert بـ توست (Toast) شيك أو صوت
             let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
             audio.play();
         }
