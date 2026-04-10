@@ -637,14 +637,70 @@ function applyMainLanguage(lang) {
 }
 
 onAuthStateChanged(auth, async (user) => {
-    // دالة لإخفاء اللودر عشان نكررها في النجاح والفشل
+    const loader = document.getElementById("loadingScreen");
     const hideLoader = () => {
-        const loader = document.getElementById("loadingScreen");
         if(loader) { 
             loader.style.opacity = "0"; 
             setTimeout(() => { loader.style.display = "none"; }, 600); 
         }
     };
+
+    if (!user) { 
+        window.location.href = "index.html"; 
+        return; 
+    }
+
+    // --- الحركة دي هي اللي هتحل التعليق ---
+    // بنخفي اللودر فوراً أول ما نتأكد إن فيه يوزر سجل دخول
+    // مش بنستنى المنشورات ولا العملات تحمل
+    hideLoader(); 
+
+    listenForNotifications(user.uid);
+    const userDocRef = doc(db, "users", user.uid);
+
+    try {
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+            currentUserData = userDoc.data();
+            const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
+            if(document.getElementById("navProfilePic")) document.getElementById("navProfilePic").src = userImg;
+            const compImg = document.querySelector(".composer-header img");
+            if(compImg) compImg.src = userImg;
+            const nameDisplay = document.getElementById("user-name-display");
+            if(nameDisplay) nameDisplay.textContent = currentUserData.name || user.email.split("@")[0];
+
+            let postsListenerStarted = false;
+            let lastActiveColor = null;
+            let unsubscribePosts = null;
+
+            onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    currentUserData = docSnap.data(); 
+                    const rawCoins = docSnap.data().coins || 0;
+                    const formatted = formatCoins(rawCoins);
+                    if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
+                    if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = formatted;
+                    
+                    const colorChanged = currentUserData.activeColor !== lastActiveColor;
+                    lastActiveColor = currentUserData.activeColor;
+
+                    if (!postsListenerStarted || colorChanged) {
+                        postsListenerStarted = true;
+                        if (unsubscribePosts) unsubscribePosts();
+                        unsubscribePosts = startPostsListener();
+                    }
+                }
+            });
+        }
+    } catch (error) { 
+        console.error("Firebase Error:", error); 
+    }
+
+    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+    if (savedDark) document.body.classList.add('dark-mode');
+    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+    applyMainLanguage(savedLang);
+});
 
     if (!user) { window.location.href = "index.html"; hideLoader(); return; }
     listenForNotifications(user.uid);
