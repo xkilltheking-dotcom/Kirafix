@@ -305,11 +305,14 @@
 
         try {
             const chatRef = doc(db, "chats", chatId);
-            await setDoc(chatRef, { 
-                lastMessage: text, 
-                lastUpdate: serverTimestamp(),
-                users: chatId.split('_') 
-            }, { merge: true });
+await setDoc(chatRef, { 
+    lastMessage: text, 
+    lastUpdate: serverTimestamp(), 
+    lastSenderId: currentUser.uid, 
+    receiverId: receiverId, // مهم جداً عشان التنبيهات
+    isRead: false, 
+    users: [currentUser.uid, receiverId] 
+}, { merge: true });
 
             await addDoc(collection(db, "chats", chatId, "messages"), {
                 text: text,
