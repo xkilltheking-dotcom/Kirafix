@@ -348,6 +348,9 @@ function loadMessages(chatId) {
                 div.innerHTML = `<div class="msg-bubble">${msg.text}<span class="msg-time">${timeStr}</span></div>`;
                 chatBox.appendChild(div);
             });
+            // أول ما يفتح الشات مع الشخص
+const chatRef = doc(db, "chats", chatId);
+await updateDoc(chatRef, { isRead: true });
             chatBox.scrollTop = chatBox.scrollHeight;
         });
     }
