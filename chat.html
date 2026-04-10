@@ -139,14 +139,31 @@
 async function sendMessage(chatId) {
     const input = document.getElementById("messageInput");
     const text = input.value.trim();
-    if (!text || !currentUser) return;
-    input.value = "";
+    
+    // 1. التحقق من وجود نص
+    if (!text) return;
+
+    // 2. التحقق من تسجيل الدخول (أهم خطوة)
+    if (!auth.currentUser) {
+        alert("خطأ: لم يتم العثور على بيانات المستخدم، حاول تسجيل الدخول مرة أخرى");
+        return;
+    }
+
+    // 3. التحقق من وجود chatId
+    if (!chatId) {
+        alert("خطأ: معرف الدردشة غير موجود");
+        return;
+    }
+
+    input.value = ""; // مسح الحقل فوراً لتجربة مستخدم أفضل
 
     try {
+        console.log("جاري الإرسال إلى:", chatId);
+
         // المرجع لمستند الشات الرئيسي
         const chatRef = doc(db, "chats", chatId);
 
-        // استخدام setDoc مع merge: true بيضمن إن العملية تنجح سواء المستند موجود أو لأ
+        // إنشاء أو تحديث مستند الشات الأساسي
         await setDoc(chatRef, { 
             lastMessage: text, 
             lastUpdate: serverTimestamp(),
@@ -156,15 +173,15 @@ async function sendMessage(chatId) {
         // إضافة الرسالة في الكولكشن الفرعية
         await addDoc(collection(db, "chats", chatId, "messages"), {
             text: text,
-            senderId: currentUser.uid,
+            senderId: auth.currentUser.uid, // استخدمنا auth.currentUser مباشرة لضمان الدقة
             createdAt: serverTimestamp()
         });
         
-        console.log("تم إرسال الرسالة بنجاح!");
+        console.log("تمت العملية بنجاح!");
     } catch (error) {
-        console.error("Error sending message:", error);
-        // لو لسه فيه فشل، هنطبع كود الخطأ بالضبط عشان نعرف السبب
-        alert("فشل الإرسال: " + error.code); 
+        console.error("Firebase Error Details:", error);
+        // هنا هنطبع الرسالة كاملة عشان لو الكود undefined نشوف السبب
+        alert("فشل الإرسال. السبب التقني: " + (error.message || "خطأ غير معروف")); 
     }
 }
 
