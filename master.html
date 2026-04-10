@@ -466,6 +466,7 @@ const storage = getStorage(app);
 
 let currentUserData = null;
 
+// --- دور على الدالة دي واستبدلها بالنسخة دي ---
 function getBadgeHTML(badgeId) {
     if (!badgeId || badgeId === "none") return "";
     
@@ -475,13 +476,13 @@ function getBadgeHTML(badgeId) {
     
     if (badgeId === 'editor') {
         return `<span class="user-badge" style="
-            background: linear-gradient(45deg, #000428, #004e92); 
+            background: linear-gradient(45deg, #000428, #004e92); /* تدرج أزرق ليلي فخم */
             color: #fff; 
             padding: 3px 10px; 
             font-size: 10px; 
             text-transform: none; 
-            border: 1px solid #00d2ff; 
-            box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); 
+            border: 1px solid #00d2ff; /* إطار مضيء خفيف */
+            box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); /* تأثير توهج */
             letter-spacing: 0.5px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         ">Editor⚒️</span>`;
@@ -637,72 +638,7 @@ function applyMainLanguage(lang) {
 }
 
 onAuthStateChanged(auth, async (user) => {
-    const loader = document.getElementById("loadingScreen");
-    const hideLoader = () => {
-        if(loader) { 
-            loader.style.opacity = "0"; 
-            setTimeout(() => { loader.style.display = "none"; }, 600); 
-        }
-    };
-
-    if (!user) { 
-        window.location.href = "index.html"; 
-        return; 
-    }
-
-    // --- الحركة دي هي اللي هتحل التعليق ---
-    // بنخفي اللودر فوراً أول ما نتأكد إن فيه يوزر سجل دخول
-    // مش بنستنى المنشورات ولا العملات تحمل
-    hideLoader(); 
-
-    listenForNotifications(user.uid);
-    const userDocRef = doc(db, "users", user.uid);
-
-    try {
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-            currentUserData = userDoc.data();
-            const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
-            if(document.getElementById("navProfilePic")) document.getElementById("navProfilePic").src = userImg;
-            const compImg = document.querySelector(".composer-header img");
-            if(compImg) compImg.src = userImg;
-            const nameDisplay = document.getElementById("user-name-display");
-            if(nameDisplay) nameDisplay.textContent = currentUserData.name || user.email.split("@")[0];
-
-            let postsListenerStarted = false;
-            let lastActiveColor = null;
-            let unsubscribePosts = null;
-
-            onSnapshot(userDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    currentUserData = docSnap.data(); 
-                    const rawCoins = docSnap.data().coins || 0;
-                    const formatted = formatCoins(rawCoins);
-                    if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
-                    if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = formatted;
-                    
-                    const colorChanged = currentUserData.activeColor !== lastActiveColor;
-                    lastActiveColor = currentUserData.activeColor;
-
-                    if (!postsListenerStarted || colorChanged) {
-                        postsListenerStarted = true;
-                        if (unsubscribePosts) unsubscribePosts();
-                        unsubscribePosts = startPostsListener();
-                    }
-                }
-            });
-        }
-    } catch (error) { 
-        console.error("Firebase Error:", error); 
-    }
-
-    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
-    if (savedDark) document.body.classList.add('dark-mode');
-    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
-    applyMainLanguage(savedLang);
-});
-
-    if (!user) { window.location.href = "index.html"; hideLoader(); return; }
+    if (!user) { window.location.href = "index.html"; return; }
     listenForNotifications(user.uid);
     const userDocRef = doc(db, "users", user.uid);
     try {
@@ -738,19 +674,18 @@ onAuthStateChanged(auth, async (user) => {
                     }
                 }
             });
-            hideLoader(); // اخفي اللودر هنا لما البيانات تخلص لود
-        } else {
-            hideLoader(); // اخفيه حتى لو الداتا مش موجودة
         }
-    } catch (error) { 
-        console.error("Firebase Error:", error); 
-        hideLoader(); // اخفيه لو حصل ايرور عشان ميعلقش
-    }
+    } catch (error) { console.error("Firebase Error:", error); }
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
     const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
     applyMainLanguage(savedLang);
+
+    setTimeout(() => {
+        const loader = document.getElementById("loadingScreen");
+        if(loader) { loader.style.opacity = "0"; setTimeout(() => { loader.style.display = "none"; }, 600); }
+    }, 1500); 
 });
 
 document.getElementById("but").onclick = () => {
@@ -958,17 +893,22 @@ function startPostsListener() {
         });
     });
 }
+    import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
+// بعد ما تتأكد إن المستخدم سجل دخول (onAuthStateChanged)
 function listenForNotifications(myId) {
+    const db = getFirestore();
     const q = query(
         collection(db, "chats"),
-        where("receiverId", "==", myId), 
-        where("isRead", "==", false)     
+        where("receiverId", "==", myId), // بيراقب المحادثات اللي أنا مستلمها
+        where("isRead", "==", false)     // وتكون لسه ملقرأتش
     );
 
     onSnapshot(q, (snapshot) => {
         if (!snapshot.empty) {
+            // هنا الكود اللي هيتنفذ لما تيجي رسالة
             alert("لديك رسالة جديدة في الشات!"); 
+            // تقدر تستبدل الـ alert بـ توست (Toast) شيك أو صوت
             let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
             audio.play();
         }
