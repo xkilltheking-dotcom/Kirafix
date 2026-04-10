@@ -136,18 +136,43 @@
         document.getElementById("messageInput").onkeypress = (e) => { if (e.key === "Enter") sendMessage(chatId); };
     }
 
-    async function sendMessage(chatId) {
-        const input = document.getElementById("messageInput");
-        const text = input.value.trim();
-        if (!text) return;
-        input.value = "";
+async function sendMessage(chatId) {
+    const input = document.getElementById("messageInput");
+    const text = input.value.trim();
+    if (!text || !currentUser) return;
+    input.value = "";
 
+    try {
+        // 1. تأكيد وجود مستند الشات الأساسي (عشان Firebase ساعات بيعلق لو الكولكشن لسه فاضية)
+        const chatRef = doc(db, "chats", chatId);
+        await updateDoc(chatRef, { 
+            lastMessage: text, 
+            lastUpdate: serverTimestamp(),
+            users: chatId.split('_') // بيخزن الـ IDs بتاعة الطرفين
+        }).catch(async (err) => {
+            // لو المستند مش موجود أصلاً (أول رسالة)، انشئه بـ setDoc
+            if (err.code === 'not-found') {
+                await setDoc(chatRef, { 
+                    lastMessage: text, 
+                    lastUpdate: serverTimestamp(),
+                    users: chatId.split('_')
+                });
+            }
+        });
+
+        // 2. إضافة الرسالة في الكولكشن الفرعية
         await addDoc(collection(db, "chats", chatId, "messages"), {
             text: text,
             senderId: currentUser.uid,
             createdAt: serverTimestamp()
         });
+        
+        console.log("Message sent!");
+    } catch (error) {
+        console.error("خطأ أثناء الإرسال: ", error);
+        alert("فشل إرسال الرسالة، تأكد من إعدادات الحماية في Firebase");
     }
+}
 
     function loadMessages(chatId) {
         const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "desc"), limit(50));
