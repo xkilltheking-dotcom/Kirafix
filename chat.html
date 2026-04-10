@@ -18,7 +18,7 @@
             margin: 0; 
             font-family: 'Cairo', sans-serif; 
             background-color: var(--bg-page); 
-            height: 100vh; 
+            height: 100dvh; /* استخدمنا dvh للارتفاع الديناميكي */
             display: flex; 
             justify-content: center; 
             align-items: center;
@@ -29,7 +29,7 @@
             display: flex;
             width: 100%;
             max-width: 1200px;
-            height: 100vh; /* ملء الشاشة تماماً */
+            height: 100dvh; /* ملء الشاشة تماماً في كل الأوقات */
             background: var(--white);
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
@@ -53,18 +53,19 @@
             flex-direction: column; 
             background: var(--white);
             min-width: 0;
+            height: 100%; /* ضمان ملء الارتفاع المتاح */
         }
 
         /* --- تعديلات الموبايل (جنب بعض بس القائمة أصغر) --- */
         @media (max-width: 768px) {
             .chats-sidebar {
-                width: 70px; /* تصغير القائمة لتكون شريط صور فقط */
+                width: 70px; /* شريط صور فقط */
             }
             .sidebar-header {
-                display: none; /* إخفاء كلمة "المحادثات" في الموبايل */
+                display: none;
             }
             .side-chat-details {
-                display: none; /* إخفاء الاسم وآخر رسالة، نكتفي بالصورة */
+                display: none;
             }
             .side-chat-item {
                 justify-content: center;
@@ -72,11 +73,12 @@
             }
             .side-chat-img {
                 margin: 0;
-                width: 45px;
-                height: 45px;
+                width: 50px; /* تكبير الصورة شوية */
+                height: 50px;
+                border-radius: 12px; /* مربع بحواف ناعمة */
             }
             .main-wrapper {
-                height: 100%; /* ملء الشاشة بالكامل في الموبايل */
+                height: 100dvh;
                 border-radius: 0;
             }
         }
@@ -88,10 +90,17 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
+            flex-shrink: 0; /* منع الانضغاط */
         }
 
         .receiver-info { display: flex; align-items: center; gap: 10px; }
-        #receiverImg { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        #receiverImg { 
+            width: 35px; 
+            height: 35px; 
+            border-radius: 12px; /* مربع بحواف ناعمة للبروفايل */
+            object-fit: cover; 
+            border: none; /* لغينا الإطار الملون */
+        }
         #receiverName { font-weight: 700; color: #1c1e21; font-size: 14px; }
 
         #chatBox { 
@@ -118,7 +127,8 @@
             display: flex; 
             gap: 8px; 
             border-top: 1px solid var(--border); 
-            padding-bottom: env(safe-area-inset-bottom, 10px); /* حماية لموبايلات الآيفون */
+            flex-shrink: 0; /* منع الانضغاط */
+            padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* حماية إضافية للآيفون */
         }
         #messageInput { 
             flex: 1; 
@@ -142,7 +152,13 @@
         #sideChatsList { flex: 1; overflow-y: auto; }
         .side-chat-item { display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: inherit; border-bottom: 1px solid #f9f9f9; }
         .side-chat-item.active { background: #e7f3ff; border-right: 4px solid var(--primary); }
-        .side-chat-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-left: 12px; }
+        .side-chat-img { 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 12px; /* مربع بحواف ناعمة في القائمة */
+            object-fit: cover; 
+            margin-left: 12px; 
+        }
     </style>
 </head>
 <body>
