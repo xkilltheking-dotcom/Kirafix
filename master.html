@@ -361,14 +361,13 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
 
-function formatCoins(num) {
-    if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
-    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-    return num;
-}    
+// --- الإعدادات الثابتة ---
+const IMGBB_API_KEY = "a870d9c05acad152564a134e6f4228c9"; 
+const CLOUDINARY_UPLOAD_PRESET = "kirafix_posts";
+const CLOUDINARY_CLOUD_NAME = "dno9n87sc";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -382,10 +381,37 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 let currentUserData = null;
+let selectedFile = null;
+let fileType = null;
 
-// التعديل هنا لضمان ظهور الألوان العادية والـ Gradient بشكل صحيح
+// --- دالة تنسيق العملات ---
+function formatCoins(num) {
+    if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return num;
+}
+
+// --- دالة جلب البادج ---
+function getBadgeHTML(badgeId) {
+    if (!badgeId || badgeId === "none") return "";
+    const badges = {
+        'admin': { label: 'ADMIN 🛡️', style: 'background: #ef4444; color: #fff; padding: 2px 8px;' },
+        'editor': { label: 'Editor⚒️', style: 'background: linear-gradient(45deg, #000428, #004e92); color: #fff; padding: 3px 10px; border: 1px solid #00d2ff; box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); font-size: 10px;' },
+        'DEVELOPER': { label: 'DEVELOPER', style: 'background: #10b981; color: #fff;' },
+        'VIP': { label: 'VIP Gold ✨', style: 'background: #f59e0b; color: #fff;' },
+        'verified': { label: 'Verified ✔️', style: 'background: #2563eb; color: #fff;' },
+        'king': { label: 'King 👑', style: 'background: #ffd700; color: #000;' },
+        'MOD': { label: 'MOD', style: 'background: #3b82f6; color: #fff;' }
+    };
+    const b = badges[badgeId] || { label: badgeId, style: 'background: #6b7280; color: #fff;' };
+    return `<span class="user-badge" style="${b.style}">${b.label}</span>`;
+}
+
+// --- دالة جلب ستايل الاسم (الألوان) ---
 function getStyleForName(colorCode) {
     if (!colorCode || colorCode === '#374151' || colorCode === 'default') {
         return 'style="background: none; -webkit-text-fill-color: #374151; color: #374151; font-weight: bold;"';
@@ -399,18 +425,20 @@ function getStyleForName(colorCode) {
     return `style="background: none; -webkit-text-fill-color: ${colorCode}; color: ${colorCode}; font-weight: bold;"`;
 }
 
+// --- إضافة/خصم العملات ---
 async function addKiraCoins(amount) {
     if (!auth.currentUser) return;
     const userRef = doc(db, "users", auth.currentUser.uid);
     try {
         const userDoc = await getDoc(userRef);
         let currentCoins = userDoc.data()?.coins || 0;
-        let newAmount = amount;
-        if (currentCoins + amount < 0) newAmount = -currentCoins; 
-        await updateDoc(userRef, { coins: increment(newAmount) });
-    } catch (e) { console.error("Error adding/removing coins:", e); }
+        let finalAmount = amount;
+        if (currentCoins + amount < 0) finalAmount = -currentCoins; 
+        await updateDoc(userRef, { coins: increment(finalAmount) });
+    } catch (e) { console.error("KiraCoins Error:", e); }
 }
 
+// --- نظام التعليقات ---
 window.toggleComments = (postId) => {
     const section = document.getElementById(`comments-${postId}`);
     if (section.style.display === "none" || section.style.display === "") {
@@ -423,7 +451,6 @@ window.sendComment = async (postId) => {
     const input = document.getElementById(`input-${postId}`);
     const text = input.value.trim();
     if (!text || !auth.currentUser) return;
-
     try {
         await addDoc(collection(db, "posts", postId, "comments"), {
             text: text,
@@ -431,12 +458,13 @@ window.sendComment = async (postId) => {
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
             userColor: currentUserData?.activeColor || '#374151',
+            userBadge: currentUserData?.activeBadge || 'none',
             createdAt: serverTimestamp()
         });
         await updateDoc(doc(db, "posts", postId), { commentsCount: increment(1) });
         await addKiraCoins(5); 
         input.value = "";
-    } catch(e) { console.error("Error sending comment:", e); alert("فشل إرسال التعليق"); }
+    } catch(e) { console.error("Comment Error:", e); }
 };
 
 function loadCommentsRealtime(postId) {
@@ -448,10 +476,13 @@ function loadCommentsRealtime(postId) {
             const c = d.data();
             const nameStyle = getStyleForName(c.userColor);
             list.innerHTML += `
-                <div class="comment-item">
-                    <img src="${c.userImage}">
-                    <div class="comment-bubble">
-                        <div ${nameStyle} style="font-size:11px;">${c.userName}</div>
+                <div class="comment-item" style="display:flex; gap:8px; margin:8px 0;">
+                    <img src="${c.userImage}" style="width:30px; height:30px; border-radius:50%;">
+                    <div class="comment-bubble" style="background:#f0f2f5; padding:8px; border-radius:12px;">
+                        <div style="display:flex; align-items:center;">
+                            ${getBadgeHTML(c.userBadge)}
+                            <div ${nameStyle} style="font-size:11px; margin-right:5px;">${c.userName}</div>
+                        </div>
                         <div>${c.text}</div>
                     </div>
                 </div>`;
@@ -459,20 +490,7 @@ function loadCommentsRealtime(postId) {
     });
 }
 
-const viewObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const postId = entry.target.getAttribute('data-id');
-            const viewedBy = JSON.parse(entry.target.getAttribute('data-views') || "[]");
-            if (auth.currentUser && !viewedBy.includes(auth.currentUser.uid)) {
-                const postRef = doc(db, "posts", postId);
-                updateDoc(postRef, { views: arrayUnion(auth.currentUser.uid) });
-                viewObserver.unobserve(entry.target);
-            }
-        }
-    });
-}, { threshold: 0.6 });
-
+// --- نظام اللايك والمشاهدات ---
 window.toggleLike = async (postId, hasLiked) => {
     if(!auth.currentUser) return;
     const postRef = doc(db, "posts", postId);
@@ -484,72 +502,64 @@ window.toggleLike = async (postId, hasLiked) => {
             await updateDoc(postRef, { likes: arrayUnion(auth.currentUser.uid) });
             addKiraCoins(2); 
         }
-    } catch(e) { console.error("Error toggling like/coins:", e); }
+    } catch(e) { console.error("Like Error:", e); }
 };
 
+const viewObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const postId = entry.target.getAttribute('data-id');
+            const viewedBy = JSON.parse(entry.target.getAttribute('data-views') || "[]");
+            if (auth.currentUser && !viewedBy.includes(auth.currentUser.uid)) {
+                updateDoc(doc(db, "posts", postId), { views: arrayUnion(auth.currentUser.uid) });
+                viewObserver.unobserve(entry.target);
+            }
+        }
+    });
+}, { threshold: 0.6 });
+
+// --- الترجمة واللغات ---
 function applyMainLanguage(lang) {
     const dict = {
         ar: { home: "الرئيسية", profile: "البروفايل", store: "المتجر 🛒", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
         en: { home: "Home", profile: "Profile", store: "Store 🛒", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
     };
     const t = dict[lang] || dict['ar'];
-    const links = document.querySelectorAll('.links a');
-    if(links.length >= 3) { links[0].textContent = t.home; links[1].textContent = t.profile; links[2].textContent = t.store; }
-    const sideLinks = document.querySelectorAll('.side-links a');
-    if(sideLinks.length >= 3) { sideLinks[0].textContent = t.home; sideLinks[1].textContent = t.profile; sideLinks[2].textContent = t.store; }
+    // تطبيق النصوص على العناصر
+    document.querySelectorAll('.links a, .side-links a').forEach((link, i) => {
+        if(i%3===0) link.textContent = t.home;
+        if(i%3===1) link.textContent = t.profile;
+        if(i%3===2) link.textContent = t.store;
+    });
     if(document.getElementById('aiBtnSide')) document.getElementById('aiBtnSide').textContent = t.ai;
     if(document.getElementById('tex')) document.getElementById('tex').placeholder = t.placeholder;
     if(document.getElementById('se')) document.getElementById('se').textContent = t.postBtn;
-    if(document.getElementById('imgBtn')) document.getElementById('imgBtn').textContent = t.imgBtn;
-    if(document.getElementById('videoBtn')) document.getElementById('videoBtn').textContent = t.videoBtn;
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
+// --- الحالة المصادقة (Auth State) ---
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "index.html"; return; }
+    
+    listenForNotifications(user.uid);
     const userDocRef = doc(db, "users", user.uid);
-    try {
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-            currentUserData = userDoc.data();
-            const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
-            if(document.getElementById("navProfilePic")) document.getElementById("navProfilePic").src = userImg;
-            const compImg = document.querySelector(".composer-header img");
-            if(compImg) compImg.src = userImg;
-            const nameDisplay = document.getElementById("user-name-display");
-            if(nameDisplay) nameDisplay.textContent = currentUserData.name || user.email.split("@")[0];
-
-let postsListenerStarted = false;
-let lastActiveColor = null;
-let unsubscribePosts = null;
-
-onSnapshot(userDocRef, (docSnap) => {
-    if (docSnap.exists()) {
-        currentUserData = docSnap.data(); 
-        const rawCoins = docSnap.data().coins || 0;
-        const formatted = formatCoins(rawCoins);
-        if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
-        if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = formatted;
-        if (document.getElementById("user-coins-float")) document.getElementById("user-coins-float").textContent = formatted;
-        localStorage.setItem("kirafix-activeColor", currentUserData.activeColor || '#374151');
-
-        const colorChanged = currentUserData.activeColor !== lastActiveColor;
-        lastActiveColor = currentUserData.activeColor;
-
-        if (!postsListenerStarted || colorChanged) {
-            postsListenerStarted = true;
-            if (unsubscribePosts) unsubscribePosts();
-            unsubscribePosts = startPostsListener();
+    
+    onSnapshot(userDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+            currentUserData = docSnap.data();
+            const formatted = formatCoins(currentUserData.coins || 0);
+            if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
+            if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = formatted;
+            if (document.getElementById("navProfilePic")) document.getElementById("navProfilePic").src = currentUserData.image;
+            
+            // تحديث المنشورات عند تغيير اللون أو البادج
+            startPostsListener();
         }
-    }
-});
-        }
-    } catch (error) { console.error("Firebase Error:", error); }
+    });
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
-    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
-    applyMainLanguage(savedLang);
+    applyMainLanguage(localStorage.getItem('kirafix-lang') || 'ar');
 
     setTimeout(() => {
         const loader = document.getElementById("loadingScreen");
@@ -557,71 +567,87 @@ onSnapshot(userDocRef, (docSnap) => {
     }, 1500); 
 });
 
-document.getElementById("but").onclick = () => {
-    const box = document.getElementById("composerBox");
-    box.style.display = box.style.display === "none" ? "block" : "none";
-};
-
+// --- نظام الرفع والنشر ---
 const imgInput = document.getElementById("imgInput");
 const videoInput = document.getElementById("videoInput");
 const mediaPreview = document.getElementById("mediaPreview");
-document.getElementById("imgBtn").onclick = () => imgInput.click();
-document.getElementById("videoBtn").onclick = () => videoInput.click();
 
-let selectedFile = null;
+if(document.getElementById("imgBtn")) document.getElementById("imgBtn").onclick = () => imgInput.click();
+if(document.getElementById("videoBtn")) document.getElementById("videoBtn").onclick = () => videoInput.click();
+
 imgInput.onchange = (e) => {
-    selectedFile = e.target.files[0];
-    if(selectedFile) {
-        mediaPreview.style.display = "block";
-        mediaPreview.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" style="width:100%; border-radius:10px;">`;
-    }
+    selectedFile = e.target.files[0]; fileType = 'image';
+    if(selectedFile) mediaPreview.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" style="width:100%; border-radius:10px;">`;
+    mediaPreview.style.display = "block";
 };
 videoInput.onchange = (e) => {
-    selectedFile = e.target.files[0];
-    if(selectedFile) {
-        mediaPreview.style.display = "block";
-        mediaPreview.innerHTML = `<video src="${URL.createObjectURL(selectedFile)}" controls style="width:100%; border-radius:10px;"></video>`;
-    }
+    selectedFile = e.target.files[0]; fileType = 'video';
+    if(selectedFile) mediaPreview.innerHTML = `<video src="${URL.createObjectURL(selectedFile)}" controls style="width:100%; border-radius:10px;"></video>`;
+    mediaPreview.style.display = "block";
 };
 
 document.getElementById("se").onclick = async () => {
-    const text = document.getElementById("tex").value;
+    const textInput = document.getElementById("tex");
     const btn = document.getElementById("se");
-    
-    if (!text && !selectedFile) { alert("اكتب حاجة أو اختار ميديا!"); return; }
+    if (!textInput.value && !selectedFile) return;
+
     btn.disabled = true; btn.innerText = "...";
+    let fileUrl = null;
+
     try {
+        if (selectedFile) {
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            let apiUrl = "";
+
+            if (fileType === 'image') {
+                formData.append("upload_preset", "kirafix_posts");
+                apiUrl = `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`;
+            } else {
+                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+                apiUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`;
+            }
+
+            const res = await fetch(apiUrl, { method: "POST", body: formData });
+            const data = await res.json();
+            fileUrl = data.secure_url || data.data?.url;
+        }
+
         await addDoc(collection(db, "posts"), {
-            text: text,
-            email: auth.currentUser.email,
+            text: textInput.value,
             uid: auth.currentUser.uid,
-            userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
-            userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
-            userColor: currentUserData?.activeColor || '#374151', 
+            userName: currentUserData.name,
+            userImage: currentUserData.image,
+            userColor: currentUserData.activeColor,
+            userBadge: currentUserData.activeBadge,
+            image: fileType === 'image' ? fileUrl : null,
+            video: fileType === 'video' ? fileUrl : null,
             createdAt: serverTimestamp(),
-            image: null, video: null, likes: [], views: [], commentsCount: 0
+            likes: [], views: [], commentsCount: 0
         });
-        await addKiraCoins(7); 
-        document.getElementById("tex").value = "";
-        mediaPreview.innerHTML = ""; mediaPreview.style.display = "none";
+
+        await addKiraCoins(7);
+        textInput.value = ""; mediaPreview.innerHTML = ""; 
         selectedFile = null; btn.disabled = false; btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
-    } catch (error) { alert("حصلت مشكلة: " + error.message); btn.disabled = false; btn.innerText = "نشر"; }
+    } catch (err) { alert("Error: " + err.message); btn.disabled = false; }
 };
 
+// --- عرض المنشورات (Realtime) ---
 function timeAgo(timestamp) {
     if (!timestamp) return "الآن";
     const seconds = Math.floor((new Date() - timestamp.toDate()) / 1000);
     if (seconds < 60) return "الآن";
-    let interval = Math.floor(seconds / 3600);
-    if (interval >= 1) return "منذ " + interval + " ساعة";
-    interval = Math.floor(seconds / 60);
-    if (interval >= 1) return "منذ " + interval + " دقيقة";
-    return "الآن";
+    if (seconds < 3600) return `منذ ${Math.floor(seconds/60)} دقيقة`;
+    if (seconds < 86400) return `منذ ${Math.floor(seconds/3600)} ساعة`;
+    return "منذ أيام";
 }
 
+let unsubscribePosts = null;
 function startPostsListener() {
-    return onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
+    if (unsubscribePosts) unsubscribePosts();
+    const q = query(collection(db, "posts"), orderBy("createdAt","desc"));
+    unsubscribePosts = onSnapshot(q, (snap) => {
         const container = document.getElementById("postsContainer");
         if(!container) return;
         container.innerHTML = "";
@@ -629,73 +655,57 @@ function startPostsListener() {
             const post = docSnap.data();
             const postId = docSnap.id;
             const currentUid = auth.currentUser?.uid;
-
-            const likes = Array.isArray(post.likes) ? post.likes : [];
-            const views = Array.isArray(post.views) ? post.views : [];
-
-            const hasLiked = likes.includes(currentUid);
-            const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
-            const ui = {
-                ar: { like: 'إعجاب', liked: 'تم الإعجاب', comment: 'تعليق', views: 'مشاهدة', comments: 'تعليق', input: 'اكتب تعليقاً...', publish: 'نشر' },
-                en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
-            }[currentLang];
-
-            // تحديد الستايل بناءً على لون صاحب البوست (مع تحديث لحظي لليوزر الحالي)
-            const nameStyle = getStyleForName(
-                (post.uid === currentUid && currentUserData?.activeColor) 
-                    ? currentUserData.activeColor 
-                    : post.userColor
-            );
+            const hasLiked = post.likes?.includes(currentUid);
+            const nameStyle = getStyleForName(post.uid === currentUid ? currentUserData?.activeColor : post.userColor);
 
             const postHTML = `
-            <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
-                <div style="padding:15px;">
-                    <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                        <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
-                        <div class="user-info">
-                            <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
-                            <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
+            <div class="post" data-id="${postId}" data-views='${JSON.stringify(post.views || [])}'>
+                <div class="post-header" style="display:flex; align-items:center; gap:10px; padding:10px;">
+                    <img src="${post.userImage}" style="width:45px; height:45px; border-radius:50%;">
+                    <div>
+                        <div style="display:flex; align-items:center;">
+                            ${getBadgeHTML(post.uid === currentUid ? currentUserData?.activeBadge : post.userBadge)}
+                            <div ${nameStyle}>${post.userName}</div>
                         </div>
-                    </div>
-                    <div class="post-text" style="margin-bottom:12px; line-height:1.5;">${post.text || ""}</div>
-                    ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
-                    ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
-                    <div class="post-stats">
-                        <span>👍 ${likes.length} ${ui.like}</span>
-                        <span>${views.length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}</span>
-                    </div>
-                    <div class="post-actions">
-                        <button type="button" class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
-                            ${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}
-                        </button>
-                        <button type="button" class="action-btn" onclick="toggleComments('${postId}')">
-                            💬 ${ui.comment}
-                        </button>
+                        <small>${timeAgo(post.createdAt)}</small>
                     </div>
                 </div>
-                <div id="comments-${postId}" class="comments-section" style="display:none;">
+                <div style="padding:10px;">${post.text || ""}</div>
+                ${post.image ? `<img src="${post.image}" style="width:100%;">` : ""}
+                ${post.video ? `<video src="${post.video}" controls style="width:100%;"></video>` : ""}
+                <div class="post-actions" style="display:flex; justify-content:space-around; padding:10px; border-top:1px solid #eee;">
+                    <button onclick="toggleLike('${postId}', ${hasLiked})">${hasLiked ? '❤️' : '🤍'} ${post.likes?.length || 0}</button>
+                    <button onclick="toggleComments('${postId}')">💬 ${post.commentsCount || 0}</button>
+                    <span>👁️ ${post.views?.length || 0}</span>
+                </div>
+                <div id="comments-${postId}" class="comments-section" style="display:none; padding:10px;">
                     <div id="list-${postId}"></div>
-                    <div class="comment-input-wrapper">
-                        <input type="text" id="input-${postId}" placeholder="${ui.input}" onkeypress="if(event.key === 'Enter') { sendComment('${postId}'); }">
-                        <button type="button" onclick="sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">${ui.publish}</button>
-                    </div>
+                    <input type="text" id="input-${postId}" placeholder="تعليق..." onkeypress="if(event.key==='Enter') sendComment('${postId}')">
                 </div>
             </div>`;
-
-            const postNode = document.createRange().createContextualFragment(postHTML).firstElementChild;
-            container.appendChild(postNode);
-            viewObserver.observe(postNode);
+            const node = document.createRange().createContextualFragment(postHTML).firstElementChild;
+            container.appendChild(node);
+            viewObserver.observe(node);
         });
     });
 }
 
+// --- نظام الإشعارات ---
+function listenForNotifications(myId) {
+    const q = query(collection(db, "chats"), where("receiverId", "==", myId), where("isRead", "==", false));
+    onSnapshot(q, (snap) => {
+        if (!snap.empty) {
+            new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3').play();
+        }
+    });
+}
+
+// --- التعامل مع القائمة الجانبية ---
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
-const closeBtn = document.getElementById("closeBtn");
-if (menuBtn && sideNav && closeBtn) {
+if (menuBtn && sideNav) {
     menuBtn.onclick = (e) => { e.stopPropagation(); sideNav.classList.add("active"); };
-    closeBtn.onclick = () => { sideNav.classList.remove("active"); };
-    document.addEventListener('click', (event) => { if (!sideNav.contains(event.target) && event.target !== menuBtn) { sideNav.classList.remove("active"); } });
+    document.addEventListener('click', (e) => { if (!sideNav.contains(e.target)) sideNav.classList.remove("active"); });
 }
 </script>
 
