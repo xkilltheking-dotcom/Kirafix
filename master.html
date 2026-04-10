@@ -432,133 +432,308 @@
     <a href="chat.html" class="chat-toggle">➤</a>
 </section>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> <title>Kirafix - Private Chat</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #f0f2f5;
+            --primary: #2563eb;
+            --white: #ffffff;
+            --border: #e5e7eb;
+        }
 
-// --- إعدادات الرفع الخارجية ---
-const IMGBB_API_KEY = "a870d9c05acad152564a134e6f4228c9"; 
-const CLOUDINARY_UPLOAD_PRESET = "kirafix_posts";
-const CLOUDINARY_CLOUD_NAME = "dno9n87sc";
+        body { 
+            margin: 0; 
+            font-family: 'Cairo', sans-serif; 
+            background-color: var(--bg-page); 
+            height: 100dvh; /* استخدمنا dvh للارتفاع الديناميكي */
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            overflow: hidden; 
+        }
 
-function formatCoins(num) {
-    if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
-    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-    return num;
-}    
+        .main-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            height: 100dvh; /* ملء الشاشة تماماً في كل الأوقات */
+            background: var(--white);
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
-    authDomain: "kirafix-a0ed2.firebaseapp.com",
-    projectId: "kirafix-a0ed2",
-    storageBucket: "kirafix-a0ed2.firebasestorage.app",
-    messagingSenderId: "1038377831293",
-    appId: "1:103837103837:web:c4763c6157addb25a1da14"
-};
+        /* القائمة الجانبية */
+        .chats-sidebar {
+            width: 300px;
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            flex-shrink: 0;
+            transition: width 0.3s;
+        }
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+        /* منطقة الشات */
+        .chat-container { 
+            flex: 1;
+            display: flex; 
+            flex-direction: column; 
+            background: var(--white);
+            min-width: 0;
+            height: 100%; /* ضمان ملء الارتفاع المتاح */
+        }
 
-let currentUserData = null;
-
-// ✅ حل مشكلة اللودنج اللي بيعلق (fallback)
-let loadingTimeout = setTimeout(() => {
-    const loader = document.getElementById("loadingScreen");
-    if (loader) {
-        loader.style.opacity = "0";
-        setTimeout(() => {
-            loader.style.display = "none";
-        }, 400);
-    }
-}, 5000);
-
-// باقي السكربت زي ما هو 100% بدون أي تغيير 👇
-
-// --- دور على الدالة دي واستبدلها بالنسخة دي ---
-function getBadgeHTML(badgeId) {
-    if (!badgeId || badgeId === "none") return "";
-    
-    if (badgeId === 'admin') {
-        return `<span class="user-badge" style="background: #ef4444; color: #fff; padding: 2px 8px;">ADMIN 🛡️</span>`;
-    }
-    
-    if (badgeId === 'editor') {
-        return `<span class="user-badge" style="
-            background: linear-gradient(45deg, #000428, #004e92);
-            color: #fff; 
-            padding: 3px 10px; 
-            font-size: 10px; 
-            text-transform: none; 
-            border: 1px solid #00d2ff;
-            box-shadow: 0 0 5px rgba(0, 210, 255, 0.5);
-            letter-spacing: 0.5px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        ">Editor⚒️</span>`;
-    }
-
-    let style = "";
-    let label = badgeId;
-    switch(badgeId) {
-        case "DEVELOPER": style = "background: #10b981; color: #fff;"; break;
-        case "VIP": 
-            style = "background: #f59e0b; color: #fff;"; 
-            label = "VIP Gold ✨";
-            break;
-        case "verified": 
-            style = "background: #2563eb; color: #fff;"; 
-            label = "Verified ✔️";
-            break;
-        case "king": 
-            style = "background: #ffd700; color: #000;"; 
-            label = "King 👑";
-            break;
-        case "MOD": style = "background: #3b82f6; color: #fff;"; break;
-        default: style = "background: #6b7280; color: #fff;";
-    }
-    return `<span class="user-badge" style="${style}">${label}</span>`;
-}
-
-// ⚠️ مفيش أي تغيير تحت غير سطر واحد بس في startPostsListener
-
-function startPostsListener() {
-    let firstLoad = true;
-
-    return onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
-        const container = document.getElementById("postsContainer");
-        if(!container) return;
-
-        container.innerHTML = "";
-
-        snap.forEach((docSnap) => {
-            const post = docSnap.data();
-            const postId = docSnap.id;
-
-            const postHTML = `...`;
-            const postNode = document.createRange().createContextualFragment(postHTML).firstElementChild;
-            container.appendChild(postNode);
-        });
-
-        // ✅ التعديل هنا بس
-        if (firstLoad) {
-            clearTimeout(loadingTimeout);
-
-            const loader = document.getElementById("loadingScreen");
-            if (loader) {
-                loader.style.opacity = "0";
-                setTimeout(() => {
-                    loader.style.display = "none";
-                }, 400);
+        /* --- تعديلات الموبايل (جنب بعض بس القائمة أصغر) --- */
+        @media (max-width: 768px) {
+            .chats-sidebar {
+                width: 70px; /* شريط صور فقط */
             }
-            firstLoad = false;
+            .sidebar-header {
+                display: none;
+            }
+            .side-chat-details {
+                display: none;
+            }
+            .side-chat-item {
+                justify-content: center;
+                padding: 10px 0;
+            }
+            .side-chat-img {
+                margin: 0;
+                width: 50px; /* تكبير الصورة شوية */
+                height: 50px;
+                border-radius: 12px; /* مربع بحواف ناعمة */
+            }
+            .main-wrapper {
+                height: 100dvh;
+                border-radius: 0;
+            }
+        }
+
+        .chat-header { 
+            padding: 10px 15px; 
+            background: #fff; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-shrink: 0; /* منع الانضغاط */
+        }
+
+        .receiver-info { display: flex; align-items: center; gap: 10px; }
+        #receiverImg { 
+            width: 35px; 
+            height: 35px; 
+            border-radius: 12px; /* مربع بحواف ناعمة للبروفايل */
+            object-fit: cover; 
+            border: none; /* لغينا الإطار الملون */
+        }
+        #receiverName { font-weight: 700; color: #1c1e21; font-size: 14px; }
+
+        #chatBox { 
+            flex: 1; 
+            background-color: #f8f9fa; 
+            padding: 15px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px;
+        }
+
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; }
+        .mine { align-self: flex-end; }
+        .theirs { align-self: flex-start; }
+        .msg-bubble { padding: 8px 12px; border-radius: 15px; font-size: 13px; line-height: 1.4; }
+        .mine .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 2px; }
+        .theirs .msg-bubble { background: #e4e6eb; color: #050505; border-bottom-left-radius: 2px; }
+        .msg-time { font-size: 9px; opacity: 0.7; margin-top: 3px; display: block; }
+
+        .input-bar { 
+            padding: 10px; 
+            background: #fff; 
+            display: flex; 
+            gap: 8px; 
+            border-top: 1px solid var(--border); 
+            flex-shrink: 0; /* منع الانضغاط */
+            padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* حماية إضافية للآيفون */
+        }
+        #messageInput { 
+            flex: 1; 
+            padding: 10px 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 20px; 
+            outline: none; 
+            font-size: 14px;
+        }
+        #sendBtn { 
+            background: var(--primary); 
+            color: #fff; 
+            border: none; 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+        }
+
+        .sidebar-header { padding: 20px; font-weight: bold; font-size: 18px; border-bottom: 1px solid var(--border); }
+        #sideChatsList { flex: 1; overflow-y: auto; }
+        .side-chat-item { display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: inherit; border-bottom: 1px solid #f9f9f9; }
+        .side-chat-item.active { background: #e7f3ff; border-right: 4px solid var(--primary); }
+        .side-chat-img { 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 12px; /* مربع بحواف ناعمة في القائمة */
+            object-fit: cover; 
+            margin-left: 12px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+    <aside class="chats-sidebar">
+        <div class="sidebar-header">المحادثات</div>
+        <div id="sideChatsList"></div>
+    </aside>
+
+    <div class="chat-container">
+        <header class="chat-header">
+            <div class="receiver-info">
+                <a href="Kirafix.html" style="text-decoration:none;">⬅️</a>
+                <img src="af80e23deeb127837d30554452546196.jpg" id="receiverImg">
+                <div>
+                    <span id="receiverName">جاري التحميل...</span>
+                    <div id="statusLabel" style="font-size:10px; color:gray;">نشط الآن</div>
+                </div>
+            </div>
+        </header>
+
+        <div id="chatBox"></div>
+
+        <div class="input-bar">
+            <input type="text" id="messageInput" placeholder="اكتب رسالة خاصة...">
+            <button id="sendBtn">➤</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    // (باقي كود الـ Script بتاعك بدون تغيير لأنه شغال تمام)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, limit, setDoc, updateDoc, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
+        authDomain: "kirafix-a0ed2.firebaseapp.com",
+        projectId: "kirafix-a0ed2",
+        storageBucket: "kirafix-a0ed2.firebasestorage.app",
+        messagingSenderId: "1038377831293",
+        appId: "1:103837103837:web:c4763c6157addb25a1da14"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const receiverId = urlParams.get('id');
+
+    function loadSideChats(myId) {
+        const q = query(
+            collection(db, "chats"),
+            where("users", "array-contains", myId),
+            orderBy("lastUpdate", "desc")
+        );
+
+        onSnapshot(q, async (snapshot) => {
+            const sideList = document.getElementById("sideChatsList");
+            sideList.innerHTML = "";
+            for (const chatDoc of snapshot.docs) {
+                const data = chatDoc.data();
+                const otherId = data.users.find(id => id !== myId);
+                if (!otherId) continue;
+                const userDoc = await getDoc(doc(db, "users", otherId));
+                const userData = userDoc.exists() ? userDoc.data() : { name: "مستخدم", image: "" };
+                const chatItem = document.createElement("a");
+                chatItem.href = `chat.html?id=${otherId}`;
+                chatItem.className = `side-chat-item ${otherId === receiverId ? 'active' : ''}`;
+                chatItem.innerHTML = `
+                    <img src="${userData.image || 'af80e23deeb127837d30554452546196.jpg'}" class="side-chat-img">
+                    <div class="side-chat-details">
+                        <span class="side-chat-name">${userData.name}</span>
+                        <span class="side-chat-last">${data.lastMessage || "بدء محادثة..."}</span>
+                    </div>`;
+                sideList.appendChild(chatItem);
+            }
+        });
+    }
+
+    onAuthStateChanged(auth, (user) => {
+        if (user && receiverId) {
+            currentUser = user;
+            updateDoc(doc(db, "users", user.uid), { status: "online", lastSeen: serverTimestamp() });
+            setupChat();
+            loadSideChats(user.uid);
+        } else {
+            window.location.href = "Kirafix.html";
         }
     });
-}
+
+    async function setupChat() {
+        onSnapshot(doc(db, "users", receiverId), (snap) => {
+            if (snap.exists()) {
+                const data = snap.data();
+                document.getElementById("receiverName").textContent = data.name;
+                document.getElementById("receiverImg").src = data.image || "af80e23deeb127837d30554452546196.jpg";
+                const statusLabel = document.getElementById("statusLabel");
+                statusLabel.textContent = data.status === "online" ? "نشط الآن" : "غير متصل";
+                statusLabel.style.color = data.status === "online" ? "green" : "gray";
+            }
+        });
+
+        const chatId = currentUser.uid < receiverId ? `${currentUser.uid}_${receiverId}` : `${receiverId}_${currentUser.uid}`;
+        loadMessages(chatId);
+        document.getElementById("sendBtn").onclick = () => sendMessage(chatId);
+        document.getElementById("messageInput").onkeypress = (e) => { if (e.key === "Enter") sendMessage(chatId); };
+    }
+
+    async function sendMessage(chatId) {
+        const input = document.getElementById("messageInput");
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = "";
+        const chatRef = doc(db, "chats", chatId);
+        await setDoc(chatRef, { lastMessage: text, lastUpdate: serverTimestamp(), users: [currentUser.uid, receiverId] }, { merge: true });
+        await addDoc(collection(db, "chats", chatId, "messages"), { text: text, senderId: currentUser.uid, createdAt: serverTimestamp() });
+    }
+
+    function loadMessages(chatId) {
+        const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "desc"), limit(50));
+        onSnapshot(q, (snapshot) => {
+            const chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML = "";
+            snapshot.docs.reverse().forEach(docSnap => {
+                const msg = docSnap.data();
+                const dateObj = msg.createdAt ? msg.createdAt.toDate() : new Date();
+                const timeStr = dateObj.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                const div = document.createElement("div");
+                div.className = `msg-wrapper ${msg.senderId === currentUser.uid ? 'mine' : 'theirs'}`;
+                div.innerHTML = `<div class="msg-bubble">${msg.text}<span class="msg-time">${timeStr}</span></div>`;
+                chatBox.appendChild(div);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    }
 </script>
+</body>
+</html>
 
 </body>
 </html>
