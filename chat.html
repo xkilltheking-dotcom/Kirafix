@@ -143,34 +143,28 @@ async function sendMessage(chatId) {
     input.value = "";
 
     try {
-        // 1. تأكيد وجود مستند الشات الأساسي (عشان Firebase ساعات بيعلق لو الكولكشن لسه فاضية)
+        // المرجع لمستند الشات الرئيسي
         const chatRef = doc(db, "chats", chatId);
-        await updateDoc(chatRef, { 
+
+        // استخدام setDoc مع merge: true بيضمن إن العملية تنجح سواء المستند موجود أو لأ
+        await setDoc(chatRef, { 
             lastMessage: text, 
             lastUpdate: serverTimestamp(),
-            users: chatId.split('_') // بيخزن الـ IDs بتاعة الطرفين
-        }).catch(async (err) => {
-            // لو المستند مش موجود أصلاً (أول رسالة)، انشئه بـ setDoc
-            if (err.code === 'not-found') {
-                await setDoc(chatRef, { 
-                    lastMessage: text, 
-                    lastUpdate: serverTimestamp(),
-                    users: chatId.split('_')
-                });
-            }
-        });
+            users: chatId.split('_') 
+        }, { merge: true });
 
-        // 2. إضافة الرسالة في الكولكشن الفرعية
+        // إضافة الرسالة في الكولكشن الفرعية
         await addDoc(collection(db, "chats", chatId, "messages"), {
             text: text,
             senderId: currentUser.uid,
             createdAt: serverTimestamp()
         });
         
-        console.log("Message sent!");
+        console.log("تم إرسال الرسالة بنجاح!");
     } catch (error) {
-        console.error("خطأ أثناء الإرسال: ", error);
-        alert("فشل إرسال الرسالة، تأكد من إعدادات الحماية في Firebase");
+        console.error("Error sending message:", error);
+        // لو لسه فيه فشل، هنطبع كود الخطأ بالضبط عشان نعرف السبب
+        alert("فشل الإرسال: " + error.code); 
     }
 }
 
