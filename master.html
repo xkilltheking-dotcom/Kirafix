@@ -822,7 +822,9 @@ function startPostsListener() {
     return onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
         const container = document.getElementById("postsContainer");
         if(!container) return;
+
         container.innerHTML = "";
+
         snap.forEach((docSnap) => {
             const post = docSnap.data();
             const postId = docSnap.id;
@@ -890,6 +892,15 @@ function startPostsListener() {
             container.appendChild(postNode);
             viewObserver.observe(postNode);
         });
+
+        // ✅ هنا الحل الحقيقي
+        const loader = document.getElementById("loadingScreen");
+        if (loader) {
+            loader.style.opacity = "0";
+            setTimeout(() => {
+                loader.style.display = "none";
+            }, 500);
+        }
     });
 }
     import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
