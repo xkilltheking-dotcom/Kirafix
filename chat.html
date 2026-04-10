@@ -3,54 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirafix - Global Chat</title>
+    <title>Kirafix - Live Chat</title>
     <link rel="stylesheet" href="style.css?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-page: #f0f2f5; --bg-chat: #f7f9fb; --header-bg: #ffffff;
-            --primary: #1a73e8; --danger: #d93025; --text-main: #1c1e21;
-            --white: #ffffff; --border: #dee1e6;
+            --bg-page: #f0f2f5;
+            --bg-chat: #ffffff;
+            --header-bg: #ffffff;
+            --primary: #2563eb;
+            --text-main: #1c1e21;
+            --white: #ffffff;
+            --border: #e5e7eb;
+            --msg-mine: #2563eb;
+            --msg-theirs: #f3f4f6;
         }
 
         body { margin: 0; font-family: 'Cairo', sans-serif; background-color: var(--bg-page); height: 100vh; display: flex; justify-content: center; align-items: center; }
-        .chat-container { width: 100%; max-width: 800px; height: 90vh; background: var(--white); display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-        .chat-header { padding: 15px 25px; background: var(--header-bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .chat-header h2 { margin: 0; font-size: 18px; color: var(--text-main); font-weight: 700; }
-        .back-btn { text-decoration: none; color: var(--primary); font-weight: 600; font-size: 14px; }
+        
+        .chat-container { 
+            width: 100%; max-width: 900px; height: 95vh; 
+            background: var(--white); display: flex; flex-direction: column; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 20px; 
+            overflow: hidden; margin: 10px;
+        }
 
-        #chatBox { flex: 1; background-color: var(--bg-chat); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .msg-wrapper { display: flex; align-items: flex-end; gap: 8px; max-width: 80%; }
+        .chat-header { 
+            padding: 15px 20px; background: var(--header-bg); 
+            border-bottom: 1px solid var(--border); display: flex; 
+            justify-content: space-between; align-items: center; 
+        }
+
+        .user-info-header { display: flex; align-items: center; gap: 10px; }
+        .status-dot { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px #22c55e; }
+
+        #chatBox { 
+            flex: 1; background-color: #fafafa; padding: 20px; 
+            overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
+            scroll-behavior: smooth;
+        }
+
+        /* تنسيق فقاعات الرسائل الاحترافي */
+        .msg-wrapper { display: flex; gap: 10px; max-width: 75%; position: relative; }
         .mine { flex-direction: row-reverse; align-self: flex-end; }
         .theirs { align-self: flex-start; }
 
-        .chat-img { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; background: #eee; border: 1px solid #ddd; }
-        .msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.5; position: relative; transition: 0.2s; }
-        .mine .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 2px; cursor: pointer; }
-        .theirs .msg-bubble { background: #e8eaed; color: var(--text-main); border-bottom-left-radius: 2px; }
+        .chat-img { width: 35px; height: 35px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+        
+        .msg-content { display: flex; flex-direction: column; }
+        .mine .msg-content { align-items: flex-end; }
 
-        .sender-name { display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px; opacity: 0.8; }
-        .theirs .sender-name { color: var(--primary); }
+        .msg-bubble { 
+            padding: 12px 16px; border-radius: 18px; font-size: 14px; 
+            line-height: 1.6; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
 
-        .del-hint { font-size: 9px; display: block; margin-top: 5px; opacity: 0.7; text-align: left; }
+        .mine .msg-bubble { 
+            background: var(--msg-mine); color: white; 
+            border-bottom-right-radius: 4px; 
+        }
 
-        .input-bar { padding: 15px 20px; background: var(--white); display: flex; gap: 12px; border-top: 1px solid var(--border); align-items: center; }
-        #messageInput { flex: 1; padding: 10px 18px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-family: 'Cairo'; background: #f8f9fa; }
-        #sendBtn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+        .theirs .msg-bubble { 
+            background: var(--msg-theirs); color: var(--text-main); 
+            border-bottom-left-radius: 4px; 
+        }
+
+        .msg-time { font-size: 10px; margin-top: 4px; opacity: 0.6; }
+        .mine .msg-time { color: white; }
+
+        .sender-name { font-size: 12px; font-weight: 700; margin-bottom: 3px; color: #555; }
+
+        /* منطقة الإدخال */
+        .input-bar { 
+            padding: 20px; background: var(--white); display: flex; 
+            gap: 10px; border-top: 1px solid var(--border); 
+        }
+
+        #messageInput { 
+            flex: 1; padding: 12px 20px; border: 1.5px solid var(--border); 
+            border-radius: 30px; outline: none; transition: 0.3s;
+            font-size: 15px;
+        }
+
+        #messageInput:focus { border-color: var(--primary); background: #fff; }
+
+        #sendBtn { 
+            background: var(--primary); color: white; border: none; 
+            width: 45px; height: 45px; border-radius: 50%; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
+        }
+
+        #sendBtn:hover { transform: scale(1.1); background: #1e40af; }
     </style>
 </head>
 <body>
 
     <div class="chat-container">
         <header class="chat-header">
-            <a href="Kirafix.html" class="back-btn">← الرئيسية</a>
-            <h2>Kirafix Global Chat</h2>
-            <div style="width:20px"></div>
+            <div class="user-info-header">
+                <a href="Kirafix.html" style="text-decoration:none; font-size:20px;">🏠</a>
+                <div>
+                    <h2 style="margin:0; font-size:16px;">Kirafix Global Chat</h2>
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <span class="status-dot"></span>
+                        <small style="color:#666; font-size:10px;">متصل الآن</small>
+                    </div>
+                </div>
+            </div>
         </header>
+
         <div id="chatBox"></div>
+
         <div class="input-bar">
-            <input type="text" id="messageInput" placeholder="اكتب رسالتك...">
-            <button id="sendBtn">إرسال</button>
+            <input type="text" id="messageInput" placeholder="اكتب شيئاً رائعاً...">
+            <button id="sendBtn">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
         </div>
     </div>
 
@@ -78,31 +147,13 @@
         if (user) { currentUser = user; loadMessages(); }
         else { window.location.href = "Kirafix.html"; }
     });
-// نظام اللغة في الشات
-const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
-document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
-
-function translateChat(lang) {
-    const dict = {
-        ar: { title: "غرفة الدردشة العالمية", back: "← الرئيسية", placeholder: "اكتب رسالتك...", send: "إرسال" },
-        en: { title: "Global Chat Room", back: "← Home", placeholder: "Type a message...", send: "Send" },
-        fr: { title: "Chat Global", back: "← Accueil", placeholder: "Écrire...", send: "Envoyer" },
-        es: { title: "Chat Global", back: "← Inicio", placeholder: "Escribir...", send: "Enviar" },
-        zh: { title: "全球聊天室", back: "← 首页", placeholder: "写消息...", send: "发送" }
-    };
-    const t = dict[lang];
-    document.querySelector('.chat-header h2').textContent = t.title;
-    document.querySelector('.back-btn').textContent = t.back;
-    document.getElementById('messageInput').placeholder = t.placeholder;
-    document.getElementById('sendBtn').textContent = t.send;
-}
-translateChat(savedLang);
 
     // إرسال رسالة
     async function sendMessage() {
         const input = document.getElementById("messageInput");
         const text = input.value.trim();
         if (!text || !currentUser) return;
+        
         input.value = "";
         try {
             const userDoc = await getDoc(doc(db, "users", currentUser.uid));
@@ -110,16 +161,17 @@ translateChat(savedLang);
             await addDoc(collection(db, "messages"), {
                 text: text,
                 uid: currentUser.uid,
-                userName: userData?.name || "مستخدم",
-                userImage: userData?.image || "https://via.placeholder.com/50",
+                userName: userData?.name || "مستخدم مجهول",
+                userImage: userData?.image || "af80e23deeb127837d30554452546196.jpg",
                 createdAt: serverTimestamp()
             });
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error sending:", e); }
     }
+
     document.getElementById("sendBtn").onclick = sendMessage;
     document.getElementById("messageInput").onkeypress = (e) => { if (e.key === "Enter") sendMessage(); };
 
-    // تحميل الرسائل
+    // تحميل الرسائل بتنسيق الوقت
     function loadMessages() {
         const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(50));
         onSnapshot(q, (snapshot) => {
@@ -130,18 +182,24 @@ translateChat(savedLang);
             docs.forEach((docSnap) => {
                 const msg = docSnap.data();
                 const isMine = msg.uid === currentUser.uid;
-                const msgId = docSnap.id;
-                // تحويل وقت فايربيز لـ Milliseconds عشان نحسبه
-                const timeInMs = msg.createdAt ? msg.createdAt.toMillis() : Date.now();
+                
+                // تنسيق الوقت
+                let timeStr = "";
+                if (msg.createdAt) {
+                    const date = msg.createdAt.toDate();
+                    timeStr = date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                }
 
                 const msgDiv = document.createElement("div");
                 msgDiv.className = `msg-wrapper ${isMine ? 'mine' : 'theirs'}`;
                 msgDiv.innerHTML = `
                     <img src="${msg.userImage}" class="chat-img">
-                    <div class="msg-bubble" ${isMine ? `onclick="window.handleDelete('${msgId}', ${timeInMs})"` : ''}>
-                        <span class="sender-name">${msg.userName}</span>
-                        <span>${msg.text}</span>
-                        ${isMine ? '<span class="del-hint">اضغط للحذف</span>' : ''}
+                    <div class="msg-content">
+                        ${!isMine ? `<span class="sender-name">${msg.userName}</span>` : ''}
+                        <div class="msg-bubble">
+                            <span>${msg.text}</span>
+                            <div class="msg-time">${timeStr}</div>
+                        </div>
                     </div>
                 `;
                 chatBox.appendChild(msgDiv);
@@ -149,25 +207,6 @@ translateChat(savedLang);
             chatBox.scrollTop = chatBox.scrollHeight;
         });
     }
-
-    // وظيفة الحذف وربطها بـ window
-    window.handleDelete = async (id, timeSent) => {
-        const now = Date.now();
-        const diffInMinutes = (now - timeSent) / (1000 * 60);
-
-        if (diffInMinutes > 30) {
-            alert("⚠️ لا يمكنك حذف رسالة مر عليها أكثر من 30 دقيقة.");
-            return;
-        }
-
-        if (confirm("هل أنت متأكد من حذف هذه الرسالة نهائياً؟")) {
-            try {
-                await deleteDoc(doc(db, "messages", id));
-            } catch (e) {
-                alert("فشل الحذف، حاول مرة أخرى.");
-            }
-        }
-    };
 </script>
 </body>
 </html>
