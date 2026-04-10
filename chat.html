@@ -321,28 +321,28 @@
         }
     }
 
-    function loadMessages(chatId) {
+function loadMessages(chatId) {
         const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "desc"), limit(50));
         onSnapshot(q, (snapshot) => {
             const chatBox = document.getElementById("chatBox");
             chatBox.innerHTML = "";
             snapshot.docs.reverse().forEach(docSnap => {
                 const msg = docSnap.data();
-                const isMine = msg.senderId === currentUser.uid;
                 
-                // إصلاح الوقت: استخدام وقت محلي كبديل مؤقت لو السيرفر لسه مبعتش التوقيت
-                const time = msg.createdAt ? 
-                    msg.createdAt.toDate().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : 
-                    new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+                // --- الجزء المعدل للوقت ---
+                const dateObj = msg.createdAt ? msg.createdAt.toDate() : new Date();
+                let hours = dateObj.getHours();
+                let minutes = dateObj.getMinutes();
+                const ampm = hours >= 12 ? 'م' : 'ص';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // الساعة 0 نخليها 12
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                const timeStr = `${hours}:${minutes} ${ampm}`;
+                // -------------------------
 
                 const div = document.createElement("div");
-                div.className = `msg-wrapper ${isMine ? 'mine' : 'theirs'}`;
-                div.innerHTML = `
-                    <div class="msg-bubble">
-                        ${msg.text}
-                        <span class="msg-time">${time}</span>
-                    </div>
-                `;
+                div.className = `msg-wrapper ${msg.senderId === currentUser.uid ? 'mine' : 'theirs'}`;
+                div.innerHTML = `<div class="msg-bubble">${msg.text}<span class="msg-time">${timeStr}</span></div>`;
                 chatBox.appendChild(div);
             });
             chatBox.scrollTop = chatBox.scrollHeight;
