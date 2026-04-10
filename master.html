@@ -856,7 +856,7 @@ function startPostsListener() {
                             <div style="display:flex; align-items:center;">
                                 ${getBadgeHTML(post.uid === currentUid ? currentUserData?.activeBadge : post.userBadge)}
                                 <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
-                                   <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
+                                    <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
                                 </a>
                             </div>
                             <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
