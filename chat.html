@@ -3,89 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirafix - Private Chat</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <title>رسائلي - Kirafix</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-page: #f0f2f5;
-            --primary: #2563eb;
-            --white: #ffffff;
-            --border: #e5e7eb;
+        :root { --primary: #2563eb; --bg: #f0f2f5; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .inbox-container { max-width: 600px; margin: auto; background: white; border-radius: 15px; overflow: hidden; shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .inbox-header { padding: 20px; background: white; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; }
+        .chat-item { 
+            display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f0f0f0; 
+            cursor: pointer; transition: 0.3s; text-decoration: none; color: inherit;
         }
-
-        body { margin: 0; font-family: 'Cairo', sans-serif; background-color: var(--bg-page); height: 100vh; display: flex; justify-content: center; align-items: center; }
-        
-        .chat-container { 
-            width: 100%; max-width: 900px; height: 95vh; 
-            background: var(--white); display: flex; flex-direction: column; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 20px; 
-            overflow: hidden; margin: 10px;
-        }
-
-        .chat-header { 
-            padding: 15px 20px; background: #fff; 
-            border-bottom: 1px solid var(--border); display: flex; 
-            justify-content: space-between; align-items: center; 
-        }
-
-        .receiver-info { display: flex; align-items: center; gap: 12px; }
-        #receiverImg { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
-        #receiverName { font-weight: 700; color: #1c1e21; }
-
-        #chatBox { 
-            flex: 1; background-color: #f8f9fa; padding: 20px; 
-            overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
-        }
-
-        /* ستايل الرسائل */
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 70%; }
-        .mine { align-self: flex-end; }
-        .theirs { align-self: flex-start; }
-
-        .msg-bubble { 
-            padding: 10px 15px; border-radius: 18px; font-size: 14px; 
-            position: relative; line-height: 1.5;
-        }
-
-        .mine .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
-        .theirs .msg-bubble { background: #e4e6eb; color: #050505; border-bottom-left-radius: 4px; }
-
-        .msg-time { font-size: 10px; opacity: 0.6; margin-top: 4px; display: block; }
-        .mine .msg-time { text-align: left; }
-
-        /* منطقة الإدخال */
-        .input-bar { padding: 15px; background: #fff; display: flex; gap: 10px; border-top: 1px solid var(--border); }
-        #messageInput { flex: 1; padding: 10px 20px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
-        #sendBtn { background: var(--primary); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+        .chat-item:hover { background: #f9fafb; }
+        .user-img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; background: #ddd; }
+        .chat-info { flex: 1; margin-right: 15px; }
+        .user-name { font-weight: 700; display: block; color: #1c1e21; }
+        .last-msg { font-size: 13px; color: #65676b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; display: block; }
+        .msg-time { font-size: 11px; color: #8a8d91; }
     </style>
 </head>
 <body>
 
-    <div class="chat-container">
-        <header class="chat-header">
-            <div class="receiver-info">
-                <a href="Kirafix.html" style="text-decoration:none;">⬅️</a>
-                <img src="af80e23deeb127837d30554452546196.jpg" id="receiverImg">
-                <div>
-                    <span id="receiverName">جاري التحميل...</span>
-                    <div style="font-size:10px; color:green;">نشط الآن</div>
-                </div>
-            </div>
-        </header>
-
-        <div id="chatBox"></div>
-
-        <div class="input-bar">
-            <input type="text" id="messageInput" placeholder="اكتب رسالة خاصة...">
-            <button id="sendBtn">➤</button>
+    <div class="inbox-container">
+        <div class="inbox-header">
+            <a href="Kirafix.html" style="text-decoration:none;">⬅️</a>
+            <h2 style="margin:0;">الدردشات</h2>
+        </div>
+        <div id="chatsList">
+            <p style="text-align:center; padding:20px; color:#666;">جاري تحميل المحادثات...</p>
         </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, limit, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -100,113 +52,54 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUser = null;
-    // هنجيب الـ ID بتاع الشخص اللي بنكلمه من الـ URL (مثال: chat.html?id=USER_ID)
-    const urlParams = new URLSearchParams(window.location.search);
-    const receiverId = urlParams.get('id'); 
-
     onAuthStateChanged(auth, (user) => {
-        if (user && receiverId) { 
-            currentUser = user; 
-            setupChat();
-        } else if (!receiverId) {
-            alert("لم يتم تحديد مستخدم للدردشة معه.");
-            window.location.href = "Kirafix.html";
+        if (user) {
+            loadMyChats(user.uid);
         } else {
-            window.location.href = "Kirafix.html";
+            window.location.href = "login.html";
         }
     });
 
-    async function setupChat() {
-        // 1. تحميل بيانات الطرف التاني
-        const receiverDoc = await getDoc(doc(db, "users", receiverId));
-        if (receiverDoc.exists()) {
-            document.getElementById("receiverName").textContent = receiverDoc.data().name;
-            document.getElementById("receiverImg").src = receiverDoc.data().image || "af80e23deeb127837d30554452546196.jpg";
-        }
+    function loadMyChats(myId) {
+        // البحث عن كل الغرف اللي أنا عضو فيها (موجود في مصفوفة users)
+        const q = query(
+            collection(db, "chats"), 
+            where("users", "array-contains", myId),
+            orderBy("lastUpdate", "desc")
+        );
 
-        // 2. إنشاء معرف شات فريد بين الطرفين (الأبجدي الأصغر الأول)
-        const chatId = currentUser.uid < receiverId 
-            ? `${currentUser.uid}_${receiverId}` 
-            : `${receiverId}_${currentUser.uid}`;
+        onSnapshot(q, async (snapshot) => {
+            const listDiv = document.getElementById("chatsList");
+            if (snapshot.empty) {
+                listDiv.innerHTML = "<p style='text-align:center; padding:20px;'>لا توجد محادثات بعد.</p>";
+                return;
+            }
 
-        loadMessages(chatId);
-
-        document.getElementById("sendBtn").onclick = () => sendMessage(chatId);
-        document.getElementById("messageInput").onkeypress = (e) => { if (e.key === "Enter") sendMessage(chatId); };
-    }
-
-async function sendMessage(chatId) {
-    const input = document.getElementById("messageInput");
-    const text = input.value.trim();
-    
-    // 1. التحقق من وجود نص
-    if (!text) return;
-
-    // 2. التحقق من تسجيل الدخول (أهم خطوة)
-    if (!auth.currentUser) {
-        alert("خطأ: لم يتم العثور على بيانات المستخدم، حاول تسجيل الدخول مرة أخرى");
-        return;
-    }
-
-    // 3. التحقق من وجود chatId
-    if (!chatId) {
-        alert("خطأ: معرف الدردشة غير موجود");
-        return;
-    }
-
-    input.value = ""; // مسح الحقل فوراً لتجربة مستخدم أفضل
-
-    try {
-        console.log("جاري الإرسال إلى:", chatId);
-
-        // المرجع لمستند الشات الرئيسي
-        const chatRef = doc(db, "chats", chatId);
-
-        // إنشاء أو تحديث مستند الشات الأساسي
-        await setDoc(chatRef, { 
-            lastMessage: text, 
-            lastUpdate: serverTimestamp(),
-            users: chatId.split('_') 
-        }, { merge: true });
-
-        // إضافة الرسالة في الكولكشن الفرعية
-        await addDoc(collection(db, "chats", chatId, "messages"), {
-            text: text,
-            senderId: auth.currentUser.uid, // استخدمنا auth.currentUser مباشرة لضمان الدقة
-            createdAt: serverTimestamp()
-        });
-        
-        console.log("تمت العملية بنجاح!");
-    } catch (error) {
-        console.error("Firebase Error Details:", error);
-        // هنا هنطبع الرسالة كاملة عشان لو الكود undefined نشوف السبب
-        alert("فشل الإرسال. السبب التقني: " + (error.message || "خطأ غير معروف")); 
-    }
-}
-
-    function loadMessages(chatId) {
-        const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "desc"), limit(50));
-        onSnapshot(q, (snapshot) => {
-            const chatBox = document.getElementById("chatBox");
-            chatBox.innerHTML = "";
-            snapshot.docs.reverse().forEach(docSnap => {
-                const msg = docSnap.data();
-                const isMine = msg.senderId === currentUser.uid;
+            listDiv.innerHTML = "";
+            for (const chatDoc of snapshot.docs) {
+                const chatData = chatDoc.data();
+                // استخراج ID الشخص التاني
+                const otherUserId = chatData.users.find(id => id !== myId);
                 
-                const time = msg.createdAt ? msg.createdAt.toDate().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : "";
+                // جلب بيانات الشخص التاني (الاسم والصورة)
+                const userDoc = await getDoc(doc(db, "users", otherUserId));
+                const userData = userDoc.exists() ? userDoc.data() : { name: "مستخدم مجهول", image: "" };
 
-                const div = document.createElement("div");
-                div.className = `msg-wrapper ${isMine ? 'mine' : 'theirs'}`;
-                div.innerHTML = `
-                    <div class="msg-bubble">
-                        ${msg.text}
-                        <span class="msg-time">${time}</span>
+                const time = chatData.lastUpdate ? chatData.lastUpdate.toDate().toLocaleDateString('ar-EG') : "";
+
+                const item = document.createElement("a");
+                item.href = `chat.html?id=${otherUserId}`;
+                item.className = "chat-item";
+                item.innerHTML = `
+                    <img src="${userData.image || 'default-avatar.png'}" class="user-img">
+                    <div class="chat-info">
+                        <span class="user-name">${userData.name}</span>
+                        <span class="last-msg">${chatData.lastMessage || "أرسل رسالة..." }</span>
                     </div>
+                    <span class="msg-time">${time}</span>
                 `;
-                chatBox.appendChild(div);
-            });
-            chatBox.scrollTop = chatBox.scrollHeight;
+                listDiv.appendChild(item);
+            }
         });
     }
 </script>
