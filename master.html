@@ -892,6 +892,27 @@ function startPostsListener() {
         });
     });
 }
+    import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+// بعد ما تتأكد إن المستخدم سجل دخول (onAuthStateChanged)
+function listenForNotifications(myId) {
+    const db = getFirestore();
+    const q = query(
+        collection(db, "chats"),
+        where("receiverId", "==", myId), // بيراقب المحادثات اللي أنا مستلمها
+        where("isRead", "==", false)     // وتكون لسه ملقرأتش
+    );
+
+    onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+            // هنا الكود اللي هيتنفذ لما تيجي رسالة
+            alert("لديك رسالة جديدة في الشات!"); 
+            // تقدر تستبدل الـ alert بـ توست (Toast) شيك أو صوت
+            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+            audio.play();
+        }
+    });
+}
 
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
