@@ -3,20 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirafix - Live Chat</title>
+    <title>Kirafix - Private Chat</title>
     <link rel="stylesheet" href="style.css?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-page: #f0f2f5;
-            --bg-chat: #ffffff;
-            --header-bg: #ffffff;
             --primary: #2563eb;
-            --text-main: #1c1e21;
             --white: #ffffff;
             --border: #e5e7eb;
-            --msg-mine: #2563eb;
-            --msg-theirs: #f3f4f6;
         }
 
         body { margin: 0; font-family: 'Cairo', sans-serif; background-color: var(--bg-page); height: 100vh; display: flex; justify-content: center; align-items: center; }
@@ -29,86 +24,52 @@
         }
 
         .chat-header { 
-            padding: 15px 20px; background: var(--header-bg); 
+            padding: 15px 20px; background: #fff; 
             border-bottom: 1px solid var(--border); display: flex; 
             justify-content: space-between; align-items: center; 
         }
 
-        .user-info-header { display: flex; align-items: center; gap: 10px; }
-        .status-dot { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px #22c55e; }
+        .receiver-info { display: flex; align-items: center; gap: 12px; }
+        #receiverImg { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        #receiverName { font-weight: 700; color: #1c1e21; }
 
         #chatBox { 
-            flex: 1; background-color: #fafafa; padding: 20px; 
-            overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
-            scroll-behavior: smooth;
+            flex: 1; background-color: #f8f9fa; padding: 20px; 
+            overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
         }
 
-        /* تنسيق فقاعات الرسائل الاحترافي */
-        .msg-wrapper { display: flex; gap: 10px; max-width: 75%; position: relative; }
-        .mine { flex-direction: row-reverse; align-self: flex-end; }
+        /* ستايل الرسائل */
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 70%; }
+        .mine { align-self: flex-end; }
         .theirs { align-self: flex-start; }
 
-        .chat-img { width: 35px; height: 35px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
-        
-        .msg-content { display: flex; flex-direction: column; }
-        .mine .msg-content { align-items: flex-end; }
-
         .msg-bubble { 
-            padding: 12px 16px; border-radius: 18px; font-size: 14px; 
-            line-height: 1.6; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            padding: 10px 15px; border-radius: 18px; font-size: 14px; 
+            position: relative; line-height: 1.5;
         }
 
-        .mine .msg-bubble { 
-            background: var(--msg-mine); color: white; 
-            border-bottom-right-radius: 4px; 
-        }
+        .mine .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+        .theirs .msg-bubble { background: #e4e6eb; color: #050505; border-bottom-left-radius: 4px; }
 
-        .theirs .msg-bubble { 
-            background: var(--msg-theirs); color: var(--text-main); 
-            border-bottom-left-radius: 4px; 
-        }
-
-        .msg-time { font-size: 10px; margin-top: 4px; opacity: 0.6; }
-        .mine .msg-time { color: white; }
-
-        .sender-name { font-size: 12px; font-weight: 700; margin-bottom: 3px; color: #555; }
+        .msg-time { font-size: 10px; opacity: 0.6; margin-top: 4px; display: block; }
+        .mine .msg-time { text-align: left; }
 
         /* منطقة الإدخال */
-        .input-bar { 
-            padding: 20px; background: var(--white); display: flex; 
-            gap: 10px; border-top: 1px solid var(--border); 
-        }
-
-        #messageInput { 
-            flex: 1; padding: 12px 20px; border: 1.5px solid var(--border); 
-            border-radius: 30px; outline: none; transition: 0.3s;
-            font-size: 15px;
-        }
-
-        #messageInput:focus { border-color: var(--primary); background: #fff; }
-
-        #sendBtn { 
-            background: var(--primary); color: white; border: none; 
-            width: 45px; height: 45px; border-radius: 50%; 
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: 0.3s;
-        }
-
-        #sendBtn:hover { transform: scale(1.1); background: #1e40af; }
+        .input-bar { padding: 15px; background: #fff; display: flex; gap: 10px; border-top: 1px solid var(--border); }
+        #messageInput { flex: 1; padding: 10px 20px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
+        #sendBtn { background: var(--primary); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="chat-container">
         <header class="chat-header">
-            <div class="user-info-header">
-                <a href="Kirafix.html" style="text-decoration:none; font-size:20px;">🏠</a>
+            <div class="receiver-info">
+                <a href="Kirafix.html" style="text-decoration:none;">⬅️</a>
+                <img src="af80e23deeb127837d30554452546196.jpg" id="receiverImg">
                 <div>
-                    <h2 style="margin:0; font-size:16px;">Kirafix Global Chat</h2>
-                    <div style="display:flex; align-items:center; gap:5px;">
-                        <span class="status-dot"></span>
-                        <small style="color:#666; font-size:10px;">متصل الآن</small>
-                    </div>
+                    <span id="receiverName">جاري التحميل...</span>
+                    <div style="font-size:10px; color:green;">نشط الآن</div>
                 </div>
             </div>
         </header>
@@ -116,17 +77,15 @@
         <div id="chatBox"></div>
 
         <div class="input-bar">
-            <input type="text" id="messageInput" placeholder="اكتب شيئاً رائعاً...">
-            <button id="sendBtn">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-            </button>
+            <input type="text" id="messageInput" placeholder="اكتب رسالة خاصة...">
+            <button id="sendBtn">➤</button>
         </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, deleteDoc, limit } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, limit } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -142,67 +101,74 @@
     const db = getFirestore(app);
 
     let currentUser = null;
+    // هنجيب الـ ID بتاع الشخص اللي بنكلمه من الـ URL (مثال: chat.html?id=USER_ID)
+    const urlParams = new URLSearchParams(window.location.search);
+    const receiverId = urlParams.get('id'); 
 
     onAuthStateChanged(auth, (user) => {
-        if (user) { currentUser = user; loadMessages(); }
-        else { window.location.href = "Kirafix.html"; }
+        if (user && receiverId) { 
+            currentUser = user; 
+            setupChat();
+        } else if (!receiverId) {
+            alert("لم يتم تحديد مستخدم للدردشة معه.");
+            window.location.href = "Kirafix.html";
+        } else {
+            window.location.href = "Kirafix.html";
+        }
     });
 
-    // إرسال رسالة
-    async function sendMessage() {
-        const input = document.getElementById("messageInput");
-        const text = input.value.trim();
-        if (!text || !currentUser) return;
-        
-        input.value = "";
-        try {
-            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-            const userData = userDoc.data();
-            await addDoc(collection(db, "messages"), {
-                text: text,
-                uid: currentUser.uid,
-                userName: userData?.name || "مستخدم مجهول",
-                userImage: userData?.image || "af80e23deeb127837d30554452546196.jpg",
-                createdAt: serverTimestamp()
-            });
-        } catch (e) { console.error("Error sending:", e); }
+    async function setupChat() {
+        // 1. تحميل بيانات الطرف التاني
+        const receiverDoc = await getDoc(doc(db, "users", receiverId));
+        if (receiverDoc.exists()) {
+            document.getElementById("receiverName").textContent = receiverDoc.data().name;
+            document.getElementById("receiverImg").src = receiverDoc.data().image || "af80e23deeb127837d30554452546196.jpg";
+        }
+
+        // 2. إنشاء معرف شات فريد بين الطرفين (الأبجدي الأصغر الأول)
+        const chatId = currentUser.uid < receiverId 
+            ? `${currentUser.uid}_${receiverId}` 
+            : `${receiverId}_${currentUser.uid}`;
+
+        loadMessages(chatId);
+
+        document.getElementById("sendBtn").onclick = () => sendMessage(chatId);
+        document.getElementById("messageInput").onkeypress = (e) => { if (e.key === "Enter") sendMessage(chatId); };
     }
 
-    document.getElementById("sendBtn").onclick = sendMessage;
-    document.getElementById("messageInput").onkeypress = (e) => { if (e.key === "Enter") sendMessage(); };
+    async function sendMessage(chatId) {
+        const input = document.getElementById("messageInput");
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = "";
 
-    // تحميل الرسائل بتنسيق الوقت
-    function loadMessages() {
-        const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(50));
+        await addDoc(collection(db, "chats", chatId, "messages"), {
+            text: text,
+            senderId: currentUser.uid,
+            createdAt: serverTimestamp()
+        });
+    }
+
+    function loadMessages(chatId) {
+        const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "desc"), limit(50));
         onSnapshot(q, (snapshot) => {
             const chatBox = document.getElementById("chatBox");
             chatBox.innerHTML = "";
-            const docs = snapshot.docs.reverse();
-
-            docs.forEach((docSnap) => {
+            snapshot.docs.reverse().forEach(docSnap => {
                 const msg = docSnap.data();
-                const isMine = msg.uid === currentUser.uid;
+                const isMine = msg.senderId === currentUser.uid;
                 
-                // تنسيق الوقت
-                let timeStr = "";
-                if (msg.createdAt) {
-                    const date = msg.createdAt.toDate();
-                    timeStr = date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-                }
+                const time = msg.createdAt ? msg.createdAt.toDate().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : "";
 
-                const msgDiv = document.createElement("div");
-                msgDiv.className = `msg-wrapper ${isMine ? 'mine' : 'theirs'}`;
-                msgDiv.innerHTML = `
-                    <img src="${msg.userImage}" class="chat-img">
-                    <div class="msg-content">
-                        ${!isMine ? `<span class="sender-name">${msg.userName}</span>` : ''}
-                        <div class="msg-bubble">
-                            <span>${msg.text}</span>
-                            <div class="msg-time">${timeStr}</div>
-                        </div>
+                const div = document.createElement("div");
+                div.className = `msg-wrapper ${isMine ? 'mine' : 'theirs'}`;
+                div.innerHTML = `
+                    <div class="msg-bubble">
+                        ${msg.text}
+                        <span class="msg-time">${time}</span>
                     </div>
                 `;
-                chatBox.appendChild(msgDiv);
+                chatBox.appendChild(div);
             });
             chatBox.scrollTop = chatBox.scrollHeight;
         });
