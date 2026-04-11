@@ -435,7 +435,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
 
 // --- إعدادات الرفع الخارجية ---
@@ -466,21 +466,44 @@ const storage = getStorage(app);
 
 let currentUserData = null;
 
+// --- دور على الدالة دي واستبدلها بالنسخة دي ---
 function getBadgeHTML(badgeId) {
     if (!badgeId || badgeId === "none") return "";
+
     if (badgeId === 'admin') {
         return `<span class="user-badge" style="background: #ef4444; color: #fff; padding: 2px 8px;">ADMIN 🛡️</span>`;
     }
+
     if (badgeId === 'editor') {
-        return `<span class="user-badge" style="background: linear-gradient(45deg, #000428, #004e92); color: #fff; padding: 3px 10px; font-size: 10px; border: 1px solid #00d2ff; box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); letter-spacing: 0.5px; font-family: sans-serif;">Editor⚒️</span>`;
+        return `<span class="user-badge" style="
+            background: linear-gradient(45deg, #000428, #004e92); /* تدرج أزرق ليلي فخم */
+            color: #fff; 
+            padding: 3px 10px; 
+            font-size: 10px; 
+            text-transform: none; 
+            border: 1px solid #00d2ff; /* إطار مضيء خفيف */
+            box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); /* تأثير توهج */
+            letter-spacing: 0.5px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        ">Editor⚒️</span>`;
     }
+
     let style = "";
     let label = badgeId;
     switch(badgeId) {
         case "DEVELOPER": style = "background: #10b981; color: #fff;"; break;
-        case "VIP": style = "background: #f59e0b; color: #fff;"; label = "VIP Gold ✨"; break;
-        case "verified": style = "background: #2563eb; color: #fff;"; label = "Verified ✔️"; break;
-        case "king": style = "background: #ffd700; color: #000;"; label = "King 👑"; break;
+        case "VIP": 
+            style = "background: #f59e0b; color: #fff;"; 
+            label = "VIP Gold ✨";
+            break;
+        case "verified": 
+            style = "background: #2563eb; color: #fff;"; 
+            label = "Verified ✔️";
+            break;
+        case "king": 
+            style = "background: #ffd700; color: #000;"; 
+            label = "King 👑";
+            break;
         case "MOD": style = "background: #3b82f6; color: #fff;"; break;
         default: style = "background: #6b7280; color: #fff;";
     }
@@ -509,7 +532,7 @@ async function addKiraCoins(amount) {
         let newAmount = amount;
         if (currentCoins + amount < 0) newAmount = -currentCoins; 
         await updateDoc(userRef, { coins: increment(newAmount) });
-    } catch (e) { console.error("Error updating coins:", e); }
+    } catch (e) { console.error("Error adding/removing coins:", e); }
 }
 
 window.toggleComments = (postId) => {
@@ -524,6 +547,7 @@ window.sendComment = async (postId) => {
     const input = document.getElementById(`input-${postId}`);
     const text = input.value.trim();
     if (!text || !auth.currentUser) return;
+
     try {
         await addDoc(collection(db, "posts", postId, "comments"), {
             text: text,
@@ -537,7 +561,7 @@ window.sendComment = async (postId) => {
         await updateDoc(doc(db, "posts", postId), { commentsCount: increment(1) });
         await addKiraCoins(5); 
         input.value = "";
-    } catch(e) { console.error("Error sending comment:", e); }
+    } catch(e) { console.error("Error sending comment:", e); alert("فشل إرسال التعليق"); }
 };
 
 function loadCommentsRealtime(postId) {
@@ -573,7 +597,8 @@ const viewObserver = new IntersectionObserver((entries) => {
             const postId = entry.target.getAttribute('data-id');
             const viewedBy = JSON.parse(entry.target.getAttribute('data-views') || "[]");
             if (auth.currentUser && !viewedBy.includes(auth.currentUser.uid)) {
-                updateDoc(doc(db, "posts", postId), { views: arrayUnion(auth.currentUser.uid) });
+                const postRef = doc(db, "posts", postId);
+                updateDoc(postRef, { views: arrayUnion(auth.currentUser.uid) });
                 viewObserver.unobserve(entry.target);
             }
         }
@@ -591,7 +616,7 @@ window.toggleLike = async (postId, hasLiked) => {
             await updateDoc(postRef, { likes: arrayUnion(auth.currentUser.uid) });
             addKiraCoins(2); 
         }
-    } catch(e) { console.error("Error liking:", e); }
+    } catch(e) { console.error("Error toggling like/coins:", e); }
 };
 
 function applyMainLanguage(lang) {
@@ -600,13 +625,10 @@ function applyMainLanguage(lang) {
         en: { home: "Home", profile: "Profile", store: "Store 🛒", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
     };
     const t = dict[lang] || dict['ar'];
-    const updateText = (selector, text) => {
-        const els = document.querySelectorAll(selector);
-        els.forEach(el => el.textContent = text);
-    };
-    updateText('.links a:nth-child(1), .side-links a:nth-child(1)', t.home);
-    updateText('.links a:nth-child(2), .side-links a:nth-child(2)', t.profile);
-    updateText('.links a:nth-child(3), .side-links a:nth-child(3)', t.store);
+    const links = document.querySelectorAll('.links a');
+    if(links.length >= 3) { links[0].textContent = t.home; links[1].textContent = t.profile; links[2].textContent = t.store; }
+    const sideLinks = document.querySelectorAll('.side-links a');
+    if(sideLinks.length >= 3) { sideLinks[0].textContent = t.home; sideLinks[1].textContent = t.profile; sideLinks[2].textContent = t.store; }
     if(document.getElementById('aiBtnSide')) document.getElementById('aiBtnSide').textContent = t.ai;
     if(document.getElementById('tex')) document.getElementById('tex').placeholder = t.placeholder;
     if(document.getElementById('se')) document.getElementById('se').textContent = t.postBtn;
@@ -615,22 +637,9 @@ function applyMainLanguage(lang) {
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
-function listenForNotifications(myId) {
-    const q = query(collection(db, "chats"), where("receiverId", "==", myId), where("isRead", "==", false));
-    onSnapshot(q, (snapshot) => {
-        if (!snapshot.empty) {
-            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
-            audio.play().catch(e => console.log("Audio play blocked"));
-        }
-    });
-}
-
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "index.html"; return; }
-    
-    // بدء مراقبة الإشعارات
     listenForNotifications(user.uid);
-
     const userDocRef = doc(db, "users", user.uid);
     try {
         const userDoc = await getDoc(userDocRef);
@@ -638,8 +647,10 @@ onAuthStateChanged(auth, async (user) => {
             currentUserData = userDoc.data();
             const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
             if(document.getElementById("navProfilePic")) document.getElementById("navProfilePic").src = userImg;
-            if(document.querySelector(".composer-header img")) document.querySelector(".composer-header img").src = userImg;
-            if(document.getElementById("user-name-display")) document.getElementById("user-name-display").textContent = currentUserData.name || user.email.split("@")[0];
+            const compImg = document.querySelector(".composer-header img");
+            if(compImg) compImg.src = userImg;
+            const nameDisplay = document.getElementById("user-name-display");
+            if(nameDisplay) nameDisplay.textContent = currentUserData.name || user.email.split("@")[0];
 
             let postsListenerStarted = false;
             let lastActiveColor = null;
@@ -648,13 +659,16 @@ onAuthStateChanged(auth, async (user) => {
             onSnapshot(userDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     currentUserData = docSnap.data(); 
-                    const formatted = formatCoins(docSnap.data().coins || 0);
+                    const rawCoins = docSnap.data().coins || 0;
+                    const formatted = formatCoins(rawCoins);
                     if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
                     if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = formatted;
 
-                    if (!postsListenerStarted || currentUserData.activeColor !== lastActiveColor) {
+                    const colorChanged = currentUserData.activeColor !== lastActiveColor;
+                    lastActiveColor = currentUserData.activeColor;
+
+                    if (!postsListenerStarted || colorChanged) {
                         postsListenerStarted = true;
-                        lastActiveColor = currentUserData.activeColor;
                         if (unsubscribePosts) unsubscribePosts();
                         unsubscribePosts = startPostsListener();
                     }
@@ -665,14 +679,12 @@ onAuthStateChanged(auth, async (user) => {
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
-    applyMainLanguage(localStorage.getItem('kirafix-lang') || 'ar');
+    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+    applyMainLanguage(savedLang);
 
     setTimeout(() => {
         const loader = document.getElementById("loadingScreen");
-        if(loader) { 
-            loader.style.opacity = "0"; 
-            setTimeout(() => loader.style.display = "none", 600); 
-        }
+        if(loader) { loader.style.opacity = "0"; setTimeout(() => { loader.style.display = "none"; }, 600); }
     }, 1500); 
 });
 
@@ -704,22 +716,30 @@ imgInput.onchange = (e) => {
     fileType = 'image';
     if(selectedFile) {
         mediaPreview.style.display = "block";
-        mediaPreview.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" style="width:100%; border-radius:10px;"><div id="uploadProgressContainer" class="upload-progress-container"><div id="uploadProgressBar" class="upload-progress-bar"></div></div>`;
+        mediaPreview.innerHTML = `
+            <img src="${URL.createObjectURL(selectedFile)}" style="width:100%; border-radius:10px;">
+            <div id="uploadProgressContainer" class="upload-progress-container">
+                <div id="uploadProgressBar" class="upload-progress-bar"></div>
+            </div>`;
     }
 };
-
 videoInput.onchange = (e) => {
     selectedFile = e.target.files[0];
     fileType = 'video';
     if(selectedFile) {
         mediaPreview.style.display = "block";
-        mediaPreview.innerHTML = `<video src="${URL.createObjectURL(selectedFile)}" controls style="width:100%; border-radius:10px;"></video><div id="uploadProgressContainer" class="upload-progress-container"><div id="uploadProgressBar" class="upload-progress-bar"></div></div>`;
+        mediaPreview.innerHTML = `
+            <video src="${URL.createObjectURL(selectedFile)}" controls style="width:100%; border-radius:10px;"></video>
+            <div id="uploadProgressContainer" class="upload-progress-container">
+                <div id="uploadProgressBar" class="upload-progress-bar"></div>
+            </div>`;
     }
 };
 
 document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
+
     if (!text && !selectedFile) { alert("اكتب حاجة أو اختار ميديا!"); return; }
     btn.disabled = true; btn.innerText = "...";
 
@@ -729,43 +749,75 @@ document.getElementById("se").onclick = async () => {
             fileUrl = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 const formData = new FormData();
+
                 if (fileType === 'image') {
                     formData.append("file", selectedFile);
                     formData.append("upload_preset", "kirafix_posts"); 
                     xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
-                } else {
+                } else if (fileType === 'video') {
                     formData.append("file", selectedFile);
                     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
                     xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`);
                 }
-                xhr.upload.onprogress = (e) => { if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100); };
-                xhr.onload = () => {
-                    const res = JSON.parse(xhr.responseText);
-                    const finalUrl = res.secure_url || (res.data ? res.data.url : null);
-                    finalUrl ? resolve(finalUrl) : reject(new Error("Upload Failed"));
+
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100);
                 };
-                xhr.onerror = () => reject(new Error("Network Error"));
+
+                xhr.onload = () => {
+                    try {
+                        const res = JSON.parse(xhr.responseText);
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            const finalUrl = res.secure_url || (res.data ? res.data.url : null);
+                            if (finalUrl) resolve(finalUrl);
+                            else reject(new Error("لم يتم العثور على رابط الملف"));
+                        } else {
+                            reject(new Error(res.error?.message || "فشل في عملية الرفع"));
+                        }
+                    } catch(e) { reject(new Error("رد غير صالح من السيرفر")); }
+                };
+
+                xhr.onerror = () => reject(new Error("خطأ في الاتصال بالشبكة"));
                 xhr.send(formData);
             });
         }
+
         await addDoc(collection(db, "posts"), {
-            text, uid: auth.currentUser.uid,
+            text: text,
+            email: auth.currentUser.email,
+            uid: auth.currentUser.uid,
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
             userImage: currentUserData?.image || "af80e23deeb127837d30554452546196.jpg",
-            userColor: currentUserData?.activeColor || '#374151',
+            userColor: currentUserData?.activeColor || '#374151', 
             userBadge: currentUserData?.activeBadge || 'none',
             createdAt: serverTimestamp(),
             image: fileType === 'image' ? fileUrl : null,
             video: fileType === 'video' ? fileUrl : null,
             likes: [], views: [], commentsCount: 0
         });
-        await addKiraCoins(7);
+
+        await addKiraCoins(7); 
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = ""; mediaPreview.style.display = "none";
-        selectedFile = null; btn.disabled = false; btn.innerText = "نشر";
+        selectedFile = null; fileType = null; btn.disabled = false; btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
-    } catch (e) { alert("مشكلة في النشر: " + e.message); btn.disabled = false; btn.innerText = "نشر"; }
+    } catch (error) { 
+        console.error(error);
+        alert("مشكلة في النشر: " + error.message); 
+        btn.disabled = false; btn.innerText = "نشر"; 
+    }
 };
+
+function timeAgo(timestamp) {
+    if (!timestamp) return "الآن";
+    const seconds = Math.floor((new Date() - timestamp.toDate()) / 1000);
+    if (seconds < 60) return "الآن";
+    let interval = Math.floor(seconds / 3600);
+    if (interval >= 1) return "منذ " + interval + " ساعة";
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1) return "منذ " + interval + " دقيقة";
+    return "الآن";
+}
 
 function startPostsListener() {
     return onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
@@ -776,44 +828,61 @@ function startPostsListener() {
             const post = docSnap.data();
             const postId = docSnap.id;
             const currentUid = auth.currentUser?.uid;
-            const hasLiked = (post.likes || []).includes(currentUid);
+
+            const likes = Array.isArray(post.likes) ? post.likes : [];
+            const views = Array.isArray(post.views) ? post.views : [];
+
+            const hasLiked = likes.includes(currentUid);
             const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
             const ui = {
                 ar: { like: 'إعجاب', liked: 'تم الإعجاب', comment: 'تعليق', views: 'مشاهدة', comments: 'تعليق', input: 'اكتب تعليقاً...', publish: 'نشر' },
                 en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
             }[currentLang];
 
-            const nameStyle = getStyleForName(post.uid === currentUid ? currentUserData?.activeColor : post.userColor);
+            const nameStyle = getStyleForName(
+                (post.uid === currentUid && currentUserData?.activeColor) 
+                    ? currentUserData.activeColor 
+                    : post.userColor
+            );
 
             const postHTML = `
-            <div class="post" data-id="${postId}" data-views='${JSON.stringify(post.views || [])}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden; padding:15px;">
-                <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <a href="chat.html?id=${post.uid}"><img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;"></a>
-                    <div class="user-info">
-                        <div style="display:flex; align-items:center;">
-                            ${getBadgeHTML(post.uid === currentUid ? currentUserData?.activeBadge : post.userBadge)}
-                            <a href="chat.html?id=${post.uid}" style="text-decoration:none;"><div class="username" ${nameStyle}>${post.userName || "User"}</div></a>
+            <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
+                <div style="padding:15px;">
+                    <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
+                           <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+                        </a>
+                        <div class="user-info">
+                            <div style="display:flex; align-items:center;">
+                                ${getBadgeHTML(post.uid === currentUid ? currentUserData?.activeBadge : post.userBadge)}
+                                <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
+                                   <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
+                                </a>
+                            </div>
+                            <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
                         </div>
-                        <div style="font-size:12px;">${timeAgo(post.createdAt)}</div>
+                    </div>
+                    <div class="post-text" style="margin-bottom:12px; line-height:1.5;">${post.text || ""}</div>
+                    ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
+                    ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
+                    <div class="post-stats">
+                        <span>👍 ${likes.length} ${ui.like}</span>
+                        <span>${views.length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}</span>
+                    </div>
+                    <div class="post-actions">
+                        <button type="button" class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})">
+                            ${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}
+                        </button>
+                        <button type="button" class="action-btn" onclick="toggleComments('${postId}')">
+                            💬 ${ui.comment}
+                        </button>
                     </div>
                 </div>
-                <div style="margin-bottom:12px;">${post.text || ""}</div>
-                ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
-                ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
-                <div style="font-size:12px; color:gray; margin-bottom:10px;">
-                    👍 ${(post.likes || []).length} • ${(post.views || []).length} ${ui.views} • ${post.commentsCount || 0} ${ui.comments}
-                </div>
-                <div class="post-actions" style="display:flex; gap:10px; border-top:1px solid #eee; padding-top:10px;">
-                    <button class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})" style="flex:1; background:none; border:none; cursor:pointer; color:${hasLiked?'red':'gray'}">
-                        ${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}
-                    </button>
-                    <button class="action-btn" onclick="toggleComments('${postId}')" style="flex:1; background:none; border:none; cursor:pointer; color:gray;">💬 ${ui.comment}</button>
-                </div>
-                <div id="comments-${postId}" style="display:none; margin-top:15px;">
+                <div id="comments-${postId}" class="comments-section" style="display:none;">
                     <div id="list-${postId}"></div>
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <input type="text" id="input-${postId}" placeholder="${ui.input}" style="flex:1; padding:8px; border-radius:20px; border:1px solid #ddd;" onkeypress="if(event.key==='Enter')sendComment('${postId}')">
-                        <button onclick="sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold;">${ui.publish}</button>
+                    <div class="comment-input-wrapper">
+                        <input type="text" id="input-${postId}" placeholder="${ui.input}" onkeypress="if(event.key === 'Enter') { sendComment('${postId}'); }">
+                        <button type="button" onclick="sendComment('${postId}')" style="border:none; background:none; color:#2563eb; font-weight:bold; cursor:pointer;">${ui.publish}</button>
                     </div>
                 </div>
             </div>`;
@@ -825,21 +894,33 @@ function startPostsListener() {
     });
 }
 
-function timeAgo(t) {
-    if (!t) return "الآن";
-    const s = Math.floor((new Date() - t.toDate()) / 1000);
-    if (s < 60) return "الآن";
-    if (s < 3600) return "منذ " + Math.floor(s/60) + " دقيقة";
-    if (s < 86400) return "منذ " + Math.floor(s/3600) + " ساعة";
-    return t.toDate().toLocaleDateString();
+// بعد ما تتأكد إن المستخدم سجل دخول (onAuthStateChanged)
+function listenForNotifications(myId) {
+    const db = getFirestore();
+    const q = query(
+        collection(db, "chats"),
+        where("receiverId", "==", myId), // بيراقب المحادثات اللي أنا مستلمها
+        where("isRead", "==", false)     // وتكون لسه ملقرأتش
+    );
+
+    onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+            // هنا الكود اللي هيتنفذ لما تيجي رسالة
+            alert("لديك رسالة جديدة في الشات!"); 
+            // تقدر تستبدل الـ alert بـ توست (Toast) شيك أو صوت
+            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+            audio.play();
+        }
+    });
 }
 
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
-if (menuBtn && sideNav) {
+const closeBtn = document.getElementById("closeBtn");
+if (menuBtn && sideNav && closeBtn) {
     menuBtn.onclick = (e) => { e.stopPropagation(); sideNav.classList.add("active"); };
-    document.getElementById("closeBtn").onclick = () => sideNav.classList.remove("active");
-    document.addEventListener('click', (e) => { if (!sideNav.contains(e.target) && e.target !== menuBtn) sideNav.classList.remove("active"); });
+    closeBtn.onclick = () => { sideNav.classList.remove("active"); };
+    document.addEventListener('click', (event) => { if (!sideNav.contains(event.target) && event.target !== menuBtn) { sideNav.classList.remove("active"); } });
 }
 </script>
 
