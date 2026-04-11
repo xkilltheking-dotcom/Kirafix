@@ -324,36 +324,38 @@ await setDoc(chatRef, {
         }
     }
 
-function loadMessages(chatId) {
-        const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "desc"), limit(50));
-        onSnapshot(q, (snapshot) => {
-            const chatBox = document.getElementById("chatBox");
-            chatBox.innerHTML = "";
-            snapshot.docs.reverse().forEach(docSnap => {
-                const msg = docSnap.data();
-                
-                // --- الجزء المعدل للوقت ---
-                const dateObj = msg.createdAt ? msg.createdAt.toDate() : new Date();
-                let hours = dateObj.getHours();
-                let minutes = dateObj.getMinutes();
-                const ampm = hours >= 12 ? 'م' : 'ص';
-                hours = hours % 12;
-                hours = hours ? hours : 12; // الساعة 0 نخليها 12
-                minutes = minutes < 10 ? '0' + minutes : minutes;
-                const timeStr = `${hours}:${minutes} ${ampm}`;
-                // -------------------------
+async function loadMessages(chatId) {
+    const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "desc"), limit(50));
+    
+    onSnapshot(q, async (snapshot) => {
+        const chatBox = document.getElementById("chatBox");
+        chatBox.innerHTML = "";
 
-                const div = document.createElement("div");
-                div.className = `msg-wrapper ${msg.senderId === currentUser.uid ? 'mine' : 'theirs'}`;
-                div.innerHTML = `<div class="msg-bubble">${msg.text}<span class="msg-time">${timeStr}</span></div>`;
-                chatBox.appendChild(div);
-            });
-            // أول ما يفتح الشات مع الشخص
-const chatRef = doc(db, "chats", chatId);
-await updateDoc(chatRef, { isRead: true });
-            chatBox.scrollTop = chatBox.scrollHeight;
+        snapshot.docs.reverse().forEach(docSnap => {
+            const msg = docSnap.data();
+
+            const dateObj = msg.createdAt ? msg.createdAt.toDate() : new Date();
+            let hours = dateObj.getHours();
+            let minutes = dateObj.getMinutes();
+            const ampm = hours >= 12 ? 'م' : 'ص';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            const timeStr = `${hours}:${minutes} ${ampm}`;
+
+            const div = document.createElement("div");
+            div.className = `msg-wrapper ${msg.senderId === currentUser.uid ? 'mine' : 'theirs'}`;
+            div.innerHTML = `<div class="msg-bubble">${msg.text}<span class="msg-time">${timeStr}</span></div>`;
+            chatBox.appendChild(div);
         });
-    }
+
+        // 👇 ده كان سبب المشكلة
+        const chatRef = doc(db, "chats", chatId);
+        await updateDoc(chatRef, { isRead: true });
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+}
 </script>
 </body>
 </html>
