@@ -448,6 +448,7 @@ function formatCoins(num) {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     return num;
+}   
 }    
 
 const firebaseConfig = {
@@ -470,6 +471,7 @@ let currentUserData = null;
 function getBadgeHTML(badgeId) {
     if (!badgeId || badgeId === "none") return "";
 
+    // التعديل هنا للرتب الخاصة اللي طلبتها
     if (badgeId === 'admin') {
         return `<span class="user-badge" style="background: #ef4444; color: #fff; padding: 2px 8px;">ADMIN 🛡️</span>`;
     }
@@ -488,6 +490,7 @@ function getBadgeHTML(badgeId) {
         ">Editor⚒️</span>`;
     }
 
+    // الرتب التانية اللي موجودة في الـ switch القديم عندك
     let style = "";
     let label = badgeId;
     switch(badgeId) {
@@ -574,12 +577,14 @@ function loadCommentsRealtime(postId) {
             const nameStyle = getStyleForName(c.userColor);
             list.innerHTML += `
                 <div class="comment-item">
+                    <img src="${c.userImage}">
                     <a href="chat.html?id=${c.uid}" style="text-decoration:none;">
                        <img src="${c.userImage}">
                     </a>
                     <div class="comment-bubble">
                         <div style="display:flex; align-items:center;">
                             ${getBadgeHTML(c.userBadge)}
+                            <div ${nameStyle} style="font-size:11px;">${c.userName}</div>
                             <a href="chat.html?id=${c.uid}" style="text-decoration:none;">
                                <div ${nameStyle} style="font-size:11px;">${c.userName}</div>
                             </a>
@@ -751,6 +756,7 @@ document.getElementById("se").onclick = async () => {
 
                 if (fileType === 'image') {
                     formData.append("file", selectedFile);
+                    formData.append("upload_preset", "kirafix_posts"); // تأكد من استخدامه للصور أيضاً أو API key
                     formData.append("upload_preset", "kirafix_posts"); 
                     xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
                 } else if (fileType === 'video') {
@@ -767,6 +773,7 @@ document.getElementById("se").onclick = async () => {
                     try {
                         const res = JSON.parse(xhr.responseText);
                         if (xhr.status >= 200 && xhr.status < 300) {
+                            // التحقق من مكان الروابط في كل منصة
                             const finalUrl = res.secure_url || (res.data ? res.data.url : null);
                             if (finalUrl) resolve(finalUrl);
                             else reject(new Error("لم يتم العثور على رابط الملف"));
@@ -848,12 +855,14 @@ function startPostsListener() {
             <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
                 <div style="padding:15px;">
                     <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                         <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
                            <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                         </a>
                         <div class="user-info">
                             <div style="display:flex; align-items:center;">
                                 ${getBadgeHTML(post.uid === currentUid ? currentUserData?.activeBadge : post.userBadge)}
+                                <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
                                 <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
                                    <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
                                 </a>
@@ -890,27 +899,6 @@ function startPostsListener() {
             container.appendChild(postNode);
             viewObserver.observe(postNode);
         });
-    });
-}
-    import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
-// بعد ما تتأكد إن المستخدم سجل دخول (onAuthStateChanged)
-function listenForNotifications(myId) {
-    const db = getFirestore();
-    const q = query(
-        collection(db, "chats"),
-        where("receiverId", "==", myId), // بيراقب المحادثات اللي أنا مستلمها
-        where("isRead", "==", false)     // وتكون لسه ملقرأتش
-    );
-
-    onSnapshot(q, (snapshot) => {
-        if (!snapshot.empty) {
-            // هنا الكود اللي هيتنفذ لما تيجي رسالة
-            alert("لديك رسالة جديدة في الشات!"); 
-            // تقدر تستبدل الـ alert بـ توست (Toast) شيك أو صوت
-            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
-            audio.play();
-        }
     });
 }
 
