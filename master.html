@@ -611,11 +611,15 @@ function applyMainLanguage(lang) {
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
+// --- التعامل مع الدخول وشاشة التحميل ---
 onAuthStateChanged(auth, async (user) => {
+    const loader = document.getElementById("loadingScreen");
     if (!user) { window.location.href = "index.html"; return; }
-    const userDocRef = doc(db, "users", user.uid);
+
     try {
+        const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
+        
         if (userDoc.exists()) {
             currentUserData = userDoc.data();
             const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
@@ -643,16 +647,21 @@ onAuthStateChanged(auth, async (user) => {
                 }
             });
         }
-    } catch (error) { console.error("Auth Error:", error); }
+    } catch (error) { 
+        console.error("Auth Error:", error); 
+    } finally {
+        // ضمان إغلاق شاشة التحميل في كل الحالات
+        setTimeout(() => {
+            if(loader) { 
+                loader.style.opacity = "0"; 
+                setTimeout(() => loader.style.display = "none", 600); 
+            }
+        }, 1200);
+    }
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
     applyMainLanguage(localStorage.getItem('kirafix-lang') || 'ar');
-
-    setTimeout(() => {
-        const loader = document.getElementById("loadingScreen");
-        if(loader) { loader.style.opacity = "0"; setTimeout(() => loader.style.display = "none", 600); }
-    }, 1500); 
 });
 
 document.getElementById("but").onclick = () => {
@@ -765,7 +774,7 @@ function startPostsListener() {
                     <a href="chat.html?id=${post.uid}">
                         <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                     </a>
-                    <div class="user-info">
+                    <div class="user-info" style="display:flex; flex-direction:column; justify-content:center;">
                         <div style="display:flex; align-items:center; gap:5px;">
                             ${getBadgeHTML(post.uid === currentUid ? currentUserData?.activeBadge : post.userBadge)}
                             <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
