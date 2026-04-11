@@ -448,8 +448,8 @@ function formatCoins(num) {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     return num;
-}   
-}    
+}
+// احذف القوس اللي كان هنا   
 
 const firebaseConfig = {
     apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -754,10 +754,9 @@ document.getElementById("se").onclick = async () => {
                 const xhr = new XMLHttpRequest();
                 const formData = new FormData();
 
-                if (fileType === 'image') {
+          if (fileType === 'image') {
                     formData.append("file", selectedFile);
-                    formData.append("upload_preset", "kirafix_posts"); // تأكد من استخدامه للصور أيضاً أو API key
-                    formData.append("upload_preset", "kirafix_posts"); 
+                    formData.append("upload_preset", "kirafix_posts"); // تأكد من استخدامه للصور أيضاً أو API key 
                     xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
                 } else if (fileType === 'video') {
                     formData.append("file", selectedFile);
