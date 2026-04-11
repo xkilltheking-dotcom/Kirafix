@@ -435,7 +435,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
 
 // --- إعدادات الرفع الخارجية ---
@@ -448,7 +448,7 @@ function formatCoins(num) {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     return num;
-}
+}    
 
 const firebaseConfig = {
     apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -504,7 +504,11 @@ async function addKiraCoins(amount) {
     if (!auth.currentUser) return;
     const userRef = doc(db, "users", auth.currentUser.uid);
     try {
-        await updateDoc(userRef, { coins: increment(amount) });
+        const userDoc = await getDoc(userRef);
+        let currentCoins = userDoc.data()?.coins || 0;
+        let newAmount = amount;
+        if (currentCoins + amount < 0) newAmount = -currentCoins; 
+        await updateDoc(userRef, { coins: increment(newAmount) });
     } catch (e) { console.error("Error updating coins:", e); }
 }
 
@@ -545,18 +549,18 @@ function loadCommentsRealtime(postId) {
             const c = d.data();
             const nameStyle = getStyleForName(c.userColor);
             list.innerHTML += `
-                <div class="comment-item" style="display:flex; gap:10px; margin-bottom:10px;">
-                    <a href="chat.html?id=${c.uid}">
-                        <img src="${c.userImage}" style="width:35px; height:35px; border-radius:50%; object-fit:cover;">
+                <div class="comment-item">
+                    <a href="chat.html?id=${c.uid}" style="text-decoration:none;">
+                       <img src="${c.userImage}">
                     </a>
                     <div class="comment-bubble">
-                        <div style="display:flex; align-items:center; gap:5px;">
+                        <div style="display:flex; align-items:center;">
                             ${getBadgeHTML(c.userBadge)}
                             <a href="chat.html?id=${c.uid}" style="text-decoration:none;">
-                                <div ${nameStyle} style="font-size:11px;">${c.userName}</div>
+                               <div ${nameStyle} style="font-size:11px;">${c.userName}</div>
                             </a>
                         </div>
-                        <div style="font-size:13px; margin-top:3px;">${c.text}</div>
+                        <div>${c.text}</div>
                     </div>
                 </div>`;
         });
@@ -611,15 +615,25 @@ function applyMainLanguage(lang) {
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
-// --- التعامل مع الدخول وشاشة التحميل ---
-onAuthStateChanged(auth, async (user) => {
-    const loader = document.getElementById("loadingScreen");
-    if (!user) { window.location.href = "index.html"; return; }
+function listenForNotifications(myId) {
+    const q = query(collection(db, "chats"), where("receiverId", "==", myId), where("isRead", "==", false));
+    onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+            audio.play().catch(e => console.log("Audio play blocked"));
+        }
+    });
+}
 
+onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "index.html"; return; }
+    
+    // بدء مراقبة الإشعارات
+    listenForNotifications(user.uid);
+
+    const userDocRef = doc(db, "users", user.uid);
     try {
-        const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
-        
         if (userDoc.exists()) {
             currentUserData = userDoc.data();
             const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
@@ -647,21 +661,19 @@ onAuthStateChanged(auth, async (user) => {
                 }
             });
         }
-    } catch (error) { 
-        console.error("Auth Error:", error); 
-    } finally {
-        // ضمان إغلاق شاشة التحميل في كل الحالات
-        setTimeout(() => {
-            if(loader) { 
-                loader.style.opacity = "0"; 
-                setTimeout(() => loader.style.display = "none", 600); 
-            }
-        }, 1200);
-    }
+    } catch (error) { console.error("Firebase Error:", error); }
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
     applyMainLanguage(localStorage.getItem('kirafix-lang') || 'ar');
+
+    setTimeout(() => {
+        const loader = document.getElementById("loadingScreen");
+        if(loader) { 
+            loader.style.opacity = "0"; 
+            setTimeout(() => loader.style.display = "none", 600); 
+        }
+    }, 1500); 
 });
 
 document.getElementById("but").onclick = () => {
@@ -679,9 +691,10 @@ let selectedFile = null;
 let fileType = null;
 
 function updateProgressBar(percent) {
+    const container = document.getElementById("uploadProgressContainer");
     const bar = document.getElementById("uploadProgressBar");
-    if (bar) {
-        document.getElementById("uploadProgressContainer").style.display = "block";
+    if (container && bar) {
+        container.style.display = "block";
         bar.style.width = percent + "%";
     }
 }
@@ -691,7 +704,7 @@ imgInput.onchange = (e) => {
     fileType = 'image';
     if(selectedFile) {
         mediaPreview.style.display = "block";
-        mediaPreview.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" style="width:100%; border-radius:10px;"><div id="uploadProgressContainer" class="upload-progress-container" style="display:none;"><div id="uploadProgressBar" class="upload-progress-bar"></div></div>`;
+        mediaPreview.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" style="width:100%; border-radius:10px;"><div id="uploadProgressContainer" class="upload-progress-container"><div id="uploadProgressBar" class="upload-progress-bar"></div></div>`;
     }
 };
 
@@ -700,14 +713,14 @@ videoInput.onchange = (e) => {
     fileType = 'video';
     if(selectedFile) {
         mediaPreview.style.display = "block";
-        mediaPreview.innerHTML = `<video src="${URL.createObjectURL(selectedFile)}" controls style="width:100%; border-radius:10px;"></video><div id="uploadProgressContainer" class="upload-progress-container" style="display:none;"><div id="uploadProgressBar" class="upload-progress-bar"></div></div>`;
+        mediaPreview.innerHTML = `<video src="${URL.createObjectURL(selectedFile)}" controls style="width:100%; border-radius:10px;"></video><div id="uploadProgressContainer" class="upload-progress-container"><div id="uploadProgressBar" class="upload-progress-bar"></div></div>`;
     }
 };
 
 document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
-    if (!text && !selectedFile) return;
+    if (!text && !selectedFile) { alert("اكتب حاجة أو اختار ميديا!"); return; }
     btn.disabled = true; btn.innerText = "...";
 
     let fileUrl = null;
@@ -717,7 +730,8 @@ document.getElementById("se").onclick = async () => {
                 const xhr = new XMLHttpRequest();
                 const formData = new FormData();
                 if (fileType === 'image') {
-                    formData.append("image", selectedFile);
+                    formData.append("file", selectedFile);
+                    formData.append("upload_preset", "kirafix_posts"); 
                     xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
                 } else {
                     formData.append("file", selectedFile);
@@ -727,9 +741,10 @@ document.getElementById("se").onclick = async () => {
                 xhr.upload.onprogress = (e) => { if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100); };
                 xhr.onload = () => {
                     const res = JSON.parse(xhr.responseText);
-                    const url = res.secure_url || (res.data ? res.data.url : null);
-                    url ? resolve(url) : reject("Upload Failed");
+                    const finalUrl = res.secure_url || (res.data ? res.data.url : null);
+                    finalUrl ? resolve(finalUrl) : reject(new Error("Upload Failed"));
                 };
+                xhr.onerror = () => reject(new Error("Network Error"));
                 xhr.send(formData);
             });
         }
@@ -746,10 +761,10 @@ document.getElementById("se").onclick = async () => {
         });
         await addKiraCoins(7);
         document.getElementById("tex").value = "";
-        mediaPreview.style.display = "none";
+        mediaPreview.innerHTML = ""; mediaPreview.style.display = "none";
         selectedFile = null; btn.disabled = false; btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
-    } catch (e) { alert(e); btn.disabled = false; }
+    } catch (e) { alert("مشكلة في النشر: " + e.message); btn.disabled = false; btn.innerText = "نشر"; }
 };
 
 function startPostsListener() {
@@ -762,26 +777,24 @@ function startPostsListener() {
             const postId = docSnap.id;
             const currentUid = auth.currentUser?.uid;
             const hasLiked = (post.likes || []).includes(currentUid);
-            const ui = (localStorage.getItem('kirafix-lang') === 'en') ? 
-                { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Comment...', publish: 'Post' } :
-                { like: 'إعجاب', liked: 'تم الإعجاب', comment: 'تعليق', views: 'مشاهدة', comments: 'تعليق', input: 'اكتب تعليقاً...', publish: 'نشر' };
+            const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
+            const ui = {
+                ar: { like: 'إعجاب', liked: 'تم الإعجاب', comment: 'تعليق', views: 'مشاهدة', comments: 'تعليق', input: 'اكتب تعليقاً...', publish: 'نشر' },
+                en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
+            }[currentLang];
 
             const nameStyle = getStyleForName(post.uid === currentUid ? currentUserData?.activeColor : post.userColor);
 
             const postHTML = `
             <div class="post" data-id="${postId}" data-views='${JSON.stringify(post.views || [])}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden; padding:15px;">
                 <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <a href="chat.html?id=${post.uid}">
-                        <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
-                    </a>
-                    <div class="user-info" style="display:flex; flex-direction:column; justify-content:center;">
-                        <div style="display:flex; align-items:center; gap:5px;">
+                    <a href="chat.html?id=${post.uid}"><img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;"></a>
+                    <div class="user-info">
+                        <div style="display:flex; align-items:center;">
                             ${getBadgeHTML(post.uid === currentUid ? currentUserData?.activeBadge : post.userBadge)}
-                            <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
-                                <div class="username" ${nameStyle}>${post.userName || "User"}</div>
-                            </a>
+                            <a href="chat.html?id=${post.uid}" style="text-decoration:none;"><div class="username" ${nameStyle}>${post.userName || "User"}</div></a>
                         </div>
-                        <div style="font-size:12px; color:gray;">${timeAgo(post.createdAt)}</div>
+                        <div style="font-size:12px;">${timeAgo(post.createdAt)}</div>
                     </div>
                 </div>
                 <div style="margin-bottom:12px;">${post.text || ""}</div>
@@ -794,9 +807,7 @@ function startPostsListener() {
                     <button class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', ${hasLiked})" style="flex:1; background:none; border:none; cursor:pointer; color:${hasLiked?'red':'gray'}">
                         ${hasLiked ? '❤️ ' + ui.liked : '🤍 ' + ui.like}
                     </button>
-                    <button class="action-btn" onclick="toggleComments('${postId}')" style="flex:1; background:none; border:none; cursor:pointer; color:gray;">
-                        💬 ${ui.comment}
-                    </button>
+                    <button class="action-btn" onclick="toggleComments('${postId}')" style="flex:1; background:none; border:none; cursor:pointer; color:gray;">💬 ${ui.comment}</button>
                 </div>
                 <div id="comments-${postId}" style="display:none; margin-top:15px;">
                     <div id="list-${postId}"></div>
@@ -814,21 +825,21 @@ function startPostsListener() {
     });
 }
 
+function timeAgo(t) {
+    if (!t) return "الآن";
+    const s = Math.floor((new Date() - t.toDate()) / 1000);
+    if (s < 60) return "الآن";
+    if (s < 3600) return "منذ " + Math.floor(s/60) + " دقيقة";
+    if (s < 86400) return "منذ " + Math.floor(s/3600) + " ساعة";
+    return t.toDate().toLocaleDateString();
+}
+
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
 if (menuBtn && sideNav) {
     menuBtn.onclick = (e) => { e.stopPropagation(); sideNav.classList.add("active"); };
     document.getElementById("closeBtn").onclick = () => sideNav.classList.remove("active");
     document.addEventListener('click', (e) => { if (!sideNav.contains(e.target) && e.target !== menuBtn) sideNav.classList.remove("active"); });
-}
-
-function timeAgo(t) {
-    if (!t) return "...";
-    const s = Math.floor((new Date() - t.toDate()) / 1000);
-    if (s < 60) return "الآن";
-    if (s < 3600) return "منذ " + Math.floor(s/60) + " دقيقة";
-    if (s < 86400) return "منذ " + Math.floor(s/3600) + " ساعة";
-    return t.toDate().toLocaleDateString();
 }
 </script>
 
