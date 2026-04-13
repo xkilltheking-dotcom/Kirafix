@@ -765,13 +765,15 @@ fileUrl = await new Promise((resolve, reject) => {
     if (fileType === 'image') {
         formData.append("image", selectedFile); 
         xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
-    } else if (fileType === 'video') {
-        // --- تعديل Cloudinary المهم هنا ---
-        formData.append("file", selectedFile);
-        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-        // تأكد من إضافة resource_type لو حصلت مشاكل، لكن العنوان ده هو الأدق للفيديو:
-        xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`);
-    }
+} else if (fileType === 'video') {
+    formData.append("file", selectedFile);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    // إضافة النوع للتأكيد
+    formData.append("resource_type", "video"); 
+    
+    // استخدام الرابط العام للرفع (auto) عشان Cloudinary يقرر هو هيعمل إيه
+    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`);
+}
 
     xhr.upload.onprogress = (e) => {
         if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100);
