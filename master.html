@@ -758,38 +758,42 @@ document.getElementById("se").onclick = async () => {
     try {
         // 3. رفع الملف لو موجود
         if (selectedFile) {
-            fileUrl = await new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                const formData = new FormData();
+fileUrl = await new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const formData = new FormData();
 
-                if (fileType === 'image') {
-                    formData.append("image", selectedFile); 
-                    xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
-                } else if (fileType === 'video') {
-                    formData.append("file", selectedFile);
-                    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-                    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`);
-                }
+    if (fileType === 'image') {
+        formData.append("image", selectedFile); 
+        xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
+    } else if (fileType === 'video') {
+        // --- تعديل Cloudinary المهم هنا ---
+        formData.append("file", selectedFile);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        // تأكد من إضافة resource_type لو حصلت مشاكل، لكن العنوان ده هو الأدق للفيديو:
+        xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`);
+    }
 
-                xhr.upload.onprogress = (e) => {
-                    if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100);
-                };
+    xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100);
+    };
 
-                xhr.onload = () => {
-                    try {
-                        const res = JSON.parse(xhr.responseText);
-                        if (xhr.status >= 200 && xhr.status < 300) {
-                            const finalUrl = res.data ? res.data.url : res.secure_url;
-                            if (finalUrl) resolve(finalUrl);
-                            else reject(new Error("الرابط غير موجود"));
-                        } else {
-                            reject(new Error(res.error?.message || "فشل الرفع"));
-                        }
-                    } catch(e) { reject(new Error("رد غير صالح")); }
-                };
-                xhr.onerror = () => reject(new Error("مشكلة في الشبكة"));
-                xhr.send(formData);
-            });
+    xhr.onload = () => {
+        const res = JSON.parse(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 300) {
+            // Cloudinary بيرجع الرابط في secure_url أو url مباشرة
+            const finalUrl = res.secure_url || res.url || (res.data ? res.data.url : null);
+            if (finalUrl) resolve(finalUrl);
+            else reject(new Error("الرابط غير موجود في رد السيرفر"));
+        } else {
+            // هيطبع لك السبب الحقيقي للمشكلة في الـ Alert
+            console.error("Cloudinary Error Details:", res);
+            reject(new Error(res.error?.message || "فشل رفع الفيديو"));
+        }
+    };
+    
+    xhr.onerror = () => reject(new Error("مشكلة في اتصال الشبكة"));
+    xhr.send(formData);
+});
         }
 
         // 4. حفظ المنشور في Firestore
