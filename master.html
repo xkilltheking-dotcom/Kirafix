@@ -375,6 +375,25 @@
             vertical-align: middle;
             text-transform: uppercase;
         }
+        .msg-count-badge {
+    background-color: #ef4444; /* أحمر تنبيه */
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 50%;
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    display: none; /* مخفي لو مفيش رسائل */
+    border: 2px solid white;
+}
+
+/* لو حاطط أيقونة الشات في navbar */
+.nav-item {
+    position: relative;
+    display: inline-block;
+}
     </style>
 </head>
 <body>
@@ -451,7 +470,10 @@
 
     <div id="postsContainer"></div>
 
-    <a href="chat.html" class="chat-toggle">➤</a>
+    <a href="chat.html" class="nav-item">
+    💬 الدردشة
+    <span id="globalMsgCount" class="msg-count-badge">0</span>
+</a>
 </section>
 
 <script type="module">
@@ -951,6 +973,45 @@ function listenForNotifications(myId) {
         }
     });
 }
+    function listenForGlobalUnreadMessages(myId) {
+    const q = query(
+        collection(db, "chats"),
+        where("users", "array-contains", myId)
+    );
+
+    onSnapshot(q, (snapshot) => {
+        let unreadTotal = 0;
+
+        snapshot.forEach((chatDoc) => {
+            const data = chatDoc.data();
+            // بنعد بس لو آخر رسالة مش أنا اللي باعتها وهي لسه مقروءة
+            if (data.isRead === false && data.lastSenderId !== myId) {
+                unreadTotal++;
+            }
+        });
+
+        const badge = document.getElementById("globalMsgCount");
+        if (badge) {
+            if (unreadTotal > 0) {
+                badge.textContent = unreadTotal > 9 ? "+9" : unreadTotal;
+                badge.style.display = "block";
+                
+                // حركة اختيارية: تشغيل صوت خفيف لو فيه رسالة جديدة وصلت وأنت في الماستر
+                // let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+                // audio.play();
+            } else {
+                badge.style.display = "none";
+            }
+        }
+    });
+}
+
+// استدعاء الدالة جوه مراقب الحالة
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        listenForGlobalUnreadMessages(user.uid);
+    }
+});
 
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
