@@ -127,27 +127,7 @@
             padding: 12px 20px; outline: none; resize: none; font-size: 16px;
         }
         .media-preview { margin: 10px 0; display: none; }
-        /* تنسيق الصور داخل البوستات لجعلها متناسقة */
-.media-preview img, 
-#postsContainer img { 
-    width: 100%;             /* تأخذ العرض الكامل للحاوية */
-    max-height: 390px;       /* أقصى طول مسموح به للصورة */
-    object-fit: cover;       /* أهم خاصية: تقص الزيادات وتحافظ على تناسق الأبعاد */
-    object-position: center;  /* التركيز يكون على وسط الصورة */
-    border-radius: 10px;     /* حواف ناعمة */
-    display: block;
-    margin: 10px 0;
-    border: 1px solid #f0f0f0; /* إطار خفيف جداً يحدد الصورة */
-}
-
-/* تنسيق الفيديوهات ليكون لها نفس الارتفاع */
-.media-preview video, 
-#postsContainer video {
-    width: 100%;
-    max-height: 450px;
-    border-radius: 10px;
-    background: #000; /* خلفية سوداء للفيديوهات */
-}
+        .media-preview img, .media-preview video { width: 100%; border-radius: 10px; max-height: 300px; object-fit: cover; }
 
         .composer-actions { 
             display: flex; justify-content: space-between; align-items: center; 
@@ -375,25 +355,6 @@
             vertical-align: middle;
             text-transform: uppercase;
         }
-        .msg-count-badge {
-    background-color: #ef4444; /* أحمر تنبيه */
-    color: white;
-    font-size: 11px;
-    font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 50%;
-    position: absolute;
-    top: -5px;
-    right: -10px;
-    display: none; /* مخفي لو مفيش رسائل */
-    border: 2px solid white;
-}
-
-/* لو حاطط أيقونة الشات في navbar */
-.nav-item {
-    position: relative;
-    display: inline-block;
-}
     </style>
 </head>
 <body>
@@ -409,30 +370,42 @@
 <header class="header">
     <div class="right">
         <div id="menuBtn" class="menu-icon">☰</div>
-        <div class="links">
-                    <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
-            <div class="kira-coin">
-                <div class="coin-front">K</div>
+
+        <div id="sideNav" class="side-nav">
+            <div class="close-btn" id="closeBtn">&times;</div>
+
+            <div class="side-nav-coins" onclick="window.location.href='store.html'">
+                <div class="kira-coin" style="width:20px; height:20px;">
+                    <div class="coin-front" style="font-size:12px;">K</div>
+                </div>
+                <span id="user-coins-side">0</span>
             </div>
-            <span id="user-coins">0</span>
+
+            <div class="side-links" style="margin-top: 60px;"> 
+                <a href="#">الرئيسية</a>
+                <a href="profile.html">البروفايل</a>
+                <a href="store.html" id="storeLinkSide">المتجر 🛒</a> <button id="aiBtnSide">✨ اسأل AI</button>
+            </div>
         </div>
+
+        <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" id="ht" style="cursor:pointer;" 
+             onclick="window.location.href='settings.html'">
+        <img src="af80e23deeb127837d30554452546196.jpg" id="navProfilePic">
+
+        <div class="links">
+            <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
+                <div class="kira-coin">
+                    <div class="coin-front">K</div>
+                </div>
+                <span id="user-coins">0</span>
+            </div>
             <a href="#">Home</a>
             <a href="profile.html">Profile</a>
             <a href="store.html">Store</a> 
         </div>
     </div>
-
     <div class="center"><div id="but">+</div></div>
-
-    <div class="left">
-        <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
-            <div class="kira-coin">
-                <div class="coin-front">K</div>
-            </div>
-            <span id="user-coins">0</span>
-        </div>
-        <h2>Kirafix</h2>
-    </div>
+    <div class="left"><h2>Kirafix</h2></div>
 </header>
 
 <section class="section">
@@ -458,10 +431,7 @@
 
     <div id="postsContainer"></div>
 
-    <a href="chat.html" class="nav-item">
-    💬 الدردشة
-    <span id="globalMsgCount" class="msg-count-badge">0</span>
-</a>
+    <a href="chat.html" class="chat-toggle">➤</a>
 </section>
 
 <script type="module">
