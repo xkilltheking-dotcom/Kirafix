@@ -92,6 +92,13 @@
         </div>
         <input type="checkbox" checked>
     </div>
+    <div class="setting-card" style="border: 1px solid #ff4b4b; margin-top: 30px;">
+    <div>
+        <h3 style="color: #ff4b4b;">تسجيل الخروج</h3>
+        <p style="font-size: 12px; color: gray;">سيتم تحويلك لصفحة تسجيل الدخول</p>
+    </div>
+    <button class="toggle-btn" id="logoutBtn" style="background: #ff4b4b; color: white; border: none;">خروج</button>
+</div>
 </div>
 
 <script>
@@ -193,6 +200,15 @@
 
         if (savedDark) document.body.classList.add('dark-mode');
     };
+    const logoutBtn = document.getElementById('logoutBtn');
+
+logoutBtn.onclick = () => {
+    // 1. مسح علامة تسجيل الدخول من المتصفح
+    localStorage.removeItem('isLoggedIn'); 
+    
+    // 2. تحويل المستخدم لصفحة اللوج إن (افترضنا اسمها login.html)
+    window.location.replace('login.html'); 
+};
 </script>
 </body>
 </html>
