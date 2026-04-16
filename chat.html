@@ -162,6 +162,26 @@
             object-fit: cover; 
             margin-left: 12px; 
         }
+    /* نقطة الإشعار الحمراء */
+.unread-badge {
+    width: 10px;
+    height: 10px;
+    background-color: #ef4444; /* لون أحمر */
+    border-radius: 50%;
+    margin-right: auto; /* يخليها تروح أقصى اليسار في العربي */
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+}
+
+/* تمييز المحادثة غير المقروءة بخلفية مختلفة قليلاً */
+.side-chat-item.unread {
+    background-color: #f0f7ff;
+    font-weight: bold;
+}
+
+.side-chat-last.unread-text {
+    color: #2563eb !important;
+    font-weight: bold;
+}
     </style>
 </head>
 <body>
@@ -214,42 +234,49 @@
     const urlParams = new URLSearchParams(window.location.search);
     const receiverId = urlParams.get('id');
 
-    function loadSideChats(myId) {
-        const q = query(
-            collection(db, "chats"),
-            where("users", "array-contains", myId),
-            orderBy("lastUpdate", "desc")
-        );
+function loadSideChats(myId) {
+    const q = query(
+        collection(db, "chats"),
+        where("users", "array-contains", myId),
+        orderBy("lastUpdate", "desc")
+    );
 
-        onSnapshot(q, async (snapshot) => {
-            const sideList = document.getElementById("sideChatsList");
-            sideList.innerHTML = "";
+    onSnapshot(q, async (snapshot) => {
+        const sideList = document.getElementById("sideChatsList");
+        sideList.innerHTML = "";
 
-            for (const chatDoc of snapshot.docs) {
-                const data = chatDoc.data();
-                const otherUserId = data.users.find(id => id !== myId);
-                
-                if (!otherUserId) continue;
+        for (const chatDoc of snapshot.docs) {
+            const data = chatDoc.data();
+            const otherUserId = data.users.find(id => id !== myId);
+            
+            if (!otherUserId) continue;
 
-                const userDoc = await getDoc(doc(db, "users", otherUserId));
-                const userData = userDoc.exists() ? userDoc.data() : { name: "مستخدم مجهول", image: "" };
+            const userDoc = await getDoc(doc(db, "users", otherUserId));
+            const userData = userDoc.exists() ? userDoc.data() : { name: "مستخدم مجهول", image: "" };
 
-                const isCurrent = otherUserId === receiverId;
+            const isCurrent = otherUserId === receiverId;
+            
+            // التحقق: هل أنا المستلم والرسالة لسه مقرتهاش؟
+            const isUnread = data.isRead === false && data.lastSenderId !== myId;
 
-                const chatItem = document.createElement("a");
-                chatItem.href = `chat.html?id=${otherUserId}`;
-                chatItem.className = `side-chat-item ${isCurrent ? 'active' : ''}`;
-                chatItem.innerHTML = `
-                    <img src="${userData.image || 'af80e23deeb127837d30554452546196.jpg'}" class="side-chat-img">
-                    <div class="side-chat-details">
-                        <span class="side-chat-name">${userData.name}</span>
-                        <span class="side-chat-last">${data.lastMessage || "بدء محادثة..."}</span>
-                    </div>
-                `;
-                sideList.appendChild(chatItem);
-            }
-        });
-    }
+            const chatItem = document.createElement("a");
+            chatItem.href = `chat.html?id=${otherUserId}`;
+            
+            // إضافة كلاس unread لو الرسالة جديدة
+            chatItem.className = `side-chat-item ${isCurrent ? 'active' : ''} ${isUnread ? 'unread' : ''}`;
+            
+            chatItem.innerHTML = `
+                <img src="${userData.image || 'af80e23deeb127837d30554452546196.jpg'}" class="side-chat-img">
+                <div class="side-chat-details">
+                    <span class="side-chat-name">${userData.name}</span>
+                    <span class="side-chat-last ${isUnread ? 'unread-text' : ''}">${data.lastMessage || "بدء محادثة..."}</span>
+                </div>
+                ${isUnread ? '<div class="unread-badge"></div>' : ''}
+            `;
+            sideList.appendChild(chatItem);
+        }
+    });
+}
 
     onAuthStateChanged(auth, (user) => {
         if (user && receiverId) { 
