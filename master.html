@@ -764,7 +764,6 @@ document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
 
-    // 1. التحقق من وجود محتوى
     if (!text && !selectedFile) { 
         alert("اكتب حاجة أو اختار ميديا!"); 
         return; 
@@ -773,60 +772,52 @@ document.getElementById("se").onclick = async () => {
     btn.disabled = true; 
     btn.innerText = "...";
 
-    // 2. تجهيز الصورة (الافتراضية أو المرفوعة)
     const userImg = currentUserData?.image || DEFAULT_USER_IMG;
     let fileUrl = null;
 
     try {
-        // 3. رفع الملف لو موجود
         if (selectedFile) {
-fileUrl = await new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    const formData = new FormData();
+            fileUrl = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                const formData = new FormData();
 
-    if (fileType === 'image') {
-        formData.append("image", selectedFile); 
-        xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
-} else if (fileType === 'video') {
-    formData.append("file", selectedFile);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    // إضافة النوع للتأكيد
-    formData.append("resource_type", "video"); 
-    
-    // استخدام الرابط العام للرفع (auto) عشان Cloudinary يقرر هو هيعمل إيه
-    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`);
-}
+                if (fileType === 'image') {
+                    formData.append("image", selectedFile); 
+                    xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
+                } else if (fileType === 'video') {
+                    formData.append("file", selectedFile);
+                    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+                    // التعديل هنا: استخدام endpoint الفيديو المباشر لضمان القبول
+                    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`);
+                }
 
-    xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100);
-    };
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100);
+                };
 
-    xhr.onload = () => {
-        const res = JSON.parse(xhr.responseText);
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Cloudinary بيرجع الرابط في secure_url أو url مباشرة
-            const finalUrl = res.secure_url || res.url || (res.data ? res.data.url : null);
-            if (finalUrl) resolve(finalUrl);
-            else reject(new Error("الرابط غير موجود في رد السيرفر"));
-        } else {
-            // هيطبع لك السبب الحقيقي للمشكلة في الـ Alert
-            console.error("Cloudinary Error Details:", res);
-            reject(new Error(res.error?.message || "فشل رفع الفيديو"));
-        }
-    };
-    
-    xhr.onerror = () => reject(new Error("مشكلة في اتصال الشبكة"));
-    xhr.send(formData);
-});
+                xhr.onload = () => {
+                    const res = JSON.parse(xhr.responseText);
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        const finalUrl = res.secure_url || res.url || (res.data ? res.data.url : null);
+                        if (finalUrl) resolve(finalUrl);
+                        else reject(new Error("الرابط غير موجود في رد السيرفر"));
+                    } else {
+                        console.error("Cloudinary Error Details:", res);
+                        reject(new Error(res.error?.message || "فشل رفع الفيديو"));
+                    }
+                };
+                
+                xhr.onerror = () => reject(new Error("مشكلة في اتصال الشبكة"));
+                xhr.send(formData);
+            });
         }
 
-        // 4. حفظ المنشور في Firestore
         await addDoc(collection(db, "posts"), {
             text: text,
             email: auth.currentUser.email,
             uid: auth.currentUser.uid,
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
-            userImage: userImg, // استخدام الصورة الافتراضية هنا لو مفيش صورة بروفايل
+            userImage: userImg,
             userColor: currentUserData?.activeColor || '#374151', 
             userBadge: currentUserData?.activeBadge || 'none',
             createdAt: serverTimestamp(),
@@ -837,7 +828,6 @@ fileUrl = await new Promise((resolve, reject) => {
             commentsCount: 0
         });
 
-        // 5. تحديث العملات وتنظيف الواجهة
         await addKiraCoins(7); 
         document.getElementById("tex").value = "";
         mediaPreview.innerHTML = ""; 
