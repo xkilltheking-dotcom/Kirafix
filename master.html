@@ -950,6 +950,10 @@ if (menuBtn && sideNav && closeBtn) {
     closeBtn.onclick = () => { sideNav.classList.remove("active"); };
     document.addEventListener('click', (event) => { if (!sideNav.contains(event.target) && event.target !== menuBtn) { sideNav.classList.remove("active"); } });
 }
+    // التأكد من تسجيل الدخول فور تحميل الصفحة
+if (localStorage.getItem('isLoggedIn') !== 'true') {
+    window.location.replace('login.html');
+}
 </script>
 
 </body>
