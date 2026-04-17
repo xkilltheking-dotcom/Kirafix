@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اتصل بنا - Kirafix</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg-page: #f8f9fa;
+            --white: #ffffff;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-page);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .info-content {
+            max-width: 600px;
+            margin: 60px auto;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            border: 1px solid #eef2f6;
+        }
+
+        .info-content h1 {
+            color: var(--text-dark);
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .info-content p {
+            color: var(--text-light);
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .contact-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* ستايل كروت الاتصال */
+        .contact-card {
+            display: flex;
+            align-items: center;
+            background: #f1f5f9;
+            padding: 15px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .contact-card:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .icon-circle {
+            width: 45px;
+            height: 45px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            margin-left: 15px; /* مسافة عشان RTL */
+        }
+
+        .contact-info-text {
+            text-align: right;
+        }
+
+        .contact-info-text strong {
+            display: block;
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+
+        .contact-info-text span {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        /* أزرار السوشيال ميديا */
+        .social-wrapper {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .social-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .fb { background: #1877f2; color: white; }
+        .dc { background: #5865f2; color: white; }
+
+        .social-btn:hover { opacity: 0.8; transform: scale(1.05); }
+
+    </style>
+</head>
+<body>
+
+    <div class="info-content">
+        <h1>اتصل بنا ☎️</h1>
+        <p>يسعدنا دائماً الاستماع إلى مقترحاتكم أو الرد على استفساراتكم لضمان أفضل تجربة بيع وشراء.</p>
+        
+        <div class="contact-methods">
+            <a href="mailto:support@kirafix.com" class="contact-card">
+                <div class="icon-circle">📧</div>
+                <div class="contact-info-text">
+                    <strong>البريد الإلكتروني الرسمي</strong>
+                    <span>support@kirafix.com</span>
+                </div>
+            </a>
+
+            <div class="contact-card">
+                <div class="icon-circle">🛠️</div>
+                <div class="contact-info-text">
+                    <strong>دعم المعلنين</strong>
+                    <span>متاح 24/7 عبر الموقع</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="social-wrapper">
+            <a href="#" class="social-btn fb">Facebook</a>
+            <a href="#" class="social-btn dc">Discord</a>
+        </div>
+    </div>
+
+</body>
+</html>
