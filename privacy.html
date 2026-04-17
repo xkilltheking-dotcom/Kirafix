@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سياسة الخصوصية - Kirafix</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --security-color: #059669; /* أخضر للأمان */
+            --primary-blue: #2563eb;
+            --text-main: #374151;
+            --bg-light: #f3f4f6;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        .info-content {
+            max-width: 750px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+            border-top: 8px solid var(--primary-blue); /* خط جمالي علوي */
+        }
+
+        /* رأس الصفحة */
+        .policy-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .policy-header h1 {
+            color: #111827;
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .policy-header .shield-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* قائمة السياسات */
+        .privacy-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .privacy-list li {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 15px;
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: 0.3s;
+        }
+
+        .privacy-list li:hover {
+            transform: scale(1.01);
+            border-color: var(--primary-blue);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.05);
+        }
+
+        /* أيقونة الصح بجانب كل بند */
+        .privacy-list li::before {
+            content: "🛡️"; /* أيقونة درع أو صح */
+            font-size: 20px;
+        }
+
+        .privacy-list li strong {
+            color: var(--primary-blue);
+            display: block;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        /* تذييل الصفحة */
+        .policy-footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        /* تحسينات الموبايل */
+        @media (max-width: 600px) {
+            .info-content {
+                padding: 20px;
+                margin: 20px auto;
+            }
+            .policy-header h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="info-content">
+        <div class="policy-header">
+            <span class="shield-icon">🔐</span>
+            <h1>سياسة الخصوصية والأمان</h1>
+            <p>في Kirafix، خصوصيتك هي أولويتنا القصوى. نحن نعمل جاهدين لضمان تجربة إعلانية آمنة تماماً.</p>
+        </div>
+
+        <ul class="privacy-list">
+            <li>
+                <div>
+                    <strong>البيانات المعلنة</strong>
+                    أنت المتحكم الأول والأخير؛ يمكنك اختيار إخفاء أو إظهار بيانات التواصل (مثل رقم هاتفك) في تفاصيل الإعلان.
+                </div>
+            </li>
+            <li>
+                <div>
+                    <strong>التواصل الآمن</strong>
+                    نظام الدردشة داخل Kirafix مشفر تماماً، مما يضمن سرية المفاوضات والاتفاقات بين البائع والمشتري بعيداً عن المتطفلين.
+                </div>
+            </li>
+            <li>
+                <div>
+                    <strong>حماية البيانات</strong>
+                    نحن ملتزمون بعدم بيع أو مشاركة بياناتك الشخصية مع شركات الإعلانات الخارجية. بياناتك تُستخدم فقط لتسهيل عمليات البيع والشراء داخل المنصة.
+                </div>
+            </li>
+            <li>
+                <div>
+                    <strong>نظام العملات (Kira Coins)</strong>
+                    عملياتك المالية داخل الموقع لاستخدام ميزات الإعلانات محمية بأنظمة أمان متطورة لضمان حقك.
+                </div>
+            </li>
+        </ul>
+
+        <div class="policy-footer">
+            آخر تحديث: أبريل 2026 <br>
+            جميع الحقوق محفوظة لمنصة Kirafix
+        </div>
+    </div>
+
+</body>
+</html>
