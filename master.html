@@ -990,7 +990,30 @@ if (menuBtn && sideNav && closeBtn) {
     closeBtn.onclick = () => { sideNav.classList.remove("active"); };
     document.addEventListener('click', (event) => { if (!sideNav.contains(event.target) && event.target !== menuBtn) { sideNav.classList.remove("active"); } });
 }
+// ===== SPA Router =====
+const routes = {
+    "/": renderHome,
+    "/about": renderAbout,
+    "/contact": renderContact,
+    "/profile": renderProfile,
+    "/store": renderStore
+};
 
+function navigateTo(url) {
+    history.pushState(null, null, url);
+    router();
+}
+
+function router() {
+    const path = window.location.pathname;
+    const app = document.getElementById("app");
+
+    if (routes[path]) {
+        routes[path]();
+    } else {
+        app.innerHTML = "<h1>404 Not Found</h1>";
+    }
+}
 </script>
 </div>
 </body>
