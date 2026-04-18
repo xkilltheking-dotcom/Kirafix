@@ -4,85 +4,385 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kirafix - Home</title>
-    <link rel="icon" type="image/png" sizes="192x192" href="./favicon_fixed.png?v=2.0">
-    <link rel="apple-touch-icon" href="./favicon_fixed.png?v=2.0">
+ <link rel="icon" type="image/png" sizes="192x192" href="./favicon_fixed.png?v=2.0">
+<link rel="apple-touch-icon" href="./favicon_fixed.png?v=2.0">
     <link rel="stylesheet" href="style.css?v=2">
     <style>
-        /* [إبقاء كل الستايبل القديم كما هو بدون تغيير] */
-        #loadingScreen {
-            position: fixed; width: 100%; height: 100%; background: #0f172a;
-            top: 0; left: 0; z-index: 9999; display: flex;
-            flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .loader-wrapper { position: relative; width: 120px; height: 120px; display: flex; justify-content: center; align-items: center; }
-        .main-glow-circle {
-            width: 80px; height: 80px; background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
-            border-radius: 50%; display: flex; justify-content: center; align-items: center;
-            font-size: 35px; color: #fff; font-weight: 900; box-shadow: 0 0 30px rgba(218, 165, 32, 0.5);
-            z-index: 2; animation: pulseGold 2s infinite ease-in-out;
-        }
-        .loader-ring { position: absolute; border: 2px solid transparent; border-top-color: #ffd700; border-radius: 50%; animation: spinRing 1.5s linear infinite; }
-        .loader-ring.one { width: 110px; height: 110px; border-top-color: #ffd700; opacity: 0.7; }
-        .loader-ring.two { width: 130px; height: 130px; border-bottom-color: #b8860b; animation-duration: 2s; animation-direction: reverse; opacity: 0.4; }
-        .loading-text-final { margin-top: 40px; font-family: 'Segoe UI', sans-serif; letter-spacing: 4px; font-size: 14px; text-transform: uppercase; color: #ffd700; font-weight: 300; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); animation: fadeText 1.5s infinite alternate; }
-        @keyframes spinRing { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulseGold { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(218, 165, 32, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(218, 165, 32, 0.7); } }
-        @keyframes fadeText { from { opacity: 0.3; } to { opacity: 1; } }
-        #loadingScreen::after { content: ""; position: absolute; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%); z-index: 1; }
+/* شاشة التحميل الفخمة الجديدة */
+#loadingScreen {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #0f172a; /* خلفية كحلي غامق جداً تليق بالفخامة */
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-        .composer { background: white; border-radius: 15px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; }
+/* حاوية اللوجو والأنيميشن */
+.loader-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* الدائرة الأساسية (العملة الذهبية) */
+.main-glow-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 35px;
+    color: #fff;
+    font-weight: 900;
+    box-shadow: 0 0 30px rgba(218, 165, 32, 0.5);
+    z-index: 2;
+    animation: pulseGold 2s infinite ease-in-out;
+}
+
+/* الحلقات الخارجية المضيئة */
+.loader-ring {
+    position: absolute;
+    border: 2px solid transparent;
+    border-top-color: #ffd700;
+    border-radius: 50%;
+    animation: spinRing 1.5s linear infinite;
+}
+
+.loader-ring.one {
+    width: 110px;
+    height: 110px;
+    border-top-color: #ffd700;
+    opacity: 0.7;
+}
+
+.loader-ring.two {
+    width: 130px;
+    height: 130px;
+    border-bottom-color: #b8860b;
+    animation-duration: 2s;
+    animation-direction: reverse;
+    opacity: 0.4;
+}
+
+/* نص التحميل الشيك */
+.loading-text-final {
+    margin-top: 40px;
+    font-family: 'Segoe UI', sans-serif;
+    letter-spacing: 4px;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #ffd700;
+    font-weight: 300;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    animation: fadeText 1.5s infinite alternate;
+}
+
+/* الأنيميشن */
+@keyframes spinRing {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulseGold {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(218, 165, 32, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(218, 165, 32, 0.7); }
+}
+
+@keyframes fadeText {
+    from { opacity: 0.3; }
+    to { opacity: 1; }
+}
+
+/* إضافة لمسة فنية للخلفية */
+#loadingScreen::after {
+    content: "";
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%);
+    z-index: 1;
+}
+
+        /* ستايل منطقة كتابة البوست الجديد */
+        .composer {
+            background: white; border-radius: 15px; padding: 15px; margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;
+        }
         .composer-header { display: flex; gap: 10px; margin-bottom: 10px; }
         .composer-header img { width: 45px; height: 45px; border-radius: 50%; }
-        #tex { flex: 1; border: none; background: #f3f4f6; border-radius: 20px; padding: 12px 20px; outline: none; resize: none; font-size: 16px; }
+        #tex { 
+            flex: 1; border: none; background: #f3f4f6; border-radius: 20px; 
+            padding: 12px 20px; outline: none; resize: none; font-size: 16px;
+        }
         .media-preview { margin: 10px 0; display: none; }
         .media-preview img, .media-preview video { width: 100%; border-radius: 10px; max-height: 300px; object-fit: cover; }
-        .composer-actions { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid #f3f4f6; }
-        .upload-btns button { background: #f3f4f6; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.3s; }
-        .upload-btns button:hover { background: #e5e7eb; }
-        #se { background: #2563eb; color: white; border: none; padding: 8px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; }
-        .upload-progress-container { width: 100%; background-color: #f3f4f6; border-radius: 20px; margin-top: 10px; display: none; height: 10px; overflow: hidden; border: 1px solid #e5e7eb; }
-        .upload-progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #2563eb, #60a5fa); transition: width 0.2s ease-in-out; }
 
-        .post-stats { display: flex; justify-content: space-between; font-size: 13px; color: #65676b; padding: 8px 5px; border-bottom: 1px solid #f3f4f6; margin-bottom: 8px; }
-        .post-actions { display: flex; justify-content: space-around; padding-top: 5px; }
-        .action-btn { background: none; border: none; color: #65676b; font-weight: bold; cursor: pointer; padding: 8px; flex: 1; transition: 0.2s; border-radius: 5px; }
+        .composer-actions { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding-top: 10px; border-top: 1px solid #f3f4f6; 
+        }
+        .upload-btns button { 
+            background: #f3f4f6; border: none; padding: 8px 15px; border-radius: 20px; 
+            cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.3s;
+        }
+        .upload-btns button:hover { background: #e5e7eb; }
+        #se { 
+            background: #2563eb; color: white; border: none; padding: 8px 25px; 
+            border-radius: 20px; font-weight: bold; cursor: pointer;
+        }
+        .upload-progress-container {
+    width: 100%;
+    background-color: #f3f4f6;
+    border-radius: 20px;
+    margin-top: 10px;
+    display: none; 
+    height: 10px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+.upload-progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #2563eb, #60a5fa);
+    transition: width 0.2s ease-in-out;
+}
+
+        /* تنسيقات التفاعلات الجديدة */
+        .post-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #65676b;
+            padding: 8px 5px;
+            border-bottom: 1px solid #f3f4f6;
+            margin-bottom: 8px;
+        }
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 5px;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            color: #65676b;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 8px;
+            flex: 1;
+            transition: 0.2s;
+            border-radius: 5px;
+        }
         .action-btn:hover { background: #f3f4f6; }
         .action-btn.liked { color: #2563eb; }
 
-        .comments-section { display: none; background: #f0f2f5; border-top: 1px solid #e5e7eb; padding: 10px; border-radius: 0 0 12px 12px; }
+        /* ستايل التعليقات المدمجة مع دعم الدارك مود */
+        .comments-section {
+            display: none;
+            background: #f0f2f5;
+            border-top: 1px solid #e5e7eb;
+            padding: 10px;
+            border-radius: 0 0 12px 12px;
+        }
         body.dark-mode .comments-section { background: #1c1e21; border-top-color: #3e4042; }
+
         .comment-item { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
         .comment-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
-        .comment-bubble { background: #ffffff; padding: 8px 12px; border-radius: 18px; font-size: 13px; flex: 1; color: #1c1e21; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        body.dark-mode .comment-bubble { background: #3a3b3c; color: #e4e6eb; }
+
+        .comment-bubble { 
+            background: #ffffff; 
+            padding: 8px 12px; 
+            border-radius: 18px; 
+            font-size: 13px; 
+            flex: 1; 
+            color: #1c1e21; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode .comment-bubble { 
+            background: #3a3b3c; 
+            color: #e4e6eb; 
+        }
+
         .comment-input-wrapper { display: flex; gap: 8px; margin-top: 10px; padding: 5px; }
-        .comment-input-wrapper input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 15px; font-size: 13px; outline: none; background: white; }
+        .comment-input-wrapper input { 
+            flex: 1; border: 1px solid #ddd; border-radius: 20px; 
+            padding: 8px 15px; font-size: 13px; outline: none; background: white;
+        }
         body.dark-mode .comment-input-wrapper input { background: #111827; border-color: #4b5563; color: white; }
 
-        .coin-container { display: flex; align-items: center; background: rgba(255, 215, 0, 0.1); padding: 4px 12px; border-radius: 15px; gap: 6px; border: 1px solid #ffd700; cursor: pointer; transition: 0.3s; margin-right: 10px; }
-        .coin-container:hover { background: rgba(255, 215, 0, 0.2); transform: scale(1.05); }
-        #user-coins { color: #ffd700; font-weight: bold; font-size: 14px; }
-        .kira-coin { width: 18px; height: 18px; background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.3); border: 1px solid #8b6508; animation: rotateCoin 3s infinite linear; }
-        .coin-front { color: #5d4300; font-family: 'Arial Black', sans-serif; font-size: 10px; font-weight: 900; }
-        @keyframes rotateCoin { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
-
-        .mobile-only { display: none !important; }
-        .desktop-only { display: flex; }
-        @media (max-width: 767px) {
-            .desktop-only { display: none !important; }
-            .mobile-only { display: flex !important; }
-            .floating-coins { position: fixed; bottom: 90px; right: 20px; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); padding: 6px 12px; border-radius: 30px; border: 2px solid #ffd700; align-items: center; gap: 8px; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); cursor: pointer; }
+        /* تصميم حاوية العملة في الهيدر */
+        .coin-container {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 4px 12px;
+            border-radius: 15px;
+            gap: 6px;
+            border: 1px solid #ffd700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-right: 10px; /* مسافة بسيطة داخل قائمة الـ links */
         }
-        .side-nav-coins { display: flex; align-items: center; gap: 8px; padding: 10px 15px; background: rgba(255, 215, 0, 0.1); border-radius: 12px; border: 1px solid #ffd700; position: absolute; top: 15px; left: 15px; cursor: pointer; }
-        .side-nav-coins #user-coins-side { color: #ffd700; font-weight: bold; font-size: 16px; }
-        .rainbow-text { background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: rainbowBG 2s linear infinite; display: inline-block; }
-        @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
-        .user-badge { display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; padding: 1px 6px; border-radius: 4px; margin-right: 4px; vertical-align: middle; text-transform: uppercase; }
+        .coin-container:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(1.05);
+        }
 
-        /* ستايل إضافي بسيط للـ SPA */
-        .page-content { animation: fadeIn 0.3s ease-in; padding: 20px; background: white; border-radius: 15px; border: 1px solid #e5e7eb; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        #user-coins {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* تصميم العملة الذهبية المجسمة */
+        .kira-coin {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            border: 1px solid #8b6508;
+            animation: rotateCoin 3s infinite linear;
+        }
+
+        .coin-front {
+            color: #5d4300;
+            font-family: 'Arial Black', sans-serif;
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        @keyframes rotateCoin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        /* الإعدادات الافتراضية (للكمبيوتر) */
+        .mobile-only {
+            display: none !important; 
+        }
+
+        .desktop-only {
+            display: flex; 
+        }
+
+        /* الإعدادات للموبايل (أقل من 768px) */
+        @media (max-width: 767px) {
+            .desktop-only {
+                display: none !important; 
+            }
+
+            .mobile-only {
+                display: flex !important; 
+            }
+
+            .floating-coins {
+                position: fixed;
+                bottom: 90px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(5px);
+                padding: 6px 12px;
+                border-radius: 30px;
+                border: 2px solid #ffd700;
+                align-items: center;
+                gap: 8px;
+                z-index: 1000;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+                cursor: pointer;
+            }
+        }
+
+        /* تنسيق العداد داخل السايد ناف */
+        .side-nav-coins {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 12px;
+            border: 1px solid #ffd700;
+            position: absolute;
+            top: 15px;
+            left: 15px; 
+            cursor: pointer;
+        }
+
+        .side-nav-coins #user-coins-side {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* ستايلات الألوان الخاصة بالأسماء */
+        .rainbow-text {
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbowBG 2s linear infinite;
+            display: inline-block;
+        }
+        @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+
+        /* ستايل الرتب الجديد */
+        .user-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin-right: 4px;
+            vertical-align: middle;
+            text-transform: uppercase;
+        }
+        /* تنسيق الحاوية الأساسية للينكات في الكمبيوتر */
+.links {
+    display: flex;
+    align-items: center; /* سنترة العناصر رأسياً */
+    gap: 20px; /* مسافة ثابتة بين كل عنصر والثاني */
+}
+
+/* تعديل حاوية العملة عشان تمشي مع ستايل اللينكات */
+.coin-container.desktop-only {
+    display: flex !important; /* نأكد إنها ظاهرة في الكمبيوتر */
+    margin-right: 10px;
+    padding: 6px 15px; /* تكبير المساحة شوية عشان تبقى مريحة للعين */
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 215, 0, 0.4);
+}
+
+/* تأثير بسيط عند الوقوف بالماوس على اللينكات */
+.links a {
+    text-decoration: none;
+    color: inherit;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.links a:hover {
+    color: #2563eb; /* تغيير اللون للأزرق عند التحويم */
+}
     </style>
 </head>
 <body>
@@ -98,28 +398,36 @@
 <header class="header">
     <div class="right">
         <div id="menuBtn" class="menu-icon">☰</div>
+
         <div id="sideNav" class="side-nav">
             <div class="close-btn" id="closeBtn">&times;</div>
+
             <div class="side-nav-coins" onclick="window.location.href='store.html'">
                 <div class="kira-coin" style="width:20px; height:20px;">
                     <div class="coin-front" style="font-size:12px;">K</div>
                 </div>
                 <span id="user-coins-side">0</span>
             </div>
-            <div class="side-links" style="margin-top: 60px;"> 
-                <a href="javascript:void(0)" onclick="showPage('home')">الرئيسية</a>
-                <a href="profile.html">البروفايل</a> <a href="store.html" id="storeLinkSide">المتجر 🛒</a> 
-                <button id="aiBtnSide">✨ اسأل AI</button>
+
+            <div class="links" style="margin-top: 60px;"> 
+                <a href="#">الرئيسية</a>
+                <a href="profile.html">البروفايل</a>
+                <a href="store.html" id="storeLinkSide">المتجر 🛒</a> 
             </div>
         </div>
-        <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" id="ht" style="cursor:pointer;" onclick="window.location.href='settings.html'">
+
+        <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" id="ht" style="cursor:pointer;" 
+             onclick="window.location.href='settings.html'">
         <img src="af80e23deeb127837d30554452546196.jpg" id="navProfilePic">
+
         <div class="links">
             <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
-                <div class="kira-coin"><div class="coin-front">K</div></div>
+                <div class="kira-coin">
+                    <div class="coin-front">K</div>
+                </div>
                 <span id="user-coins">0</span>
             </div>
-            <a href="javascript:void(0)" onclick="showPage('home')">Home</a>
+            <a href="#">Home</a>
             <a href="profile.html">Profile</a>
             <a href="store.html">Store</a> 
         </div>
@@ -128,60 +436,35 @@
     <div class="left"><h2>Kirafix</h2></div>
 </header>
 
-<section class="section" id="main-content-area">
-    <div id="home-view">
-        <div class="composer" id="composerBox" style="display:none;">
-            <div class="composer-header">
-                <img src="af80e23deeb127837d30554452546196.jpg">
-                <textarea id="tex" placeholder="بم تفكر؟"></textarea>
-            </div>
-            <div id="mediaPreview" class="media-preview"></div>
-            <div class="composer-actions">
-                <div class="upload-btns">
-                    <button id="imgBtn">🖼️ صورة</button>
-                    <button id="videoBtn">🎥 فيديو</button>
-                </div>
-                <button id="se">نشر</button>
-            </div>
-            <input type="file" id="imgInput" accept="image/*" style="display:none">
-            <input type="file" id="videoInput" accept="video/*" style="display:none">
+<section class="section">
+    <div class="composer" id="composerBox" style="display:none;">
+        <div class="composer-header">
+            <img src="af80e23deeb127837d30554452546196.jpg">
+            <textarea id="tex" placeholder="بم تفكر؟"></textarea>
         </div>
-        <div id="postsContainer"></div>
+
+        <div id="mediaPreview" class="media-preview"></div>
+
+        <div class="composer-actions">
+            <div class="upload-btns">
+                <button id="imgBtn">🖼️ صورة</button>
+                <button id="videoBtn">🎥 فيديو</button>
+            </div>
+            <button id="se">نشر</button>
+        </div>
+
+        <input type="file" id="imgInput" accept="image/*" style="display:none">
+        <input type="file" id="videoInput" accept="video/*" style="display:none">
     </div>
 
-    <div id="dynamic-view" style="display:none;"></div>
-
-    <a href="chat.html" class="chat-toggle">➤</a>
+    <div id="postsContainer"></div>
 </section>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
-    // وظيفة التنقل SPA
-function showPage(pageId) {
-    const homeView = document.getElementById('home-view');
-    const dynamicView = document.getElementById('dynamic-view');
-        
-        // قفل السايد ناف تلقائياً عند الضغط (لمسة احترافية)
-        const sideNav = document.getElementById('sideNav');
-        if(sideNav) sideNav.style.right = "-250px";
-
-        if(pageId === 'home') {
-            dynamicView.style.display = 'none';
-            homeView.style.display = 'block';
-        } else {
-            homeView.style.display = 'none';
-            dynamicView.style.display = 'block';
-            
-            // هنا تقدر تحط محتوى أي صفحة تانية مستقبلاً
-            if(pageId === 'about') {
-                dynamicView.innerHTML = '<div class="page-content"><h2>عن Kirafix</h2><p>هذا النص تجريبي لصفحة عن الموقع.</p></div>';
-            }
-        }
-        window.scrollTo(0, 0);
-    }
-    window.showPage = showPage;
 
 // --- إعدادات الرفع الخارجية ---
 const IMGBB_API_KEY = "a870d9c05acad152564a134e6f4228c9"; 
