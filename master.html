@@ -632,19 +632,62 @@ window.toggleLike = async (postId, hasLiked) => {
 
 function applyMainLanguage(lang) {
     const dict = {
-        ar: { home: "الرئيسية", profile: "البروفايل", store: "المتجر 🛒", Contact us: "اتصل بنا ", privacy policy:"سياسة الخصوصيه", about:"عن الموقع",  placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
-        en: { home: "Home", profile: "Profile", store: "Store 🛒", Contact us: "Contact us", privacy policy:"privacy policy" about:" about", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
+        ar: { 
+            home: "الرئيسية", 
+            profile: "البروفايل", 
+            store: "المتجر 🛒", 
+            contact: "اتصل بنا", 
+            privacy: "سياسة الخصوصية", 
+            about: "عن الموقع",
+            placeholder: "بم تفكر؟", 
+            postBtn: "نشر", 
+            imgBtn: "🖼️ صورة", 
+            videoBtn: "🎥 فيديو" 
+        },
+        en: { 
+            home: "Home", 
+            profile: "Profile", 
+            store: "Store 🛒", 
+            contact: "Contact Us", 
+            privacy: "Privacy Policy", 
+            about: "About Us",
+            placeholder: "What's on your mind?", 
+            postBtn: "Post", 
+            imgBtn: "🖼️ Image", 
+            videoBtn: "🎥 Video" 
+        }
     };
+
     const t = dict[lang] || dict['ar'];
+
+    // ترجمة لينكات الهيدر (الديسك توب)
     const links = document.querySelectorAll('.links a');
-    if(links.length >= 3) { links[0].textContent = t.home; links[1].textContent = t.profile; links[2].textContent = t.store; }
+    if(links.length >= 6) { 
+        links[0].textContent = t.home; 
+        links[1].textContent = t.profile; 
+        links[2].textContent = t.store;
+        links[3].textContent = t.contact;
+        links[4].textContent = t.privacy;
+        links[5].textContent = t.about;
+    }
+
+    // ترجمة لينكات القائمة الجانبية (الموبايل)
     const sideLinks = document.querySelectorAll('.side-links a');
-    if(sideLinks.length >= 3) { sideLinks[0].textContent = t.home; sideLinks[1].textContent = t.profile; sideLinks[2].textContent = t.store; }
-    if(document.getElementById('aiBtnSide')) document.getElementById('aiBtnSide').textContent = t.ai;
+    if(sideLinks.length >= 6) { 
+        sideLinks[0].textContent = t.home; 
+        sideLinks[1].textContent = t.profile; 
+        sideLinks[2].textContent = t.store;
+        sideLinks[3].textContent = t.contact;
+        sideLinks[4].textContent = t.privacy;
+        sideLinks[5].textContent = t.about;
+    }
+
+    // ترجمة باقي العناصر
     if(document.getElementById('tex')) document.getElementById('tex').placeholder = t.placeholder;
     if(document.getElementById('se')) document.getElementById('se').textContent = t.postBtn;
     if(document.getElementById('imgBtn')) document.getElementById('imgBtn').textContent = t.imgBtn;
     if(document.getElementById('videoBtn')) document.getElementById('videoBtn').textContent = t.videoBtn;
+
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
