@@ -355,21 +355,6 @@
             vertical-align: middle;
             text-transform: uppercase;
         }
-.header .left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* نخلي Kirafix على أقصى اليمين */
-.header .left h2 {
-    margin-left: auto;
-}
-
-/* نخلي الكوين قبلها */
-.header .left .coin-container {
-    order: -1;
-}
     </style>
 </head>
 <body>
@@ -399,7 +384,7 @@
             <div class="side-links" style="margin-top: 60px;"> 
                 <a href="#">الرئيسية</a>
                 <a href="profile.html">البروفايل</a>
-                <a href="store.html" id="storeLinkSide">المتجر 🛒</a> <button id="aiBtnSide">✨ اسأل AI</button>
+                <a href="store.html" id="storeLinkSide">المتجر 🛒</a> 
             </div>
         </div>
 
@@ -408,12 +393,6 @@
         <img src="af80e23deeb127837d30554452546196.jpg" id="navProfilePic">
 
         <div class="links">
-            <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
-                <div class="kira-coin">
-                    <div class="coin-front">K</div>
-                </div>
-                <span id="user-coins">0</span>
-            </div>
             <a href="#">Home</a>
             <a href="profile.html">Profile</a>
             <a href="store.html">Store</a> 
@@ -421,14 +400,15 @@
     </div>
     <div class="center"><div id="but">+</div></div>
     <div class="left">
-    <h2>Kirafix</h2>
-
-    <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
+            <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
         <div class="kira-coin">
             <div class="coin-front">K</div>
         </div>
         <span id="user-coins">0</span>
-    </div>
+    <h2>Kirafix</h2>
+</div>
+
+
 </div>
 </header>
 
