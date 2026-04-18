@@ -103,6 +103,31 @@
             }
             .policy-header h1 { font-size: 24px; }
         }
+        .back-home-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px; /* سيتغير تلقائياً حسب اتجاه الصفحة dir */
+    background: var(--white);
+    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+    border: 1px solid #ddd;
+}
+
+.back-home-btn:hover {
+    transform: translateY(-2px);
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
     </style>
 </head>
 <body>
