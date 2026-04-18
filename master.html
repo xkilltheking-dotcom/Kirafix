@@ -898,19 +898,35 @@ function timeAgo(timestamp) {
 }
 
 function startPostsListener() {
-    return onSnapshot(query(collection(db, "posts"), orderBy("createdAt","desc")), (snap) => {
+    // 1. هنجيب كل البوستات من غير orderBy عشان نضمن إن مفيش حاجة تقع
+    return onSnapshot(collection(db, "posts"), (snap) => {
         const container = document.getElementById("postsContainer");
         if(!container) return;
+        
         container.innerHTML = "";
-        snap.forEach((docSnap) => {
-            const post = docSnap.data();
-            const postId = docSnap.id;
-            const currentUid = auth.currentUser?.uid;
+        
+        // 2. تحويل الـ snapshot لمصفوفة عادية عشان نقدر نرتبها يدويًا
+        const allPosts = [];
+        snap.forEach(docSnap => {
+            allPosts.push({ id: docSnap.id, ...docSnap.data() });
+        });
 
+        // 3. ترتيب البوستات: اللي عنده تاريخ أحدث يظهر الأول
+        // واللي معندوش تاريخ (البوستات القديمة) تظهر في الآخر بدل ما تختفي
+        allPosts.sort((a, b) => {
+            const dateA = a.createdAt?.toDate() || new Date(0); // لو مفيش تاريخ نعتبره قديم جداً
+            const dateB = b.createdAt?.toDate() || new Date(0);
+            return dateB - dateA; // تنازلي (الأحدث فوق)
+        });
+
+        // 4. الرندرة (عرض البوستات بعد الترتيب)
+        allPosts.forEach((post) => {
+            const postId = post.id;
+            const currentUid = auth.currentUser?.uid;
             const likes = Array.isArray(post.likes) ? post.likes : [];
             const views = Array.isArray(post.views) ? post.views : [];
-
             const hasLiked = likes.includes(currentUid);
+            
             const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
             const ui = {
                 ar: { like: 'إعجاب', liked: 'تم الإعجاب', comment: 'تعليق', views: 'مشاهدة', comments: 'تعليق', input: 'اكتب تعليقاً...', publish: 'نشر' },
@@ -928,7 +944,7 @@ function startPostsListener() {
                 <div style="padding:15px;">
                     <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                         <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
-                           <img src="${post.userImage || 'af80e23deeb127837d30554452546196.jpg'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+                           <img src="${post.userImage || DEFAULT_USER_IMG}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                         </a>
                         <div class="user-info">
                             <div style="display:flex; align-items:center;">
