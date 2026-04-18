@@ -355,6 +355,21 @@
             vertical-align: middle;
             text-transform: uppercase;
         }
+.header .left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* نخلي Kirafix على أقصى اليمين */
+.header .left h2 {
+    margin-left: auto;
+}
+
+/* نخلي الكوين قبلها */
+.header .left .coin-container {
+    order: -1;
+}
     </style>
 </head>
 <body>
@@ -405,7 +420,16 @@
         </div>
     </div>
     <div class="center"><div id="but">+</div></div>
-    <div class="left"><h2>Kirafix</h2></div>
+    <div class="left">
+    <h2>Kirafix</h2>
+
+    <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
+        <div class="kira-coin">
+            <div class="coin-front">K</div>
+        </div>
+        <span id="user-coins">0</span>
+    </div>
+</div>
 </header>
 
 <section class="section">
@@ -430,8 +454,6 @@
     </div>
 
     <div id="postsContainer"></div>
-
-    <a href="chat.html" class="chat-toggle">➤</a>
 </section>
 
 <script type="module">
