@@ -97,11 +97,38 @@
         <h3 style="color: #ff4b4b;">تسجيل الخروج</h3>
         <p style="font-size: 12px; color: gray;">سيتم تحويلك لصفحة تسجيل الدخول</p>
     </div>
-    <a class="toggle-btn" href="login.html" id="logoutBtn" style="background: #ff4b4b; color: white; border: none;">خروج</a>
+    <button class="toggle-btn" id="logoutBtn" style="background: #ff4b4b; color: white; border: none;">خروج</button>
 </div>
 </div>
 
-<script>
+<script type="modyle>
+    // استيراد الفايربيس (تأكد إنك ضفت الـ CDN لو مش موجودة في الصفحة)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
+    authDomain: "kirafix-a0ed2.firebaseapp.com",
+    projectId: "kirafix-a0ed2",
+    storageBucket: "kirafix-a0ed2.firebasestorage.app",
+    messagingSenderId: "1038377831293",
+    appId: "1:103837103837:web:c4763c6157addb25a1da14"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// كود زرار الخروج
+document.getElementById('logoutBtn').onclick = async () => {
+    try {
+        await signOut(auth); // تنفيذ تسجيل الخروج الفعلي
+        localStorage.removeItem('kirafix-dark'); // اختياري: لو عايز تصفر الإعدادات
+        window.location.href = "login.html"; // التوجه لصفحة اللوجن
+    } catch (error) {
+        console.error("Error signing out: ", error);
+        alert("فشل تسجيل الخروج");
+    }
+};
     // قاموس اللغات
     const translations = {
         ar: {
