@@ -142,7 +142,7 @@
             background: #2563eb; color: white; border: none; padding: 8px 25px; 
             border-radius: 20px; font-weight: bold; cursor: pointer;
         }
-        .upload-progress-container {
+    .upload-progress-container {
     width: 100%;
     background-color: #f3f4f6;
     border-radius: 20px;
@@ -355,33 +355,67 @@
             vertical-align: middle;
             text-transform: uppercase;
         }
-        /* تنسيق الحاوية الأساسية للينكات في الكمبيوتر */
+/* إظهار زر المنيو دائماً */
+.menu-icon {
+    display: block !important;
+    font-size: 24px;
+    cursor: pointer;
+    margin-left: 15px;
+}
+
+/* إخفاء اللينكات الأفقية القديمة في الكمبيوتر */
 .links {
+    display: none !important;
+}
+
+/* تعديل عرض القائمة الجانبية لتناسب الكمبيوتر والموبايل */
+.side-nav {
+    position: fixed;
+    top: 0;
+    right: -300px; /* مخفية جهة اليمين */
+    width: 280px;
+    height: 100%;
+    background: #ffffff;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10000;
     display: flex;
-    align-items: center; /* سنترة العناصر رأسياً */
-    gap: 20px; /* مسافة ثابتة بين كل عنصر والثاني */
+    flex-direction: column;
+    padding: 20px;
 }
 
-/* تعديل حاوية العملة عشان تمشي مع ستايل اللينكات */
-.coin-container.desktop-only {
-    display: flex !important; /* نأكد إنها ظاهرة في الكمبيوتر */
-    margin-right: 10px;
-    padding: 6px 15px; /* تكبير المساحة شوية عشان تبقى مريحة للعين */
-    background: rgba(255, 215, 0, 0.1);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 215, 0, 0.4);
+/* تفعيل ظهور القائمة عند إضافة كلاس active بالجافاسكريبت */
+.side-nav.active {
+    right: 0;
 }
 
-/* تأثير بسيط عند الوقوف بالماوس على اللينكات */
-.links a {
+/* تنسيق اللينكات داخل القائمة لتكون فخمة */
+.side-links a {
+    display: block;
+    padding: 12px 15px;
+    margin-bottom: 5px;
+    color: #1e293b;
     text-decoration: none;
-    color: inherit;
     font-weight: 500;
+    border-radius: 10px;
     transition: 0.3s;
 }
 
-.links a:hover {
-    color: #2563eb; /* تغيير اللون للأزرق عند التحويم */
+.side-links a:hover {
+    background: #f1f5f9;
+    color: #2563eb;
+    padding-right: 25px; /* حركة أنيميشن خفيفة */
+}
+
+/* دعم الدارك مود للقائمة الجانبية */
+body.dark-mode .side-nav {
+    background: #0f172a;
+}
+body.dark-mode .side-links a {
+    color: #e2e8f0;
+}
+body.dark-mode .side-links a:hover {
+    background: #1e293b;
 }
     </style>
 </head>
@@ -968,14 +1002,26 @@ function listenForNotifications(myId) {
     });
 }
 
-const menuBtn = document.getElementById("menuBtn");
-const sideNav = document.getElementById("sideNav");
-const closeBtn = document.getElementById("closeBtn");
-if (menuBtn && sideNav && closeBtn) {
-    menuBtn.onclick = (e) => { e.stopPropagation(); sideNav.classList.add("active"); };
-    closeBtn.onclick = () => { sideNav.classList.remove("active"); };
-    document.addEventListener('click', (event) => { if (!sideNav.contains(event.target) && event.target !== menuBtn) { sideNav.classList.remove("active"); } });
-}
+const menuBtn = document.getElementById('menuBtn');
+const sideNav = document.getElementById('sideNav');
+const closeBtn = document.getElementById('closeBtn');
+
+// فتح القائمة
+menuBtn.onclick = () => {
+    sideNav.classList.add('active');
+};
+
+// قفل القائمة
+closeBtn.onclick = () => {
+    sideNav.classList.remove('active');
+};
+
+// قفل القائمة عند الضغط في أي مكان خارجها
+document.addEventListener('click', (e) => {
+    if (!sideNav.contains(e.target) && !menuBtn.contains(e.target)) {
+        sideNav.classList.remove('active');
+    }
+});
 </script>
 
 </body>
