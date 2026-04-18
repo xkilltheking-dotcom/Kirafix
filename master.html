@@ -632,8 +632,8 @@ window.toggleLike = async (postId, hasLiked) => {
 
 function applyMainLanguage(lang) {
     const dict = {
-        ar: { home: "الرئيسية", profile: "البروفايل", store: "المتجر 🛒", ai: "كيرفيكس AI✨", placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
-        en: { home: "Home", profile: "Profile", store: "Store 🛒", ai: "Kirafix AI✨", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
+        ar: { home: "الرئيسية", profile: "البروفايل", store: "المتجر 🛒", Contact us: "اتصل بنا ", privacy policy:"سياسة الخصوصيه", about:"عن الموقع",  placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
+        en: { home: "Home", profile: "Profile", store: "Store 🛒", Contact us: "Contact us", privacy policy:"privacy policy" about:" about", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
     };
     const t = dict[lang] || dict['ar'];
     const links = document.querySelectorAll('.links a');
