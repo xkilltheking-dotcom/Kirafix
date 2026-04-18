@@ -142,7 +142,7 @@
             background: #2563eb; color: white; border: none; padding: 8px 25px; 
             border-radius: 20px; font-weight: bold; cursor: pointer;
         }
-    .upload-progress-container {
+        .upload-progress-container {
     width: 100%;
     background-color: #f3f4f6;
     border-radius: 20px;
@@ -355,97 +355,6 @@
             vertical-align: middle;
             text-transform: uppercase;
         }
-/* إظهار زر المنيو دائماً */
-.menu-icon {
-    display: block !important;
-    font-size: 24px;
-    cursor: pointer;
-    margin-left: 15px;
-}
-
-/* إخفاء اللينكات الأفقية القديمة في الكمبيوتر */
-.links {
-    display: none !important;
-}
-
-/* تعديل عرض القائمة الجانبية لتناسب الكمبيوتر والموبايل */
-.side-nav {
-    position: fixed;
-    top: 0;
-    right: -300px; /* مخفية جهة اليمين */
-    width: 280px;
-    height: 100%;
-    background: #ffffff;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-}
-
-/* تفعيل ظهور القائمة عند إضافة كلاس active بالجافاسكريبت */
-.side-nav.active {
-    right: 0;
-}
-
-/* تنسيق اللينكات داخل القائمة لتكون فخمة */
-.side-links a {
-    display: block;
-    padding: 12px 15px;
-    margin-bottom: 5px;
-    color: #1e293b;
-    text-decoration: none;
-    font-weight: 500;
-    border-radius: 10px;
-    transition: 0.3s;
-}
-
-.side-links a:hover {
-    background: #f1f5f9;
-    color: #2563eb;
-    padding-right: 25px; /* حركة أنيميشن خفيفة */
-}
-
-/* دعم الدارك مود للقائمة الجانبية */
-body.dark-mode .side-nav {
-    background: #0f172a;
-}
-body.dark-mode .side-links a {
-    color: #e2e8f0;
-}
-body.dark-mode .side-links a:hover {
-    background: #1e293b;
-}
-.header {
-    display: flex;
-    justify-content: space-between; /* يوزع اليمين والوسط والشمال */
-    align-items: center;
-    padding: 0 10px; /* مسافة بسيطة جداً من الجوانب */
-    direction: rtl; /* عشان إنت شغال عربي فيكون المنيو يمين فعلاً */
-}
-
-.header .right {
-    display: flex;
-    align-items: center;
-    gap: 12px; /* مسافة متناسقة بين المنيو والترس والصورة */
-    margin-right: -5px; /* حركة صايعة تخلي المنيو يقرب أكتر من الحافة */
-}
-
-/* تأكد إن صورة البروفايل والاعدادات ليهم نفس الحجم تماماً */
-#ht, #navProfilePic {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-/* المنيو يكون واضح وسهل الدوس عليه */
-.menu-icon {
-    font-size: 26px;
-    padding: 5px;
-    color: #1e293b; /* لون فخم يتماشى مع الـ Loading Screen */
-}
     </style>
 </head>
 <body>
@@ -473,18 +382,28 @@ body.dark-mode .side-links a:hover {
             </div>
 
             <div class="side-links" style="margin-top: 60px;"> 
-                <a href="index.html">الرئيسية</a>
+                <a href="#">الرئيسية</a>
                 <a href="profile.html">البروفايل</a>
                 <a href="store.html" id="storeLinkSide">المتجر 🛒</a>
-                <a href="settings.html">الإعدادات</a>
             </div>
         </div>
 
         <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" id="ht" style="cursor:pointer;" 
              onclick="window.location.href='settings.html'">
         <img src="af80e23deeb127837d30554452546196.jpg" id="navProfilePic">
-    </div>
 
+        <div class="links">
+            <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
+                <div class="kira-coin">
+                    <div class="coin-front">K</div>
+                </div>
+                <span id="user-coins">0</span>
+            </div>
+            <a href="#">Home</a>
+            <a href="profile.html">Profile</a>
+            <a href="store.html">Store</a> 
+        </div>
+    </div>
     <div class="center"><div id="but">+</div></div>
     <div class="left"><h2>Kirafix</h2></div>
 </header>
@@ -1021,26 +940,14 @@ function listenForNotifications(myId) {
     });
 }
 
-const menuBtn = document.getElementById('menuBtn');
-const sideNav = document.getElementById('sideNav');
-const closeBtn = document.getElementById('closeBtn');
-
-// فتح القائمة
-menuBtn.onclick = () => {
-    sideNav.classList.add('active');
-};
-
-// قفل القائمة
-closeBtn.onclick = () => {
-    sideNav.classList.remove('active');
-};
-
-// قفل القائمة عند الضغط في أي مكان خارجها
-document.addEventListener('click', (e) => {
-    if (!sideNav.contains(e.target) && !menuBtn.contains(e.target)) {
-        sideNav.classList.remove('active');
-    }
-});
+const menuBtn = document.getElementById("menuBtn");
+const sideNav = document.getElementById("sideNav");
+const closeBtn = document.getElementById("closeBtn");
+if (menuBtn && sideNav && closeBtn) {
+    menuBtn.onclick = (e) => { e.stopPropagation(); sideNav.classList.add("active"); };
+    closeBtn.onclick = () => { sideNav.classList.remove("active"); };
+    document.addEventListener('click', (event) => { if (!sideNav.contains(event.target) && event.target !== menuBtn) { sideNav.classList.remove("active"); } });
+}
 </script>
 
 </body>
