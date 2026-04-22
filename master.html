@@ -465,7 +465,7 @@ function formatCoins(num) {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     return num;
-}    
+}   
 
 const firebaseConfig = {
     apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
@@ -662,7 +662,6 @@ function applyMainLanguage(lang) {
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "index.html"; return; }
 
-    // --- تفعيل مراقب الإشعارات هنا بمجرد التأكد من تسجيل الدخول ---
     listenForNotifications(user.uid);
 
     const userDocRef = doc(db, "users", user.uid);
@@ -859,13 +858,13 @@ function startPostsListener() {
                 <div style="padding:15px;">
                     <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                         <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
-                           <img src="${post.userImage || DEFAULT_USER_IMG}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+                            <img src="${post.userImage || DEFAULT_USER_IMG}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                         </a>
                         <div class="user-info">
                             <div style="display:flex; align-items:center;">
                                 ${getBadgeHTML(post.uid === currentUid ? currentUserData?.activeBadge : post.userBadge)}
                                 <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
-                                   <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
+                                    <div class="username" ${nameStyle}>${post.userName || post.email?.split("@")[0]}</div>
                                 </a>
                             </div>
                             <div class="post-time" style="font-size:12px;">${timeAgo(post.createdAt)}</div>
@@ -902,7 +901,6 @@ function startPostsListener() {
     });
 }
 
-// --- دالة مراقبة الرسائل الجديدة كما طلبت ---
 function listenForNotifications(myId) {
     const q = query(
         collection(db, "chats"),
@@ -911,21 +909,9 @@ function listenForNotifications(myId) {
     );
 
     onSnapshot(q, (snapshot) => {
-        if (!snapshot.empty) {
-            // التحقق أن آخر مرسل ليس هو أنا لتجنب إشعار رسائلي الشخصية
-            const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
-            if (newMsgs.length > 0) {
-                // تنبيه صوتي
-                let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
-                audio.play().catch(e => console.log("Audio play blocked"));
-                
-                // تنبيه نصي بسيط (يمكنك استبداله بـ Toast)
-                console.log("لديك رسالة جديدة!");
-        // فلترة الرسائل عشان نتأكد إنها مش مبعوثة مني
         const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
         const count = newMsgs.length;
 
-        // تحديث عداد الإشعارات في الواجهة (لو موجود)
         const badge = document.getElementById("notification-badge");
         if (badge) {
             if (count > 0) {
@@ -937,17 +923,13 @@ function listenForNotifications(myId) {
         }
 
         if (count > 0) {
-            // صوت التنبيه
             let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
             audio.play().catch(e => console.log("Audio play blocked"));
-            
-            // إظهار تنبيه مرئي (Toast)
             showToast(`لديك ${count} رسالة جديدة!`);
         }
     });
 }
 
-// دالة بسيطة لإظهار التنبيه بشكل شيك بدل الـ console
 function showToast(message) {
     let toast = document.getElementById("msg-toast");
     if (!toast) {
