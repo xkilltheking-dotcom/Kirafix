@@ -900,37 +900,51 @@ function startPostsListener() {
     });
 }
 
+// متغير عشان نراقب الزيادة في الرسائل ونشغل الصوت
+let previousUnreadCount = 0;
+
 function listenForNotifications(myId) {
+    // 1. الاستعلام عن كل الرسائل اللي رايحة لي ومش مقروءة
+    // ملحوظة: تأكد أن اسم الكولكشن في قاعدة البيانات هو "messages"
     const q = query(
-        collection(db, "chats"),
-        where("receiverId", "==", myId), 
-        where("isRead", "==", false)     
+        collection(db, "messages"), 
+        where("receiverId", "==", myId),
+        where("isRead", "==", false)
     );
 
     onSnapshot(q, (snapshot) => {
-        // فلترة الرسائل عشان نتأكد إنها مش مبعوثة مني
-        const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
-        const count = newMsgs.length;
+        // snapshot.size بيديك عدد الوثائق (الرسائل) اللي محققة الشرط حالياً
+        const currentCount = snapshot.size; 
 
-        // تحديث عداد الإشعارات في الواجهة (لو موجود)
         const badge = document.getElementById("notification-badge");
         if (badge) {
-            if (count > 0) {
-                badge.textContent = count > 99 ? "99+" : count;
+            if (currentCount > 0) {
+                badge.textContent = currentCount > 99 ? "99+" : currentCount;
                 badge.style.display = "flex";
             } else {
                 badge.style.display = "none";
             }
         }
 
-        if (count > 0) {
-            // صوت التنبيه
-            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
-            audio.play().catch(e => console.log("Audio play blocked"));
-            
-            // إظهار تنبيه مرئي (Toast)
-            showToast(`لديك ${count} رسالة جديدة!`);
+        // 2. تشغيل الصوت فقط لو عدد الرسائل "زاد" عن المرة اللي فاتت
+        // ده بيضمن إن الصوت ميتكررش مع كل تحديث (زي لو رسالة اتمسحت مثلاً)
+        if (currentCount > previousUnreadCount) {
+            playNotificationSound();
+            showToast(`لديك ${currentCount} رسائل جديدة!`);
         }
+
+        // تحديث القيمة السابقة
+        previousUnreadCount = currentCount;
+    });
+}
+
+function playNotificationSound() {
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+    audio.volume = 0.5;
+    
+    // محاولة التشغيل مع معالجة قيود المتصفح (Autoplay Policy)
+    audio.play().catch(error => {
+        console.warn("الصوت محجوب حتى يتفاعل المستخدم مع الصفحة أولاً.");
     });
 }
 
