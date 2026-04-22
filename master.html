@@ -407,6 +407,12 @@
     </div>
     <div class="center"><div id="but">+</div></div>
     <div class="left">
+        <div class="messages-icon-container" style="position: relative; cursor: pointer;" onclick="window.location.href='messages.html'">
+    <span style="font-size: 24px;">💬</span>
+    <div id="msgNotificationBadge" style="display: none; position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; border: 2px solid white;">
+        !
+    </div>
+</div>
             <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
         <div class="kira-coin">
             <div class="coin-front">K</div>
@@ -472,12 +478,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-const DEFAULT_USER_IMG = "af80e23deeb127837d30554452546196.jpg"; // أو المسار الحقيقي للصورة
-// واستخدم المتغير ده في كل حتة بدل الاسم النصي
+const DEFAULT_USER_IMG = "af80e23deeb127837d30554452546196.jpg"; 
 
 let currentUserData = null;
 
-// --- دور على الدالة دي واستبدلها بالنسخة دي ---
 function getBadgeHTML(badgeId) {
     if (!badgeId || badgeId === "none") return "";
 
@@ -487,13 +491,13 @@ function getBadgeHTML(badgeId) {
 
     if (badgeId === 'editor') {
         return `<span class="user-badge" style="
-            background: linear-gradient(45deg, #000428, #004e92); /* تدرج أزرق ليلي فخم */
+            background: linear-gradient(45deg, #000428, #004e92); 
             color: #fff; 
             padding: 3px 10px; 
             font-size: 10px; 
             text-transform: none; 
-            border: 1px solid #00d2ff; /* إطار مضيء خفيف */
-            box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); /* تأثير توهج */
+            border: 1px solid #00d2ff; 
+            box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); 
             letter-spacing: 0.5px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         ">Editor⚒️</span>`;
@@ -586,7 +590,7 @@ function loadCommentsRealtime(postId) {
             list.innerHTML += `
                 <div class="comment-item">
                     <a href="chat.html?id=${c.uid}" style="text-decoration:none;">
-                       <img src="${c.userImage}">
+                        <img src="${c.userImage}">
                     </a>
                     <div class="comment-bubble">
                         <div style="display:flex; align-items:center;">
@@ -632,68 +636,33 @@ window.toggleLike = async (postId, hasLiked) => {
 
 function applyMainLanguage(lang) {
     const dict = {
-        ar: { 
-            home: "الرئيسية", 
-            profile: "البروفايل", 
-            store: "المتجر 🛒", 
-            contact: "اتصل بنا", 
-            privacy: "سياسة الخصوصية", 
-            about: "عن الموقع",
-            placeholder: "بم تفكر؟", 
-            postBtn: "نشر", 
-            imgBtn: "🖼️ صورة", 
-            videoBtn: "🎥 فيديو" 
-        },
-        en: { 
-            home: "Home", 
-            profile: "Profile", 
-            store: "Store 🛒", 
-            contact: "Contact Us", 
-            privacy: "Privacy Policy", 
-            about: "About Us",
-            placeholder: "What's on your mind?", 
-            postBtn: "Post", 
-            imgBtn: "🖼️ Image", 
-            videoBtn: "🎥 Video" 
-        }
+        ar: { home: "الرئيسية", profile: "البروفايل", store: "المتجر 🛒", contact: "اتصل بنا", privacy: "سياسة الخصوصية", about: "عن الموقع", placeholder: "بم تفكر؟", postBtn: "نشر", imgBtn: "🖼️ صورة", videoBtn: "🎥 فيديو" },
+        en: { home: "Home", profile: "Profile", store: "Store 🛒", contact: "Contact Us", privacy: "Privacy Policy", about: "About Us", placeholder: "What's on your mind?", postBtn: "Post", imgBtn: "🖼️ Image", videoBtn: "🎥 Video" }
     };
-
     const t = dict[lang] || dict['ar'];
-
-    // ترجمة لينكات الهيدر (الديسك توب)
     const links = document.querySelectorAll('.links a');
     if(links.length >= 6) { 
-        links[0].textContent = t.home; 
-        links[1].textContent = t.profile; 
-        links[2].textContent = t.store;
-        links[3].textContent = t.contact;
-        links[4].textContent = t.privacy;
-        links[5].textContent = t.about;
+        links[0].textContent = t.home; links[1].textContent = t.profile; links[2].textContent = t.store;
+        links[3].textContent = t.contact; links[4].textContent = t.privacy; links[5].textContent = t.about;
     }
-
-    // ترجمة لينكات القائمة الجانبية (الموبايل)
     const sideLinks = document.querySelectorAll('.side-links a');
     if(sideLinks.length >= 6) { 
-        sideLinks[0].textContent = t.home; 
-        sideLinks[1].textContent = t.profile; 
-        sideLinks[2].textContent = t.store;
-        sideLinks[3].textContent = t.contact;
-        sideLinks[4].textContent = t.privacy;
-        sideLinks[5].textContent = t.about;
+        sideLinks[0].textContent = t.home; sideLinks[1].textContent = t.profile; sideLinks[2].textContent = t.store;
+        sideLinks[3].textContent = t.contact; sideLinks[4].textContent = t.privacy; sideLinks[5].textContent = t.about;
     }
-
-    // ترجمة باقي العناصر
     if(document.getElementById('tex')) document.getElementById('tex').placeholder = t.placeholder;
     if(document.getElementById('se')) document.getElementById('se').textContent = t.postBtn;
     if(document.getElementById('imgBtn')) document.getElementById('imgBtn').textContent = t.imgBtn;
     if(document.getElementById('videoBtn')) document.getElementById('videoBtn').textContent = t.videoBtn;
-
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "index.html"; return; }
+    
+    // --- تفعيل مراقب الإشعارات هنا بمجرد التأكد من تسجيل الدخول ---
     listenForNotifications(user.uid);
+    
     const userDocRef = doc(db, "users", user.uid);
     try {
         const userDoc = await getDoc(userDocRef);
@@ -793,97 +762,59 @@ videoInput.onchange = (e) => {
 document.getElementById("se").onclick = async () => {
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
-
-    // 1. التحقق من وجود محتوى
-    if (!text && !selectedFile) { 
-        alert("اكتب حاجة أو اختار ميديا!"); 
-        return; 
-    }
-
-    btn.disabled = true; 
-    btn.innerText = "...";
-
-    // 2. تجهيز الصورة (الافتراضية أو المرفوعة)
+    if (!text && !selectedFile) { alert("اكتب حاجة أو اختار ميديا!"); return; }
+    btn.disabled = true; btn.innerText = "...";
     const userImg = currentUserData?.image || DEFAULT_USER_IMG;
     let fileUrl = null;
 
     try {
-        // 3. رفع الملف لو موجود
         if (selectedFile) {
-fileUrl = await new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    const formData = new FormData();
-
-    if (fileType === 'image') {
-        formData.append("image", selectedFile); 
-        xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
-} else if (fileType === 'video') {
-    formData.append("file", selectedFile);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    // إضافة النوع للتأكيد
-    formData.append("resource_type", "video"); 
-    
-    // استخدام الرابط العام للرفع (auto) عشان Cloudinary يقرر هو هيعمل إيه
-    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`);
-}
-
-    xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100);
-    };
-
-    xhr.onload = () => {
-        const res = JSON.parse(xhr.responseText);
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Cloudinary بيرجع الرابط في secure_url أو url مباشرة
-            const finalUrl = res.secure_url || res.url || (res.data ? res.data.url : null);
-            if (finalUrl) resolve(finalUrl);
-            else reject(new Error("الرابط غير موجود في رد السيرفر"));
-        } else {
-            // هيطبع لك السبب الحقيقي للمشكلة في الـ Alert
-            console.error("Cloudinary Error Details:", res);
-            reject(new Error(res.error?.message || "فشل رفع الفيديو"));
-        }
-    };
-    
-    xhr.onerror = () => reject(new Error("مشكلة في اتصال الشبكة"));
-    xhr.send(formData);
-});
+            fileUrl = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                const formData = new FormData();
+                if (fileType === 'image') {
+                    formData.append("image", selectedFile); 
+                    xhr.open("POST", `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`);
+                } else if (fileType === 'video') {
+                    formData.append("file", selectedFile);
+                    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+                    formData.append("resource_type", "video"); 
+                    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`);
+                }
+                xhr.upload.onprogress = (e) => { if (e.lengthComputable) updateProgressBar((e.loaded / e.total) * 100); };
+                xhr.onload = () => {
+                    const res = JSON.parse(xhr.responseText);
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        const finalUrl = res.secure_url || res.url || (res.data ? res.data.url : null);
+                        if (finalUrl) resolve(finalUrl); else reject(new Error("الرابط غير موجود"));
+                    } else { reject(new Error(res.error?.message || "فشل الرفع")); }
+                };
+                xhr.onerror = () => reject(new Error("مشكلة اتصال"));
+                xhr.send(formData);
+            });
         }
 
-        // 4. حفظ المنشور في Firestore
         await addDoc(collection(db, "posts"), {
             text: text,
             email: auth.currentUser.email,
             uid: auth.currentUser.uid,
             userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
-            userImage: userImg, // استخدام الصورة الافتراضية هنا لو مفيش صورة بروفايل
+            userImage: userImg,
             userColor: currentUserData?.activeColor || '#374151', 
             userBadge: currentUserData?.activeBadge || 'none',
             createdAt: serverTimestamp(),
             image: fileType === 'image' ? fileUrl : null,
             video: fileType === 'video' ? fileUrl : null,
-            likes: [], 
-            views: [], 
-            commentsCount: 0
+            likes: [], views: [], commentsCount: 0
         });
 
-        // 5. تحديث العملات وتنظيف الواجهة
         await addKiraCoins(7); 
         document.getElementById("tex").value = "";
-        mediaPreview.innerHTML = ""; 
-        mediaPreview.style.display = "none";
-        selectedFile = null; 
-        fileType = null; 
-        btn.disabled = false; 
-        btn.innerText = "نشر";
+        mediaPreview.innerHTML = ""; mediaPreview.style.display = "none";
+        selectedFile = null; fileType = null; 
+        btn.disabled = false; btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
-
-    } catch (error) { 
-        console.error(error);
-        alert("مشكلة في النشر: " + error.message); 
-        btn.disabled = false; 
-        btn.innerText = "نشر"; 
-    }
+    } catch (error) { console.error(error); alert("مشكلة في النشر: " + error.message); btn.disabled = false; btn.innerText = "نشر"; }
 };
 
 function timeAgo(timestamp) {
@@ -898,47 +829,29 @@ function timeAgo(timestamp) {
 }
 
 function startPostsListener() {
-    // 1. هنجيب كل البوستات من غير orderBy عشان نضمن إن مفيش حاجة تقع
     return onSnapshot(collection(db, "posts"), (snap) => {
         const container = document.getElementById("postsContainer");
         if(!container) return;
-        
         container.innerHTML = "";
-        
-        // 2. تحويل الـ snapshot لمصفوفة عادية عشان نقدر نرتبها يدويًا
         const allPosts = [];
-        snap.forEach(docSnap => {
-            allPosts.push({ id: docSnap.id, ...docSnap.data() });
-        });
-
-        // 3. ترتيب البوستات: اللي عنده تاريخ أحدث يظهر الأول
-        // واللي معندوش تاريخ (البوستات القديمة) تظهر في الآخر بدل ما تختفي
+        snap.forEach(docSnap => { allPosts.push({ id: docSnap.id, ...docSnap.data() }); });
         allPosts.sort((a, b) => {
-            const dateA = a.createdAt?.toDate() || new Date(0); // لو مفيش تاريخ نعتبره قديم جداً
+            const dateA = a.createdAt?.toDate() || new Date(0);
             const dateB = b.createdAt?.toDate() || new Date(0);
-            return dateB - dateA; // تنازلي (الأحدث فوق)
+            return dateB - dateA;
         });
-
-        // 4. الرندرة (عرض البوستات بعد الترتيب)
         allPosts.forEach((post) => {
             const postId = post.id;
             const currentUid = auth.currentUser?.uid;
             const likes = Array.isArray(post.likes) ? post.likes : [];
             const views = Array.isArray(post.views) ? post.views : [];
             const hasLiked = likes.includes(currentUid);
-            
             const currentLang = localStorage.getItem('kirafix-lang') || 'ar';
             const ui = {
                 ar: { like: 'إعجاب', liked: 'تم الإعجاب', comment: 'تعليق', views: 'مشاهدة', comments: 'تعليق', input: 'اكتب تعليقاً...', publish: 'نشر' },
                 en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
             }[currentLang];
-
-            const nameStyle = getStyleForName(
-                (post.uid === currentUid && currentUserData?.activeColor) 
-                    ? currentUserData.activeColor 
-                    : post.userColor
-            );
-
+            const nameStyle = getStyleForName((post.uid === currentUid && currentUserData?.activeColor) ? currentUserData.activeColor : post.userColor);
             const postHTML = `
             <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
                 <div style="padding:15px;">
@@ -980,7 +893,6 @@ function startPostsListener() {
                     </div>
                 </div>
             </div>`;
-
             const postNode = document.createRange().createContextualFragment(postHTML).firstElementChild;
             container.appendChild(postNode);
             viewObserver.observe(postNode);
@@ -988,22 +900,26 @@ function startPostsListener() {
     });
 }
 
-// بعد ما تتأكد إن المستخدم سجل دخول (onAuthStateChanged)
+// --- دالة مراقبة الرسائل الجديدة كما طلبت ---
 function listenForNotifications(myId) {
-    const db = getFirestore();
     const q = query(
         collection(db, "chats"),
-        where("receiverId", "==", myId), // بيراقب المحادثات اللي أنا مستلمها
-        where("isRead", "==", false)     // وتكون لسه ملقرأتش
+        where("receiverId", "==", myId), 
+        where("isRead", "==", false)     
     );
 
     onSnapshot(q, (snapshot) => {
         if (!snapshot.empty) {
-            // هنا الكود اللي هيتنفذ لما تيجي رسالة
-            alert("لديك رسالة جديدة في الشات!"); 
-            // تقدر تستبدل الـ alert بـ توست (Toast) شيك أو صوت
-            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
-            audio.play();
+            // التحقق أن آخر مرسل ليس هو أنا لتجنب إشعار رسائلي الشخصية
+            const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
+            if (newMsgs.length > 0) {
+                // تنبيه صوتي
+                let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+                audio.play().catch(e => console.log("Audio play blocked"));
+                
+                // تنبيه نصي بسيط (يمكنك استبداله بـ Toast)
+                console.log("لديك رسالة جديدة!");
+            }
         }
     });
 }
