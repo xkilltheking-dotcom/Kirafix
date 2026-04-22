@@ -409,8 +409,8 @@
     <div class="left">
         <div class="messages-icon-container" style="position: relative; cursor: pointer;" onclick="window.location.href='messages.html'">
     <span style="font-size: 24px;">💬</span>
-    <div id="msgNotificationBadge" style="display: none; position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; border: 2px solid white;">
-        !
+    <div id="notification-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; align-items: center; justify-content: center; border: 2px solid white; font-weight: bold;">
+        0
     </div>
 </div>
             <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
@@ -900,7 +900,6 @@ function startPostsListener() {
     });
 }
 
-// --- دالة مراقبة الرسائل الجديدة كما طلبت ---
 function listenForNotifications(myId) {
     const q = query(
         collection(db, "chats"),
@@ -909,19 +908,44 @@ function listenForNotifications(myId) {
     );
 
     onSnapshot(q, (snapshot) => {
-        if (!snapshot.empty) {
-            // التحقق أن آخر مرسل ليس هو أنا لتجنب إشعار رسائلي الشخصية
-            const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
-            if (newMsgs.length > 0) {
-                // تنبيه صوتي
-                let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
-                audio.play().catch(e => console.log("Audio play blocked"));
-                
-                // تنبيه نصي بسيط (يمكنك استبداله بـ Toast)
-                console.log("لديك رسالة جديدة!");
+        // فلترة الرسائل عشان نتأكد إنها مش مبعوثة مني
+        const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
+        const count = newMsgs.length;
+
+        // تحديث عداد الإشعارات في الواجهة (لو موجود)
+        const badge = document.getElementById("notification-badge");
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count > 99 ? "99+" : count;
+                badge.style.display = "flex";
+            } else {
+                badge.style.display = "none";
             }
         }
+
+        if (count > 0) {
+            // صوت التنبيه
+            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+            audio.play().catch(e => console.log("Audio play blocked"));
+            
+            // إظهار تنبيه مرئي (Toast)
+            showToast(`لديك ${count} رسالة جديدة!`);
+        }
     });
+}
+
+// دالة بسيطة لإظهار التنبيه بشكل شيك بدل الـ console
+function showToast(message) {
+    let toast = document.getElementById("msg-toast");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "msg-toast";
+        toast.style = "position:fixed; bottom:20px; left:20px; background:#2563eb; color:white; padding:12px 20px; border-radius:8px; z-index:10000; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition: 0.5s;";
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.opacity = "1";
+    setTimeout(() => { toast.style.opacity = "0"; }, 4000);
 }
 
 const menuBtn = document.getElementById("menuBtn");
