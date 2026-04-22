@@ -409,6 +409,8 @@
     <div class="left">
         <div class="messages-icon-container" style="position: relative; cursor: pointer;" onclick="window.location.href='messages.html'">
     <span style="font-size: 24px;">💬</span>
+    <div id="msgNotificationBadge" style="display: none; position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; border: 2px solid white;">
+        !
     <div id="notification-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; align-items: center; justify-content: center; border: 2px solid white; font-weight: bold;">
         0
     </div>
@@ -900,51 +902,48 @@ function startPostsListener() {
     });
 }
 
-// متغير عشان نراقب الزيادة في الرسائل ونشغل الصوت
-let previousUnreadCount = 0;
-
+// --- دالة مراقبة الرسائل الجديدة كما طلبت ---
 function listenForNotifications(myId) {
-    // 1. الاستعلام عن كل الرسائل اللي رايحة لي ومش مقروءة
-    // ملحوظة: تأكد أن اسم الكولكشن في قاعدة البيانات هو "messages"
     const q = query(
-        collection(db, "messages"), 
-        where("receiverId", "==", myId),
-        where("isRead", "==", false)
+        collection(db, "chats"),
+        where("receiverId", "==", myId), 
+        where("isRead", "==", false)     
     );
 
     onSnapshot(q, (snapshot) => {
-        // snapshot.size بيديك عدد الوثائق (الرسائل) اللي محققة الشرط حالياً
-        const currentCount = snapshot.size; 
+        if (!snapshot.empty) {
+            // التحقق أن آخر مرسل ليس هو أنا لتجنب إشعار رسائلي الشخصية
+            const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
+            if (newMsgs.length > 0) {
+                // تنبيه صوتي
+                let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+                audio.play().catch(e => console.log("Audio play blocked"));
+                
+                // تنبيه نصي بسيط (يمكنك استبداله بـ Toast)
+                console.log("لديك رسالة جديدة!");
+        // فلترة الرسائل عشان نتأكد إنها مش مبعوثة مني
+        const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
+        const count = newMsgs.length;
 
+        // تحديث عداد الإشعارات في الواجهة (لو موجود)
         const badge = document.getElementById("notification-badge");
         if (badge) {
-            if (currentCount > 0) {
-                badge.textContent = currentCount > 99 ? "99+" : currentCount;
+            if (count > 0) {
+                badge.textContent = count > 99 ? "99+" : count;
                 badge.style.display = "flex";
             } else {
                 badge.style.display = "none";
             }
         }
 
-        // 2. تشغيل الصوت فقط لو عدد الرسائل "زاد" عن المرة اللي فاتت
-        // ده بيضمن إن الصوت ميتكررش مع كل تحديث (زي لو رسالة اتمسحت مثلاً)
-        if (currentCount > previousUnreadCount) {
-            playNotificationSound();
-            showToast(`لديك ${currentCount} رسائل جديدة!`);
+        if (count > 0) {
+            // صوت التنبيه
+            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+            audio.play().catch(e => console.log("Audio play blocked"));
+            
+            // إظهار تنبيه مرئي (Toast)
+            showToast(`لديك ${count} رسالة جديدة!`);
         }
-
-        // تحديث القيمة السابقة
-        previousUnreadCount = currentCount;
-    });
-}
-
-function playNotificationSound() {
-    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
-    audio.volume = 0.5;
-
-    // محاولة التشغيل مع معالجة قيود المتصفح (Autoplay Policy)
-    audio.play().catch(error => {
-        console.warn("الصوت محجوب حتى يتفاعل المستخدم مع الصفحة أولاً.");
     });
 }
 
