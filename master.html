@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kirafix - Home</title>
- <link rel="icon" type="image/png" sizes="192x192" href="./favicon_fixed.png?v=2.0">
-<link rel="apple-touch-icon" href="./favicon_fixed.png?v=2.0">
+    <link rel="icon" type="image/png" sizes="192x192" href="./favicon_fixed.png?v=2.0">
+    <link rel="apple-touch-icon" href="./favicon_fixed.png?v=2.0">
     <link rel="stylesheet" href="style.css?v=2">
     <style>
 /* شاشة التحميل الفخمة الجديدة */
@@ -407,22 +407,19 @@
     </div>
     <div class="center"><div id="but">+</div></div>
     <div class="left">
-        <div class="messages-icon-container" style="position: relative; cursor: pointer;" onclick="window.location.href='messages.html'">
-    <span style="font-size: 24px;">💬</span>
-    <div id="msgNotificationBadge" style="display: none; position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; border: 2px solid white;">
-        !
-    <div id="notification-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; align-items: center; justify-content: center; border: 2px solid white; font-weight: bold;">
-        0
-    </div>
-</div>
-            <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
-        <div class="kira-coin">
-            <div class="coin-front">K</div>
+        <div class="messages-icon-container" style="position: relative; cursor: pointer; display: flex; align-items: center;" onclick="window.location.href='messages.html'">
+            <span style="font-size: 24px;">💬</span>
+            <div id="msgNotificationBadge" style="display: none; position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; align-items: center; justify-content: center; border: 2px solid white;">!</div>
+            <div id="notification-badge" style="display: none; position: absolute; top: -5px; left: -5px; background: orange; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; align-items: center; justify-content: center; border: 2px solid white; font-weight: bold;">0</div>
         </div>
-        <span id="user-coins">0</span>
-                </div>
-    <h2>Kirafix</h2>
-</div>
+        <div class="coin-container desktop-only" title="Kira Coins" onclick="window.location.href='store.html'">
+            <div class="kira-coin">
+                <div class="coin-front">K</div>
+            </div>
+            <span id="user-coins">0</span>
+        </div>
+        <h2>Kirafix</h2>
+    </div>
 </header>
 
 <section class="section">
@@ -448,7 +445,6 @@
 
     <div id="postsContainer"></div>
 </section>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
