@@ -905,9 +905,13 @@ function startPostsListener() {
 let previousUnreadCount = 0;
 
 function listenForNotifications(myId) {
-    if (!myId) return;
+    if (!myId) {
+        console.error("لم يتم العثور على ID المستخدم");
+        return;
+    }
 
-    // 2. بناء الاستعلام بشكل صحيح لكولكشن الرسائل فقط
+    console.log("بدء مراقبة الإشعارات للمستخدم:", myId);
+
     const q = query(
         collection(db, "messages"), 
         where("receiverId", "==", myId),
@@ -915,30 +919,32 @@ function listenForNotifications(myId) {
     );
 
     onSnapshot(q, (snapshot) => {
-        // snapshot.size هو الحل السحري اللي بيعد كل الرسايل غير المقروءة حالياً في الداتا بيز
-        const currentCount = snapshot.size; 
+        const currentCount = snapshot.size;
+        console.log("عدد الرسائل الجديدة المكتشفة:", currentCount);
 
-        // 3. تحديث الـ UI
         const badge = document.getElementById("notification-badge");
+        
         if (badge) {
             if (currentCount > 0) {
                 badge.textContent = currentCount > 99 ? "99+" : currentCount;
                 badge.style.display = "flex";
+                // تأكد إن الـ CSS مش مانع الظهور
+                badge.style.opacity = "1"; 
+                badge.style.visibility = "visible";
             } else {
                 badge.style.display = "none";
             }
+        } else {
+            console.error("خطأ: لم يتم العثور على عنصر notification-badge في الصفحة!");
         }
 
-        // 4. تشغيل الصوت والـ Toast لو فيه رسالة جديدة فعلاً دخلت الداتا بيز
         if (currentCount > previousUnreadCount) {
             playNotificationSound();
             showToast(`لديك ${currentCount} رسائل جديدة!`);
         }
-
-        // 5. تحديث القيمة السابقة للمقارنة المرة الجاية
         previousUnreadCount = currentCount;
     }, (error) => {
-        console.error("خطأ في مراقبة الإشعارات:", error);
+        console.error("فشل الوصول للداتا بيز (ممكن مشكلة Rules أو Index):", error);
     });
 }
 
