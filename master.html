@@ -451,7 +451,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
-import { getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";   
 
 // --- إعدادات الرفع الخارجية ---
 const IMGBB_API_KEY = "a870d9c05acad152564a134e6f4228c9"; 
@@ -661,7 +660,6 @@ onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "index.html"; return; }
 
     listenForNotifications(user.uid);
-    markMessagesAsRead(auth.currentUser.uid);
 
     const userDocRef = doc(db, "users", user.uid);
     try {
@@ -696,7 +694,6 @@ onAuthStateChanged(auth, async (user) => {
                         unsubscribePosts = startPostsListener();
                     }
                 }
-                        
             });
         }
     } catch (error) { console.error("Firebase Error:", error); }
@@ -908,40 +905,44 @@ function listenForNotifications(myId) {
         where("isRead", "==", false)     
     );
 
-let lastCount = 0;
+    onSnapshot(q, (snapshot) => {
+        const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
+        const count = newMsgs.length;
 
-onSnapshot(q, (snapshot) => {
-    const count = snapshot.size;
-
-    // 🔊 صوت لو العدد زاد
-    if (count > lastCount) {
-        let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
-        audio.play().catch(() => {});
-    }
-
-    lastCount = count;
-
-    // البادج
-    const badge = document.getElementById("notification-badge");
-    if (badge) {
-        if (count > 0) {
-            badge.textContent = count > 99 ? "99+" : count;
-            badge.style.display = "flex";
-        } else {
-            badge.style.display = "none";
+        // تحديث البادج (الدائرة الحمراء)
+        const badge = document.getElementById("notification-badge");
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count > 99 ? "99+" : count;
+                badge.style.display = "flex";
+            } else {
+                badge.style.display = "none";
+            }
         }
-    }
 
-    // التوست
-    if (count > 0) {
-        showToast(`لديك ${count} رسالة جديدة!`, true);
-    }
-});
+        // التحكم في ظهور واختفاء رسالة الـ Toast
+        if (count > 0) {
+            // تشغيل الصوت فقط لو زاد عدد الرسايل (اختياري)
+            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+            audio.play().catch(e => console.log("Audio play blocked"));
+            
+            showToast(`لديك ${count} رسالة جديدة!`, true); // true تعني إظهار
+        } else {
+            showToast("", false); // false تعني إخفاء لأن مفيش رسايل
+        }
+if (count > 0) {
+    showToast(`لديك ${count} رسالة جديدة!`, true);
+}
+    });
+}
 
 function showToast(message, show) {
     let toast = document.getElementById("msg-toast");
     if (!toast) return;
 
+    // تنسيق ثابت عشان نضمن إنه يظهر صح
+    const toastStyle = "position:fixed; bottom:20px; left:20px; background:#2563eb; color:white; padding:12px 20px; border-radius:8px; z-index:10000; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition: opacity 0.5s; cursor:pointer;";
+    
     const toastStyle = `
         position:fixed;
         bottom:20px;
@@ -958,13 +959,19 @@ function showToast(message, show) {
     if (show) {
         toast.style.cssText = toastStyle + " display:block; opacity:1;";
         toast.textContent = message;
+        toast.onclick = () => { window.location.href = "messages.html"; };
+    } else {
+        toast.style.opacity = "0";
+        setTimeout(() => { 
+            if(toast.style.opacity === "0") toast.style.display = "none"; 
+        }, 500);
 
         toast.onclick = () => {
             window.location.href = "messages.html";
         };
     }
 }
-async function markMessagesAsRead(myId) {
+    async function markMessagesAsRead(myId) {
     const q = query(
         collection(db, "chats"),
         where("receiverId", "==", myId),
@@ -972,15 +979,13 @@ async function markMessagesAsRead(myId) {
     );
 
     const snapshot = await getDocs(q);
-
-    const updates = snapshot.docs.map(docSnap =>
-        updateDoc(doc(db, "chats", docSnap.id), {
+    snapshot.forEach(async (docSnap) => {
+        await updateDoc(doc(db, "chats", docSnap.id), {
             isRead: true
-        })
-    );
-
-    await Promise.all(updates);
+        });
+    });
 }
+    markMessagesAsRead(auth.currentUser.uid);
 
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
