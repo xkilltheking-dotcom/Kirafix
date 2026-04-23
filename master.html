@@ -450,7 +450,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js
+import { getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";   
 
 // --- إعدادات الرفع الخارجية ---
 const IMGBB_API_KEY = "a870d9c05acad152564a134e6f4228c9"; 
@@ -694,6 +695,7 @@ onAuthStateChanged(auth, async (user) => {
                         unsubscribePosts = startPostsListener();
                     }
                 }
+                        markMessagesAsRead(auth.currentUser.uid);
             });
         }
     } catch (error) { console.error("Firebase Error:", error); }
@@ -961,7 +963,7 @@ function showToast(message, show) {
         };
     }
 }
-    async function markMessagesAsRead(myId) {
+async function markMessagesAsRead(myId) {
     const q = query(
         collection(db, "chats"),
         where("receiverId", "==", myId),
@@ -969,15 +971,13 @@ function showToast(message, show) {
     );
 
     const snapshot = await getDocs(q);
+
     snapshot.forEach(async (docSnap) => {
         await updateDoc(doc(db, "chats", docSnap.id), {
             isRead: true
-            
         });
-        markMessagesAsRead(auth.currentUser.uid);
     });
 }
-    markMessagesAsRead(auth.currentUser.uid);
 
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
