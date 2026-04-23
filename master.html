@@ -905,27 +905,35 @@ function listenForNotifications(myId) {
         where("isRead", "==", false)     
     );
 
-    onSnapshot(q, (snapshot) => {
-        const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
-        const count = newMsgs.length;
+let lastCount = 0;
 
-        // تحديث البادج (الدائرة الحمراء)
-        const badge = document.getElementById("notification-badge");
-        if (badge) {
-            if (count > 0) {
-                badge.textContent = count > 99 ? "99+" : count;
-                badge.style.display = "flex";
-            } else {
-                badge.style.display = "none";
-            }
+onSnapshot(q, (snapshot) => {
+    const count = snapshot.size;
+
+    // 🔊 صوت لو العدد زاد
+    if (count > lastCount) {
+        let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+        audio.play().catch(() => {});
+    }
+
+    lastCount = count;
+
+    // البادج
+    const badge = document.getElementById("notification-badge");
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count > 99 ? "99+" : count;
+            badge.style.display = "flex";
+        } else {
+            badge.style.display = "none";
         }
+    }
 
-        // التحكم في ظهور واختفاء رسالة الـ Toast
-if (count > 0) {
-    showToast(`لديك ${count} رسالة جديدة!`, true);
-}
-    });
-}
+    // التوست
+    if (count > 0) {
+        showToast(`لديك ${count} رسالة جديدة!`, true);
+    }
+});
 
 function showToast(message, show) {
     let toast = document.getElementById("msg-toast");
@@ -964,7 +972,9 @@ function showToast(message, show) {
     snapshot.forEach(async (docSnap) => {
         await updateDoc(doc(db, "chats", docSnap.id), {
             isRead: true
+            
         });
+        markMessagesAsRead(auth.currentUser.uid);
     });
 }
     markMessagesAsRead(auth.currentUser.uid);
