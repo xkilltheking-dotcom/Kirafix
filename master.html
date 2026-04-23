@@ -449,7 +449,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
 
 // --- إعدادات الرفع الخارجية ---
@@ -909,7 +909,6 @@ function listenForNotifications(myId) {
         const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
         const count = newMsgs.length;
 
-        // تحديث البادج (الدائرة الحمراء)
         const badge = document.getElementById("notification-badge");
         if (badge) {
             if (count > 0) {
@@ -920,10 +919,11 @@ function listenForNotifications(myId) {
             }
         }
 
-        // التحكم في ظهور واختفاء رسالة الـ Toast
-if (count > 0) {
-    showToast(`لديك ${count} رسالة جديدة!`, true);
-}
+        if (count > 0) {
+            showToast(`لديك ${count} رسالة جديدة!`, true);
+        } else {
+            showToast("", false);
+        }
     });
 }
 
@@ -931,58 +931,21 @@ function showToast(message, show) {
     let toast = document.getElementById("msg-toast");
     if (!toast) return;
 
-    const toastStyle = `
-        position:fixed;
-        bottom:20px;
-        left:20px;
-        background:#2563eb;
-        color:white;
-        padding:12px 20px;
-        border-radius:8px;
-        z-index:10000;
-        box-shadow:0 4px 12px rgba(0,0,0,0.15);
-        cursor:pointer;
-    `;
-
-    if (show) {
-        toast.style.cssText = toastStyle + " display:block; opacity:1;";
-        toast.textContent = message;
-
-        toast.onclick = () => {
-            window.location.href = "messages.html";
-        };
-    }
-}
-    if (!toast) return;
-
-    // تنسيق ثابت عشان نضمن إنه يظهر صح
     const toastStyle = "position:fixed; bottom:20px; left:20px; background:#2563eb; color:white; padding:12px 20px; border-radius:8px; z-index:10000; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition: opacity 0.5s; cursor:pointer;";
-    
+
     if (show) {
-        // تحديث النص فوراً بدون اختفاء
         toast.style.cssText = toastStyle + " display:block; opacity:1;";
         toast.textContent = message;
-        
-        // لو كانت مخفية، نظهرها
-        if (toast.style.display === "none") {
-            toast.style.display = "block";
-            // الـ timeout ده ضروري عشان الـ transition يشتغل صح
-            setTimeout(() => { toast.style.opacity = "1"; }, 10);
-        }
         toast.onclick = () => { window.location.href = "messages.html"; };
     } else {
-        // لو مفيش رسايل، نخفيها بهدوء
         toast.style.opacity = "0";
         setTimeout(() => { 
-            // نتأكد إنها لسه محتاجة تختفي (عشان لو جات رسالة في نص النص ثانية)
-            if (toast.style.opacity === "0") {
-                toast.style.display = "none"; 
-            }
-            if(toast.style.opacity === "0") toast.style.display = "none"; 
+            if (toast.style.opacity === "0") toast.style.display = "none"; 
         }, 500);
     }
 }
-    async function markMessagesAsRead(myId) {
+
+async function markMessagesAsRead(myId) {
     const q = query(
         collection(db, "chats"),
         where("receiverId", "==", myId),
