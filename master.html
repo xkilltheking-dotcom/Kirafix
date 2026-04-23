@@ -456,6 +456,9 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstati
 const IMGBB_API_KEY = "a870d9c05acad152564a134e6f4228c9"; 
 const CLOUDINARY_UPLOAD_PRESET = "kirafix_posts";
 const CLOUDINARY_CLOUD_NAME = "dno9n87sc";
+    // أضف هذا السطر مع الثوابت في الأعلى
+const messageSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3'); 
+// يمكنك تغيير الرابط لأي ملف mp3 تفضله
 
 function formatCoins(num) {
     if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
@@ -898,6 +901,8 @@ function startPostsListener() {
     });
 }
 
+let lastMessageCount = 0; // متغير لمتابعة العدد السابق
+
 function listenForNotifications(myId) {
     const q = query(
         collection(db, "chats"),
@@ -909,6 +914,18 @@ function listenForNotifications(myId) {
         const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
         const count = newMsgs.length;
 
+        // --- التعديل هنا ---
+        if (count > lastMessageCount) {
+            // تشغيل الصوت إذا زاد عدد الرسائل (وصول رسالة جديدة)
+            messageSound.play().catch(e => console.log("التفاعل مع الصفحة مطلوب لتشغيل الصوت أول مرة"));
+            showToast(`لديك ${count} رسالة جديدة!`, true);
+        } else if (count === 0) {
+            showToast("", false);
+        }
+        
+        lastMessageCount = count; // تحديث الرقم الأخير
+        // -----------------
+
         const badge = document.getElementById("notification-badge");
         if (badge) {
             if (count > 0) {
@@ -918,15 +935,8 @@ function listenForNotifications(myId) {
                 badge.style.display = "none";
             }
         }
-
-        if (count > 0) {
-            showToast(`لديك ${count} رسالة جديدة!`, true);
-        } else {
-            showToast("", false);
-        }
     });
 }
-
 function showToast(message, show) {
     let toast = document.getElementById("msg-toast");
     if (!toast) return;
