@@ -918,31 +918,46 @@ function listenForNotifications(myId) {
             } else {
                 badge.style.display = "none";
             }
+let lastCount = 0;
+
+onSnapshot(q, (snapshot) => {
+    const count = snapshot.size;
+
+    // 🔊 صوت لو العدد زاد
+    if (count > lastCount) {
+        let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+        audio.play().catch(() => {});
+    }
+
+    lastCount = count;
+
+    // البادج
+    const badge = document.getElementById("notification-badge");
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count > 99 ? "99+" : count;
+            badge.style.display = "flex";
+        } else {
+            badge.style.display = "none";
         }
+    }
 
         // التحكم في ظهور واختفاء رسالة الـ Toast
-        if (count > 0) {
-            // تشغيل الصوت فقط لو زاد عدد الرسايل (اختياري)
-            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
-            audio.play().catch(e => console.log("Audio play blocked"));
-            
-            showToast(`لديك ${count} رسالة جديدة!`, true); // true تعني إظهار
-        } else {
-            showToast("", false); // false تعني إخفاء لأن مفيش رسايل
-        }
 if (count > 0) {
     showToast(`لديك ${count} رسالة جديدة!`, true);
 }
     });
 }
+    // التوست
+    if (count > 0) {
+        showToast(`لديك ${count} رسالة جديدة!`, true);
+    }
+});
 
 function showToast(message, show) {
     let toast = document.getElementById("msg-toast");
     if (!toast) return;
 
-    // تنسيق ثابت عشان نضمن إنه يظهر صح
-    const toastStyle = "position:fixed; bottom:20px; left:20px; background:#2563eb; color:white; padding:12px 20px; border-radius:8px; z-index:10000; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition: opacity 0.5s; cursor:pointer;";
-    
     const toastStyle = `
         position:fixed;
         bottom:20px;
@@ -959,12 +974,6 @@ function showToast(message, show) {
     if (show) {
         toast.style.cssText = toastStyle + " display:block; opacity:1;";
         toast.textContent = message;
-        toast.onclick = () => { window.location.href = "messages.html"; };
-    } else {
-        toast.style.opacity = "0";
-        setTimeout(() => { 
-            if(toast.style.opacity === "0") toast.style.display = "none"; 
-        }, 500);
 
         toast.onclick = () => {
             window.location.href = "messages.html";
@@ -982,7 +991,9 @@ function showToast(message, show) {
     snapshot.forEach(async (docSnap) => {
         await updateDoc(doc(db, "chats", docSnap.id), {
             isRead: true
+            
         });
+        markMessagesAsRead(auth.currentUser.uid);
     });
 }
     markMessagesAsRead(auth.currentUser.uid);
