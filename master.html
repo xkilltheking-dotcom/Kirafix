@@ -896,8 +896,7 @@ function startPostsListener() {
     });
 }
 
-let lastMessageCount = 0; 
-const messageSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
+let lastMessageCount = 0; // متغير لمتابعة العدد السابق
 
 function listenForNotifications(myId) {
     const q = query(
@@ -910,19 +909,27 @@ function listenForNotifications(myId) {
         const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
         const count = newMsgs.length;
 
+        // --- التعديل هنا ---
         if (count > lastMessageCount) {
-            // تشغيل الصوت
-            messageSound.play().catch(e => console.log("تفاعل مع الصفحة لتفعيل الصوت"));
-            
-            // إظهار التنبيه النصي (الرسالة الزرقاء بالأسفل)
+            // تشغيل الصوت إذا زاد عدد الرسائل (وصول رسالة جديدة)
+            messageSound.play().catch(e => console.log("التفاعل مع الصفحة مطلوب لتشغيل الصوت أول مرة"));
             showToast(`لديك ${count} رسالة جديدة!`, true);
         } else if (count === 0) {
             showToast("", false);
         }
         
-        lastMessageCount = count;
-        
-        // تم حذف أي إشارة لـ badge أو أيقونات الهيدر لضمان عدم حدوث خطأ
+        lastMessageCount = count; // تحديث الرقم الأخير
+        // -----------------
+
+        const badge = document.getElementById("notification-badge");
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count > 99 ? "99+" : count;
+                badge.style.display = "flex";
+            } else {
+                badge.style.display = "none";
+            }
+        }
     });
 }
 function showToast(message, show) {
