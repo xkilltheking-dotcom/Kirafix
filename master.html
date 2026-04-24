@@ -647,26 +647,29 @@ function applyMainLanguage(lang) {
     if(document.getElementById('videoBtn')) document.getElementById('videoBtn').textContent = t.videoBtn;
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
-
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = "index.html"; return; }
-}
+    if (!user) { 
+        window.location.href = "index.html"; 
+        return; 
+    }
 
-    listenForNotifications(user.uid
+    // تم إضافة القوس المفقود هنا لغلق الدالة
+    listenForNotifications(user.uid); 
+
     // إضافة ستايل التوهج والأنيميشن برمجياً
-const style = document.createElement('style');
-style.innerHTML = `
-    @keyframes glow-pulse {
-        0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-        50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
-        100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-    }
-    .glow-post {
-        animation: glow-pulse 2s infinite ease-in-out;
-        border: 2px solid #f59e0b !important;
-    }
-`;
-document.head.appendChild(style);
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes glow-pulse {
+            0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
+        }
+        .glow-post {
+            animation: glow-pulse 2s infinite ease-in-out;
+            border: 2px solid #f59e0b !important;
+        }
+    `;
+    document.head.appendChild(style);
 
     const userDocRef = doc(db, "users", user.uid);
     try {
@@ -675,8 +678,10 @@ document.head.appendChild(style);
             currentUserData = userDoc.data();
             const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
             if(document.getElementById("navProfilePic")) document.getElementById("navProfilePic").src = userImg;
+            
             const compImg = document.querySelector(".composer-header img");
             if(compImg) compImg.src = userImg;
+            
             const nameDisplay = document.getElementById("user-name-display");
             if(nameDisplay) nameDisplay.textContent = currentUserData.name || user.email.split("@")[0];
 
@@ -703,7 +708,9 @@ document.head.appendChild(style);
                 }
             });
         }
-    } catch (error) { console.error("Firebase Error:", error); }
+    } catch (error) { 
+        console.error("Firebase Error:", error); 
+    }
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
@@ -712,7 +719,10 @@ document.head.appendChild(style);
 
     setTimeout(() => {
         const loader = document.getElementById("loadingScreen");
-        if(loader) { loader.style.opacity = "0"; setTimeout(() => { loader.style.display = "none"; }, 600); }
+        if(loader) { 
+            loader.style.opacity = "0"; 
+            setTimeout(() => { loader.style.display = "none"; }, 600); 
+        }
     }, 1500); 
 });
 
