@@ -984,6 +984,17 @@ async function markMessagesAsRead(myId) {
         });
     });
 }
+    function showRadarPopup(post) {
+    const popup = document.createElement('div');
+    popup.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; z-index:20000; padding:20px; border-radius:15px; box-shadow:0 0 50px rgba(0,0,0,0.5); width:85%; max-width:350px; text-align:center; direction:rtl;";
+    popup.innerHTML = `
+        <div style="font-size:40px">📡</div>
+        <h3 style="color:#06b6d4; margin:10px 0;">إشعار عاجل!</h3>
+        <p style="font-weight:bold; color:#374151;">قام ${post.userName} بنشر تحديث جديد الآن!</p>
+        <button onclick="this.parentElement.remove()" style="background:#06b6d4; color:white; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:bold; margin-top:10px;">مشاهدة</button>
+    `;
+    document.body.appendChild(popup);
+}
 
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
