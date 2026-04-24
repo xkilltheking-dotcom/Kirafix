@@ -492,7 +492,7 @@ let currentUserData = null;
 
 function getBadgeHTML(badgeId) {
     if (!badgeId || badgeId === "none") return "";
-    
+
     // مابينج للأسماء بشكل سمبل جداً (نصوص فقط)
     const names = {
         'sticker': 'STICKER',
@@ -503,15 +503,15 @@ function getBadgeHTML(badgeId) {
         'admin': 'ADMIN',
         'editor': 'EDITOR'
     };
-    
+
     const label = names[badgeId] || badgeId.toUpperCase();
-    
+
     // تمييز بسيط جداً للأدمن بالإمالة والتحته خط (بدون ألوان)
     let extraStyle = "";
     if (badgeId === 'admin') {
         extraStyle = "font-style: italic; text-decoration: underline; text-underline-offset: 2px;";
     }
-    
+
     // بنرجع النص مع الكلاس اللي إحنا معرفينه في الـ CSS فوق
     return `<span class="user-badge" style="${extraStyle}">${label}</span>`;
 }
@@ -647,7 +647,10 @@ function applyMainLanguage(lang) {
     if(document.getElementById('videoBtn')) document.getElementById('videoBtn').textContent = t.videoBtn;
     document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
+
 onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "index.html"; return; }
+}
     if (!user) { 
         window.location.href = "index.html"; 
         return; 
@@ -656,7 +659,21 @@ onAuthStateChanged(auth, async (user) => {
     // تم إضافة القوس المفقود هنا لغلق الدالة
     listenForNotifications(user.uid); 
 
+    listenForNotifications(user.uid
     // إضافة ستايل التوهج والأنيميشن برمجياً
+const style = document.createElement('style');
+style.innerHTML = `
+    @keyframes glow-pulse {
+        0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
+        50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
+        100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
+    }
+    .glow-post {
+        animation: glow-pulse 2s infinite ease-in-out;
+        border: 2px solid #f59e0b !important;
+    }
+`;
+document.head.appendChild(style);
     const style = document.createElement('style');
     style.innerHTML = `
         @keyframes glow-pulse {
@@ -708,6 +725,7 @@ onAuthStateChanged(auth, async (user) => {
                 }
             });
         }
+    } catch (error) { console.error("Firebase Error:", error); }
     } catch (error) { 
         console.error("Firebase Error:", error); 
     }
@@ -719,6 +737,7 @@ onAuthStateChanged(auth, async (user) => {
 
     setTimeout(() => {
         const loader = document.getElementById("loadingScreen");
+        if(loader) { loader.style.opacity = "0"; setTimeout(() => { loader.style.display = "none"; }, 600); }
         if(loader) { 
             loader.style.opacity = "0"; 
             setTimeout(() => { loader.style.display = "none"; }, 600); 
@@ -850,7 +869,7 @@ function startPostsListener() {
         container.innerHTML = "";
         const allPosts = [];
         snap.forEach(docSnap => { allPosts.push({ id: docSnap.id, ...docSnap.data() }); });
-        
+
         // --- تعديل الترتيب لدعم المزايا القوية ---
         allPosts.sort((a, b) => {
             // التحقق من وجود ميزة "الناشر اللانهائي" أو "المثبت" لإعطائهم الأولوية القصوى فوق
@@ -881,15 +900,16 @@ function startPostsListener() {
                 en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
             }[currentLang];
             const nameStyle = getStyleForName((post.uid === currentUid && currentUserData?.activeColor) ? currentUserData.activeColor : post.userColor);
-            
+
             // --- تعديل الـ Style لدعم ميزة "المتوهج" و "اللانهاية" بصرياً ---
-// تحديد الكلاسات الإضافية بناءً على الشارة (Badge)
-             let extraClasses = "";
-             if (post.userBadge === 'glow') {
-               extraClasses = "glow-post"; // هذا الكلاس سيفعل التوهج والأنيميشن
-             }
-
-
+            let postCustomStyle = "border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;";
+            if (post.userBadge === 'glow') {
+            postCustomStyle += "border: 2px solid #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);";
+             // إضافة الكلاس الجديد للأنيميشن
+             postCustomStyle = postCustomStyle.replace("border-radius", " animation: glow-pulse 2s infinite ease-in-out; border-radius");
+            } else if (post.userBadge === 'infinity') {
+                postCustomStyle += "border: 2px solid #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);";
+            }
 
             const postHTML = `
             <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="${postCustomStyle}">
@@ -966,7 +986,7 @@ function listenForNotifications(myId) {
         } else if (count === 0) {
             showToast("", false);
         }
-        
+
         lastMessageCount = count; // تحديث الرقم الأخير
         // -----------------
 
@@ -1015,18 +1035,13 @@ async function markMessagesAsRead(myId) {
 }
 function showRadarPopup(post) {
     const popup = document.createElement('div');
-    // جلب ستايل لون اسم المستخدم
-    const userColorStyle = getStyleForName(post.userColor);
-    
-    popup.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; z-index:20000; padding:25px; border-radius:15px; box-shadow:0 0 50px rgba(0,0,0,0.5); width:85%; max-width:350px; text-align:center; direction:rtl; border: 3px solid #06b6d4;";
-    
+    // تعديل الخلفية والظل ليكون أوضح
+    popup.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; z-index:20000; padding:20px; border-radius:15px; box-shadow:0 0 50px rgba(0,0,0,0.5); width:85%; max-width:350px; text-align:center; direction:rtl;";
     popup.innerHTML = `
-        <div style="font-size:45px; margin-bottom:10px;">📡</div>
-        <h3 style="color:#1f2937; margin:10px 0; font-weight: bold;">إشعار رادار عاجل!</h3> 
-        <p style="font-size:16px; color:#4b5563; margin-bottom:15px;">
-            قام <span ${userColorStyle}>${post.userName}</span> بنشر تحديث جديد الآن!
-        </p>
-        <button onclick="this.parentElement.remove()" style="background:#06b6d4; color:white; border:none; padding:12px 30px; border-radius:8px; cursor:pointer; font-weight:bold; width:100%; font-size:16px;">مشاهدة المنشور</button>
+        <div style="font-size:40px">📡</div>
+        <h3 style="color:#000000; margin:10px 0; font-weight: bold;">إشعار عاجل!</h3> 
+        <p style="font-weight:bold; color:black;">قام ${post.userName} بنشر تحديث جديد الآن!</p>
+        <button onclick="this.parentElement.remove()" style="background:#06b6d4; color:white; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:bold; margin-top:10px;">مشاهدة</button>
     `;
     document.body.appendChild(popup);
 }
@@ -1045,10 +1060,10 @@ function renderUserBadge(badgeId) {
     };
 
     const label = badgeMap[badgeId] || badgeId.toUpperCase();
-    
+
     // بنرجع النص مع كلاس الأدمن لو موجود للتميز البسيط
     let extraClass = (badgeId === 'admin') ? 'badge-admin' : '';
-    
+
     return `<span class="user-badge ${extraClass}">${label}</span>`;
 }
 const menuBtn = document.getElementById("menuBtn");
