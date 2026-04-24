@@ -210,6 +210,75 @@
         }
         @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
         .section-title { font-size: 14px; color: #888; margin-top: 20px; text-align: right; width: 100%; }
+    /* تنسيق شبكة الأسعار */
+.coins-pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.price-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+    padding: 20px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+body.dark-mode .price-card { background: #111827; border-color: #374151; }
+
+.price-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--gold);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.coin-icon-wrapper { font-size: 35px; margin-bottom: 10px; }
+.coin-amount { font-weight: 800; font-size: 16px; margin-bottom: 5px; }
+.coin-price { color: #10b981; font-weight: bold; font-size: 18px; margin-bottom: 15px; }
+
+.buy-coin-btn {
+    background: #f3f4f6;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #374151;
+    width: 100%;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.price-card:hover .buy-coin-btn {
+    background: var(--gold);
+    color: #000;
+}
+
+/* تمييز الباقات الخاصة */
+.price-card.popular { border: 2px solid var(--gold); }
+.popular-badge {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: black;
+    font-size: 9px;
+    padding: 2px 10px;
+    border-radius: 0 0 10px 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.vip-pack { border: 1px dashed #2563eb; }
+.royal-pack { border: 2px solid #8b5cf6; background: linear-gradient(to bottom, #ffffff, #f5f3ff); }
+body.dark-mode .royal-pack { background: linear-gradient(to bottom, #111827, #1e1b4b); }
     </style>
 
 <div class="container">
@@ -243,6 +312,76 @@
         <div id="color-grid" class="color-grid"></div>
         <div class="section-title">🎖️ الأوسمة المفتوحة:</div>
         <div id="badge-grid" class="badge-grid"></div>
+    </div>
+    <div class="store-card">
+        <h3>💰 شحن رصيد الكوينز</h3>
+        <p style="font-size: 13px; color: #6b7280; margin-bottom: 20px;">اختر الباقة المناسبة لك، سيتم إضافة الرصيد فور نجاح عملية الدفع.</p>
+        
+        <div class="coins-pricing-grid">
+            <div class="price-card" onclick="initiatePayment(100, 0.99)">
+                <div class="coin-icon-wrapper">🪙</div>
+                <div class="coin-amount">100 كوين</div>
+                <div class="coin-price">$0.99</div>
+                <button class="buy-coin-btn">شراء الآن</button>
+            </div>
+
+            <div class="price-card" onclick="initiatePayment(250, 1.99)">
+                <div class="coin-icon-wrapper">🪙</div>
+                <div class="coin-amount">250 كوين</div>
+                <div class="coin-price">$1.99</div>
+                <button class="buy-coin-btn">شراء الآن</button>
+            </div>
+
+            <div class="price-card" onclick="initiatePayment(500, 3.50)">
+                <div class="coin-icon-wrapper">🪙</div>
+                <div class="coin-amount">500 كوين</div>
+                <div class="coin-price">$3.50</div>
+                <button class="buy-coin-btn">شراء الآن</button>
+            </div>
+
+            <div class="price-card popular" onclick="initiatePayment(700, 4.99)">
+                <div class="popular-badge">الأكثر طلباً</div>
+                <div class="coin-icon-wrapper">🪙</div>
+                <div class="coin-amount">700 كوين</div>
+                <div class="coin-price">$4.99</div>
+                <button class="buy-coin-btn">شراء الآن</button>
+            </div>
+
+            <div class="price-card" onclick="initiatePayment(1000, 6.99)">
+                <div class="coin-icon-wrapper">🪙</div>
+                <div class="coin-amount">1000 كوين</div>
+                <div class="coin-price">$6.99</div>
+                <button class="buy-coin-btn">شراء الآن</button>
+            </div>
+
+            <div class="price-card" onclick="initiatePayment(2550, 14.99)">
+                <div class="coin-icon-wrapper">💎</div>
+                <div class="coin-amount">2550 كوين</div>
+                <div class="coin-price">$14.99</div>
+                <button class="buy-coin-btn">شراء الآن</button>
+            </div>
+
+            <div class="price-card vip-pack" onclick="initiatePayment(5000, 24.99)">
+                <div class="coin-icon-wrapper">🔥</div>
+                <div class="coin-amount">5000 كوين</div>
+                <div class="coin-price">$24.99</div>
+                <button class="buy-coin-btn">شراء الآن</button>
+            </div>
+
+            <div class="price-card vip-pack" onclick="initiatePayment(8000, 39.99)">
+                <div class="coin-icon-wrapper">👑</div>
+                <div class="coin-amount">8000 كوين</div>
+                <div class="coin-price">$39.99</div>
+                <button class="buy-coin-btn">شراء الآن</button>
+            </div>
+
+            <div class="price-card royal-pack" onclick="initiatePayment(10000, 49.99)">
+                <div class="coin-icon-wrapper">🌌</div>
+                <div class="coin-amount">10000 كوين</div>
+                <div class="coin-price">$49.99</div>
+                <button class="buy-coin-btn">شراء الآن</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -438,6 +577,15 @@ document.getElementById("spinBtn").onclick = async () => {
 };
 
 if(localStorage.getItem('kirafix-dark') === 'true') document.body.classList.add('dark-mode');
+    window.initiatePayment = (amount, price) => {
+    // هذه الدالة ستكون بوابة الدفع الحقيقية لاحقاً
+    const confirmPay = confirm(`هل تود شراء ${amount} كوين مقابل $${price}؟\n(سيتم تحويلك لصفحة الدفع الآمن)`);
+    
+    if (confirmPay) {
+        alert("سيتم الآن ربطك ببطاقة الفيزا لإتمام عملية الشحن الحقيقية...");
+        // هنا سنضع كود Stripe أو PayPal لاحقاً
+    }
+};
 </script>
 </body>
 </html>
