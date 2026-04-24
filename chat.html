@@ -228,6 +228,28 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    // كود تطبيق الإعدادات المحفوظة - ضعه في كل الصفحات
+function applyGlobalSettings() {
+    // 1. تطبيق وضع الظلام
+    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+    if (savedDark) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+
+    // 2. تطبيق اللغة والاتجاه
+    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+    document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
+    
+    // هنا ممكن تستدعي الدالة اللي بتغير النصوص عندك في الصفحة بناءً على savedLang
+    if (typeof applyMainLanguage === 'function') {
+        applyMainLanguage(savedLang);
+    }
+}
+
+// استدعاء الدالة فوراً
+applyGlobalSettings();
 
     let currentUser = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -383,6 +405,7 @@ async function loadMessages(chatId) {
         await updateDoc(chatRef, { isRead: true });
 
         chatBox.scrollTop = chatBox.scrollHeight;
+        
     });
 }
 </script>
