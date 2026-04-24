@@ -3,73 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اتصل بنا - Kirafix</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <title id="pageTitle">اتصل بنا - Kirafix</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-                body{
-           color:#000000;
-        }
         :root {
-    /* الوضع الفاتح - الافتراضي */
-    --bg-color: #f0f2f5;
-    --card-bg: #ffffff;
-    --text-main: #1c1e21; /* اللون الأساسي للنصوص (أسود) */
-    --text-secondary: #65676b;
-              --primary: #2563eb;
-            --bg-page: #f8f9fa;
-            --white: #ffffff;
-            --text-dark: #1f2937;
+            /* الألوان الافتراضية - فاتح */
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
             --text-light: #6b7280;
-}
+            --primary: #2563eb;
+            --contact-card-bg: #f1f5f9;
+        }
 
-body.dark-mode {
-    /* الوضع المظلم */
-    --bg-color: #18191a;
-    --card-bg: #242526;
-    --text-main: #e4e6eb; /* اللون الأساسي للنصوص (أبيض) */
-    --text-secondary: #b0b3b8;
-}
-
-/* الآن أهم خطوة: لا تستخدم color: black أو color: white أبداً */
-body {
-    background-color: var(--bg-color);
-    color: var(--text-main); /* سيتحول تلقائياً من أسود لأبيض والعكس */
-}
-
-.post, .setting-card {
-    background-color: var(--card-bg);
-    color: var(--text-main);
-}
-
-/* أي نص عايزه يقلب لوحده اعطيه المتغير ده */
-h1, h2, h3, p, span {
-    color: var(--text-main);
-}
+        body.dark-mode {
+            /* الألوان - غامق */
+            --bg-color: #18191a;
+            --card-bg: #242526;
+            --text-main: #e4e6eb;
+            --text-light: #b0b3b8;
+            --primary: #3b82f6;
+            --contact-card-bg: #3a3b3c;
+        }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: #000000;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
             padding: 20px;
+            transition: 0.3s;
         }
 
         .info-content {
             max-width: 600px;
             margin: 60px auto;
-            background: var(--white);
+            background: var(--card-bg);
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             text-align: center;
-            border: 1px solid #eef2f6;
+            border: 1px solid rgba(128,128,128,0.1);
         }
 
         .info-content h1 {
-            color: var(--text-dark);
+            color: var(--text-main);
             font-size: 28px;
             margin-bottom: 15px;
-            font-weight: 700;
         }
 
         .info-content p {
@@ -84,20 +64,19 @@ h1, h2, h3, p, span {
             gap: 15px;
         }
 
-        /* ستايل كروت الاتصال */
         .contact-card {
             display: flex;
             align-items: center;
-            background: #f1f5f9;
+            background: var(--contact-card-bg);
             padding: 15px 20px;
             border-radius: 12px;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: 0.3s;
             border: 1px solid transparent;
+            color: var(--text-main);
         }
 
         .contact-card:hover {
-            background: #e2e8f0;
             transform: translateY(-2px);
             border-color: var(--primary);
         }
@@ -112,7 +91,7 @@ h1, h2, h3, p, span {
             justify-content: center;
             align-items: center;
             font-size: 20px;
-            margin-left: 15px; /* مسافة عشان RTL */
+            margin-left: 15px;
         }
 
         .contact-info-text {
@@ -121,17 +100,15 @@ h1, h2, h3, p, span {
 
         .contact-info-text strong {
             display: block;
-            color: var(--text-dark);
+            color: var(--text-main);
             font-size: 14px;
         }
 
         .contact-info-text span {
             color: var(--primary);
             font-weight: 600;
-            font-size: 15px;
         }
 
-        /* أزرار السوشيال ميديا */
         .social-wrapper {
             margin-top: 30px;
             display: flex;
@@ -144,72 +121,46 @@ h1, h2, h3, p, span {
             border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
-            font-size: 14px;
+            color: white;
             transition: 0.3s;
         }
 
-        .fb { background: #1877f2; color: white; }
-        .dc { background: #5865f2; color: white; }
+        .fb { background: #E1306C; } /* Instagram Color */
+        .dc { background: #5865f2; }
 
-        .social-btn:hover { opacity: 0.8; transform: scale(1.05); }
         .back-home-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px; /* سيتغير تلقائياً حسب اتجاه الصفحة dir */
-    background: var(--white);
-    color: var(--text);
-    padding: 10px 18px;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: 0.3s;
-    border: 1px solid #ddd;
-}
-
-.back-home-btn:hover {
-    transform: translateY(-2px);
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-}
-/* ده هيجبر أي عنصر واخد كلاس بوست أو كارت إنه يغير خلفيته */
-body.dark-mode .post, 
-body.dark-mode .setting-card, 
-body.dark-mode .composer,
-body.dark-mode div[style*="background:white"], 
-body.dark-mode div[style*="background: white"] {
-    background-color: #1a1a1a !important; /* لون الكارت في الدارك مود */
-    color: #ffffff !important; /* لون الخط */
-    border-color: #333 !important;
-}
-
-/* لو فيه نصوص جوه الكروت لسه سوداء */
-body.dark-mode .post *, 
-body.dark-mode .setting-card * {
-    color: #ffffff !important;
-}
+            position: fixed;
+            top: 20px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            padding: 10px 18px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(128,128,128,0.2);
+        }
     </style>
 </head>
 <body>
-        <a href="Kirafix.html" class="back-home-btn" id="backHomeBtn">
-    <span class="icon">🏠</span>
-    <span class="text">الرئيسية</span>
-</a>
+    <a href="Kirafix.html" class="back-home-btn" id="backHomeBtn">
+        <span class="icon">🏠</span>
+        <span id="lang-back">الرئيسية</span>
+    </a>
 
     <div class="info-content">
-        <h1>اتصل بنا ☎️</h1>
-        <p>يسعدنا دائماً الاستماع إلى مقترحاتكم أو الرد على استفساراتكم لضمان أفضل تجربة بيع وشراء.</p>
+        <h1 id="lang-title">اتصل بنا ☎️</h1>
+        <p id="lang-desc">يسعدنا دائماً الاستماع إلى مقترحاتكم أو الرد على استفساراتكم لضمان أفضل تجربة بيع وشراء.</p>
         
         <div class="contact-methods">
             <a href="mailto:xkilltheking@gmail.com" class="contact-card">
                 <div class="icon-circle">📧</div>
                 <div class="contact-info-text">
-                    <strong>البريد الإلكتروني الرسمي</strong>
+                    <strong id="lang-email-label">البريد الإلكتروني الرسمي</strong>
                     <span>xkilltheking@gmail.com</span>
                 </div>
             </a>
@@ -217,8 +168,8 @@ body.dark-mode .setting-card * {
             <div class="contact-card">
                 <div class="icon-circle">🛠️</div>
                 <div class="contact-info-text">
-                    <strong>دعم المعلنين</strong>
-                    <span>متاح 24/7 عبر الموقع</span>
+                    <strong id="lang-support-label">دعم المعلنين</strong>
+                    <span id="lang-support-val">متاح 24/7 عبر الموقع</span>
                 </div>
             </div>
         </div>
@@ -228,30 +179,71 @@ body.dark-mode .setting-card * {
             <a href="#" class="social-btn dc">Discord</a>
         </div>
     </div>
+
     <script>
-        // كود تطبيق الإعدادات المحفوظة - ضعه في كل الصفحات
-function applyGlobalSettings() {
-    // 1. تطبيق وضع الظلام
-    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
-    if (savedDark) {
-        document.body.classList.add('dark-mode');
-    } else {
-        document.body.classList.remove('dark-mode');
-    }
+        function applyGlobalSettings() {
+            // 1. تطبيق المظهر
+            const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+            if (savedDark) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
 
-    // 2. تطبيق اللغة والاتجاه
-    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
-    document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
-    
-    // هنا ممكن تستدعي الدالة اللي بتغير النصوص عندك في الصفحة بناءً على savedLang
-    if (typeof applyMainLanguage === 'function') {
-        applyMainLanguage(savedLang);
-    }
-}
+            // 2. تطبيق اللغة
+            const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+            applyLanguage(savedLang);
+        }
 
-// استدعاء الدالة فوراً
-applyGlobalSettings();
+        function applyLanguage(lang) {
+            const translations = {
+                ar: {
+                    pageTitle: "اتصل بنا - Kirafix",
+                    back: "الرئيسية",
+                    title: "اتصل بنا ☎️",
+                    desc: "يسعدنا دائماً الاستماع إلى مقترحاتكم أو الرد على استفساراتكم لضمان أفضل تجربة بيع وشراء.",
+                    emailLabel: "البريد الإلكتروني الرسمي",
+                    supportLabel: "دعم المعلنين",
+                    supportVal: "متاح 24/7 عبر الموقع"
+                },
+                en: {
+                    pageTitle: "Contact Us - Kirafix",
+                    back: "Home",
+                    title: "Contact Us ☎️",
+                    desc: "We are always happy to hear your suggestions or answer your inquiries to ensure the best buying and selling experience.",
+                    emailLabel: "Official Email",
+                    supportLabel: "Advertiser Support",
+                    supportVal: "Available 24/7 via site"
+                }
+            };
+
+            const t = translations[lang] || translations['ar'];
+
+            document.getElementById('pageTitle').textContent = t.pageTitle;
+            document.getElementById('lang-back').textContent = t.back;
+            document.getElementById('lang-title').textContent = t.title;
+            document.getElementById('lang-desc').textContent = t.desc;
+            document.getElementById('lang-email-label').textContent = t.emailLabel;
+            document.getElementById('lang-support-label').textContent = t.supportLabel;
+            document.getElementById('lang-support-val').textContent = t.supportVal;
+
+            document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+            
+            // ضبط مكان زر الرجوع
+            const btn = document.getElementById('backHomeBtn');
+            if(lang === 'ar') {
+                btn.style.right = '20px'; btn.style.left = 'auto';
+                document.querySelectorAll('.icon-circle').forEach(el => el.style.marginLeft = '15px');
+                document.querySelectorAll('.icon-circle').forEach(el => el.style.marginRight = '0');
+            } else {
+                btn.style.left = '20px'; btn.style.right = 'auto';
+                document.querySelectorAll('.icon-circle').forEach(el => el.style.marginRight = '15px');
+                document.querySelectorAll('.icon-circle').forEach(el => el.style.marginLeft = '0');
+                document.querySelectorAll('.contact-info-text').forEach(el => el.style.textAlign = 'left');
+            }
+        }
+
+        applyGlobalSettings();
     </script>
-
 </body>
 </html>
