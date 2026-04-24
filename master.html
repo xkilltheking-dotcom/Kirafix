@@ -883,14 +883,13 @@ function startPostsListener() {
             const nameStyle = getStyleForName((post.uid === currentUid && currentUserData?.activeColor) ? currentUserData.activeColor : post.userColor);
             
             // --- تعديل الـ Style لدعم ميزة "المتوهج" و "اللانهاية" بصرياً ---
-            let postCustomStyle = "border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;";
-            if (post.userBadge === 'glow') {
-            postCustomStyle += "border: 2px solid #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);";
-             // إضافة الكلاس الجديد للأنيميشن
-             postCustomStyle = postCustomStyle.replace("border-radius", " animation: glow-pulse 2s infinite ease-in-out; border-radius");
-            } else if (post.userBadge === 'infinity') {
-                postCustomStyle += "border: 2px solid #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);";
-            }
+// تحديد الكلاسات الإضافية بناءً على الشارة (Badge)
+             let extraClasses = "";
+             if (post.userBadge === 'glow') {
+               extraClasses = "glow-post"; // هذا الكلاس سيفعل التوهج والأنيميشن
+             }
+
+
 
             const postHTML = `
             <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="${postCustomStyle}">
@@ -1016,13 +1015,18 @@ async function markMessagesAsRead(myId) {
 }
 function showRadarPopup(post) {
     const popup = document.createElement('div');
-    // تعديل الخلفية والظل ليكون أوضح
-    popup.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; z-index:20000; padding:20px; border-radius:15px; box-shadow:0 0 50px rgba(0,0,0,0.5); width:85%; max-width:350px; text-align:center; direction:rtl;";
+    // جلب ستايل لون اسم المستخدم
+    const userColorStyle = getStyleForName(post.userColor);
+    
+    popup.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; z-index:20000; padding:25px; border-radius:15px; box-shadow:0 0 50px rgba(0,0,0,0.5); width:85%; max-width:350px; text-align:center; direction:rtl; border: 3px solid #06b6d4;";
+    
     popup.innerHTML = `
-        <div style="font-size:40px">📡</div>
-        <h3 style="color:#000000; margin:10px 0; font-weight: bold;">إشعار عاجل!</h3> 
-        <p style="font-weight:bold; color:#000000;">قام ${post.userName} بنشر تحديث جديد الآن!</p>
-        <button onclick="this.parentElement.remove()" style="background:#06b6d4; color:white; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:bold; margin-top:10px;">مشاهدة</button>
+        <div style="font-size:45px; margin-bottom:10px;">📡</div>
+        <h3 style="color:#1f2937; margin:10px 0; font-weight: bold;">إشعار رادار عاجل!</h3> 
+        <p style="font-size:16px; color:#4b5563; margin-bottom:15px;">
+            قام <span ${userColorStyle}>${post.userName}</span> بنشر تحديث جديد الآن!
+        </p>
+        <button onclick="this.parentElement.remove()" style="background:#06b6d4; color:white; border:none; padding:12px 30px; border-radius:8px; cursor:pointer; font-weight:bold; width:100%; font-size:16px;">مشاهدة المنشور</button>
     `;
     document.body.appendChild(popup);
 }
