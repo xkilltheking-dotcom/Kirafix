@@ -3,95 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سياسة الخصوصية - Kirafix</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <title id="pageTitle">سياسة الخصوصية - Kirafix</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-                body{
-           color:#000000;
+        :root {
+            /* فاتح */
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1c1e21;
+            --text-secondary: #65676b;
+            --primary-blue: #2563eb;
+            --item-bg: #ffffff;
+            --item-border: #e5e7eb;
         }
 
-        :root {
-    /* الوضع الفاتح - الافتراضي */
-    --bg-color: #f0f2f5;
-    --card-bg: #ffffff;
-    --text-main: #1c1e21; /* اللون الأساسي للنصوص (أسود) */
-    --text-secondary: #65676b;
-                       --security-color: #059669; /* أخضر للأمان */
-            --primary-blue: #2563eb;
-            --text-main: #374151;
-            --bg-light: #f3f4f6;
-}
-
-body.dark-mode {
-    /* الوضع المظلم */
-    --bg-color: #18191a;
-    --card-bg: #242526;
-    --text-main: #e4e6eb; /* اللون الأساسي للنصوص (أبيض) */
-    --text-secondary: #b0b3b8;
-}
-
-/* الآن أهم خطوة: لا تستخدم color: black أو color: white أبداً */
-body {
-    background-color: var(--bg-color);
-    color: var(--text-main); /* سيتحول تلقائياً من أسود لأبيض والعكس */
-}
-
-.post, .setting-card {
-    background-color: var(--card-bg);
-    color: var(--text-main);
-}
-
-/* أي نص عايزه يقلب لوحده اعطيه المتغير ده */
-h1, h2, h3, p, span {
-    color: var(--text-main);
-}
+        body.dark-mode {
+            /* غامق */
+            --bg-color: #18191a;
+            --card-bg: #242526;
+            --text-main: #e4e6eb;
+            --text-secondary: #b0b3b8;
+            --primary-blue: #3b82f6;
+            --item-bg: #2d2e2f;
+            --item-border: #3e4042;
+        }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: #000000;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
             padding: 20px;
-            color: var(--text-main);
+            transition: 0.3s;
         }
 
         .info-content {
             max-width: 750px;
             margin: 50px auto;
-            background: white;
+            background: var(--card-bg);
             padding: 40px;
             border-radius: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.03);
-            border-top: 8px solid var(--primary-blue); /* خط جمالي علوي */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border-top: 8px solid var(--primary-blue);
         }
 
-        /* رأس الصفحة */
         .policy-header {
             text-align: center;
             margin-bottom: 40px;
         }
 
         .policy-header h1 {
-            color: #111827;
+            color: var(--text-main);
             font-size: 30px;
-            margin-bottom: 10px;
         }
 
-        .policy-header .shield-icon {
-            font-size: 50px;
-            margin-bottom: 15px;
-            display: block;
+        .policy-header p {
+            color: var(--text-secondary);
         }
 
-        /* قائمة السياسات */
         .privacy-list {
             list-style: none;
             padding: 0;
         }
 
         .privacy-list li {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
+            background: var(--item-bg);
+            border: 1px solid var(--item-border);
             margin-bottom: 15px;
             padding: 20px;
             border-radius: 15px;
@@ -99,18 +76,12 @@ h1, h2, h3, p, span {
             align-items: flex-start;
             gap: 15px;
             transition: 0.3s;
+            color: var(--text-main);
         }
 
         .privacy-list li:hover {
-            transform: scale(1.01);
             border-color: var(--primary-blue);
-            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.05);
-        }
-
-        /* أيقونة الصح بجانب كل بند */
-        .privacy-list li::before {
-            content: "🛡️"; /* أيقونة درع أو صح */
-            font-size: 20px;
+            transform: translateY(-2px);
         }
 
         .privacy-list li strong {
@@ -120,134 +91,125 @@ h1, h2, h3, p, span {
             font-size: 18px;
         }
 
-        /* تذييل الصفحة */
         .policy-footer {
             text-align: center;
             margin-top: 30px;
             font-size: 14px;
-            color: #9ca3af;
+            color: var(--text-secondary);
         }
 
-        /* تحسينات الموبايل */
-        @media (max-width: 600px) {
-            .info-content {
-                padding: 20px;
-                margin: 20px auto;
-            }
-            .policy-header h1 { font-size: 24px; }
-        }
         .back-home-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px; /* سيتغير تلقائياً حسب اتجاه الصفحة dir */
-    background: var(--white);
-    color: var(--text);
-    padding: 10px 18px;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: 0.3s;
-    border: 1px solid #ddd;
-}
-
-.back-home-btn:hover {
-    transform: translateY(-2px);
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-}
-        /* ده هيجبر أي عنصر واخد كلاس بوست أو كارت إنه يغير خلفيته */
-body.dark-mode .post, 
-body.dark-mode .setting-card, 
-body.dark-mode .composer,
-body.dark-mode div[style*="background:white"], 
-body.dark-mode div[style*="background: white"] {
-    background-color: #1a1a1a !important; /* لون الكارت في الدارك مود */
-    color: #ffffff !important; /* لون الخط */
-    border-color: #333 !important;
-}
-
-/* لو فيه نصوص جوه الكروت لسه سوداء */
-body.dark-mode .post *, 
-body.dark-mode .setting-card * {
-    color: #ffffff !important;
-}
+            position: fixed;
+            top: 20px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            padding: 10px 18px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--item-border);
+        }
     </style>
 </head>
 <body>
-        <a href="Kirafix.html" class="back-home-btn" id="backHomeBtn">
+
+<a href="Kirafix.html" class="back-home-btn" id="backHomeBtn">
     <span class="icon">🏠</span>
-    <span class="text">الرئيسية</span>
+    <span id="lang-back">الرئيسية</span>
 </a>
 
-    <div class="info-content">
-        <div class="policy-header">
-            <span class="shield-icon">🔐</span>
-            <h1>سياسة الخصوصية والأمان</h1>
-            <p>في Kirafix، خصوصيتك هي أولويتنا القصوى. نحن نعمل جاهدين لضمان تجربة إعلانية آمنة تماماً.</p>
-        </div>
+<div class="info-content">
+    <div class="policy-header">
+        <span style="font-size: 50px;">🔐</span>
+        <h1 id="lang-header-title">سياسة الخصوصية والأمان</h1>
+        <p id="lang-header-desc">في Kirafix، خصوصيتك هي أولويتنا القصوى. نحن نعمل جاهدين لضمان تجربة إعلانية آمنة تماماً.</p>
+    </div>
 
-        <ul class="privacy-list">
-            <li>
-                <div>
-                    <strong>البيانات المعلنة</strong>
-                    أنت المتحكم الأول والأخير؛ يمكنك اختيار إخفاء أو إظهار بيانات التواصل (مثل رقم هاتفك) في تفاصيل الإعلان.
-                </div>
-            </li>
-            <li>
-                <div>
-                    <strong>التواصل الآمن</strong>
-                    نظام الدردشة داخل Kirafix مشفر تماماً، مما يضمن سرية المفاوضات والاتفاقات بين البائع والمشتري بعيداً عن المتطفلين.
-                </div>
-            </li>
-            <li>
-                <div>
-                    <strong>حماية البيانات</strong>
-                    نحن ملتزمون بعدم بيع أو مشاركة بياناتك الشخصية مع شركات الإعلانات الخارجية. بياناتك تُستخدم فقط لتسهيل عمليات البيع والشراء داخل المنصة.
-                </div>
-            </li>
-            <li>
-                <div>
-                    <strong>نظام العملات (Kira Coins)</strong>
-                    عملياتك المالية داخل الموقع لاستخدام ميزات الإعلانات محمية بأنظمة أمان متطورة لضمان حقك.
-                </div>
-            </li>
+    <ul class="privacy-list" id="privacyList">
         </ul>
 
-        <div class="policy-footer">
-            آخر تحديث: أبريل 2026 <br>
-            جميع الحقوق محفوظة لمنصة Kirafix
-        </div>
+    <div class="policy-footer" id="lang-footer">
+        آخر تحديث: أبريل 2026 <br>
+        جميع الحقوق محفوظة لمنصة Kirafix
     </div>
-    <script>
-        // كود تطبيق الإعدادات المحفوظة - ضعه في كل الصفحات
-function applyGlobalSettings() {
-    // 1. تطبيق وضع الظلام
-    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
-    if (savedDark) {
-        document.body.classList.add('dark-mode');
-    } else {
-        document.body.classList.remove('dark-mode');
+</div>
+
+<script>
+    function applyGlobalSettings() {
+        const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+        if (savedDark) { document.body.classList.add('dark-mode'); }
+        else { document.body.classList.remove('dark-mode'); }
+
+        const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+        applyLanguage(savedLang);
     }
 
-    // 2. تطبيق اللغة والاتجاه
-    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
-    document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
-    
-    // هنا ممكن تستدعي الدالة اللي بتغير النصوص عندك في الصفحة بناءً على savedLang
-    if (typeof applyMainLanguage === 'function') {
-        applyMainLanguage(savedLang);
+    function applyLanguage(lang) {
+        const translations = {
+            ar: {
+                pageTitle: "سياسة الخصوصية - Kirafix",
+                back: "الرئيسية",
+                headerTitle: "سياسة الخصوصية والأمان",
+                headerDesc: "في Kirafix، خصوصيتك هي أولويتنا القصوى. نحن نعمل جاهدين لضمان تجربة إعلانية آمنة تماماً.",
+                footer: "آخر تحديث: أبريل 2026 <br> جميع الحقوق محفوظة لمنصة Kirafix",
+                items: [
+                    { t: "البيانات المعلنة", d: "أنت المتحكم الأول والأخير؛ يمكنك اختيار إخفاء أو إظهار بيانات التواصل في تفاصيل الإعلان." },
+                    { t: "التواصل الآمن", d: "نظام الدردشة داخل Kirafix مشفر تماماً، مما يضمن سرية المفاوضات بين البائع والمشتري." },
+                    { t: "حماية البيانات", d: "نحن ملتزمون بعدم بيع أو مشاركة بياناتك الشخصية مع شركات الإعلانات الخارجية." },
+                    { t: "نظام العملات", d: "عملياتك المالية داخل الموقع لاستخدام ميزات الإعلانات محمية بأنظمة أمان متطورة." }
+                ]
+            },
+            en: {
+                pageTitle: "Privacy Policy - Kirafix",
+                back: "Home",
+                headerTitle: "Privacy & Security Policy",
+                headerDesc: "At Kirafix, your privacy is our top priority. We work hard to ensure a completely safe advertising experience.",
+                footer: "Last Update: April 2026 <br> All rights reserved to Kirafix platform",
+                items: [
+                    { t: "Public Data", d: "You are in total control; you can choose to hide or show your contact details in ad details." },
+                    { t: "Secure Communication", d: "The chat system within Kirafix is fully encrypted, ensuring the confidentiality of negotiations." },
+                    { t: "Data Protection", d: "We are committed not to sell or share your personal data with third-party advertising companies." },
+                    { t: "Currency System", d: "Your financial transactions within the site for using ad features are protected by advanced security systems." }
+                ]
+            }
+        };
+
+        const t = translations[lang] || translations['ar'];
+
+        document.getElementById('pageTitle').textContent = t.pageTitle;
+        document.getElementById('lang-back').textContent = t.back;
+        document.getElementById('lang-header-title').textContent = t.headerTitle;
+        document.getElementById('lang-header-desc').textContent = t.headerDesc;
+        document.getElementById('lang-footer').innerHTML = t.footer;
+
+        // بناء الليستة
+        const list = document.getElementById('privacyList');
+        list.innerHTML = "";
+        t.items.forEach(item => {
+            list.innerHTML += `
+                <li>
+                    <div>
+                        <strong>${item.t}</strong>
+                        ${item.d}
+                    </div>
+                </li>
+            `;
+        });
+
+        document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+        
+        // ضبط مكان زر الرجوع
+        const btn = document.getElementById('backHomeBtn');
+        if(lang === 'ar') { btn.style.right = '20px'; btn.style.left = 'auto'; }
+        else { btn.style.left = '20px'; btn.style.right = 'auto'; }
     }
-}
 
-// استدعاء الدالة فوراً
-applyGlobalSettings();
-    </script>
-
+    applyGlobalSettings();
+</script>
 </body>
 </html>
