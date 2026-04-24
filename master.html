@@ -1027,16 +1027,33 @@ async function markMessagesAsRead(myId) {
 }
 function showRadarPopup(post) {
     const popup = document.createElement('div');
-    // إضافة لون خلفية أبيض صريح وتحديد اللون الأساسي للنصوص
+    const postId = post.id; // بناخد الأيدي بتاع المنشور
+
     popup.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#ffffff !important; z-index:20000; padding:20px; border-radius:15px; box-shadow:0 0 50px rgba(0,0,0,0.5); width:85%; max-width:350px; text-align:center; direction:rtl; border: 2px solid #06b6d4; color: #000000 !important;";
     
     popup.innerHTML = `
         <div style="font-size:40px; margin-bottom:10px;">📡</div>
-        <h3 style="color:#000000 !important; margin:10px 0; font-weight: 800; font-family: sans-serif; display:block;">إشعار عاجل!</h3> 
-        <p style="font-weight:bold; color:#333333 !important; font-size: 16px; margin-bottom: 15px; display:block;">قام ${post.userName} بنشر تحديث جديد الآن!</p>
-        <button onclick="this.parentElement.remove()" style="background:#06b6d4 !important; color:#ffffff !important; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:bold; margin-top:10px; width: 100%; display:block;">مشاهدة</button>
+        <h3 style="color:#000000 !important; margin:10px 0; font-weight: 800; font-family: sans-serif;">إشعار عاجل!</h3> 
+        <p style="font-weight:bold; color:#333333 !important; font-size: 16px; margin-bottom: 15px;">قام ${post.userName} بنشر تحديث جديد الآن!</p>
+        <button id="view-post-btn" style="background:#06b6d4 !important; color:#ffffff !important; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:bold; margin-top:10px; width: 100%;">مشاهدة المنشور</button>
     `;
+    
     document.body.appendChild(popup);
+
+    // إضافة وظيفة الزرار برمجياً عشان نتحكم في السكرول
+    popup.querySelector('#view-post-btn').onclick = () => {
+        const postElement = document.querySelector(`[data-id="${postId}"]`);
+        if (postElement) {
+            // بيخلي المتصفح يروح للمنشور بنعومة
+            postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // إضافة تأثير بسيط عشان المستخدم يعرف هو أنهي بوست بالظبط
+            postElement.style.transition = "0.5s";
+            postElement.style.transform = "scale(1.02)";
+            setTimeout(() => { postElement.style.transform = "scale(1)"; }, 1000);
+        }
+        popup.remove(); // بنشيل النافذة بعد الضغط
+    };
 }
 function renderUserBadge(badgeId) {
     if (!badgeId) return "";
