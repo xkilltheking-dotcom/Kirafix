@@ -342,57 +342,29 @@
         }
         @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
 
-        /* ستايل الرتب الجديد */
-        .user-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 1px 6px;
-            border-radius: 4px;
-            margin-right: 4px;
-            vertical-align: middle;
-            text-transform: uppercase;
-        }
-        /* التصميم الأساسي للكبسولة */
-/* ستايل الألقاب المينيمال */
+/* ستايل اللقب الموحد */
 .user-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0px 6px;
-    border-radius: 2px; /* حواف حادة شوية بتدي فخامة */
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 9px; /* صغير جداً */
+    font-weight: 900; /* خط تقيل جداً عشان يظهر */
+    letter-spacing: 1.5px; /* مسافات واسعة بين الحروف للفخامة */
     margin-right: 5px;
     vertical-align: middle;
-    letter-spacing: 0.8px;
-    border: 1px solid #e5e7eb; /* حدود رفيعة جداً */
-    background: transparent;
-    color: #374151; /* لون رمادي غامق هادي */
-}
-
-/* تمييز بسيط جداً للأدمن والإديتور بدون فواكه ألوان */
-.badge-admin {
-    border-color: #000; /* حدود سوداء */
-    color: #000;
-    background: #f3f4f6; /* خلفية رمادي فاتح جداً */
-}
-
-.badge-editor {
-    border-color: #6b7280;
-    color: #4b5563;
+    text-transform: uppercase;
+    color: #111827; /* لون أسود فحمي هادي */
+    opacity: 0.8; /* شفافية بسيطة تخليها ناعمة */
 }
 
 /* في حالة الدارك مود */
 body.dark-mode .user-badge {
-    border-color: #374151;
-    color: #9ca3af;
+    color: #f3f4f6; /* لون أبيض مطفي */
+    opacity: 0.7;
 }
 
-body.dark-mode .badge-admin {
-    border-color: #fff;
-    color: #fff;
+/* لمسة تميز بسيطة جداً للأدمن (اختياري: خط مائل مثلاً) */
+.badge-admin {
+    font-style: italic;
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
     </style>
 </head>
@@ -1037,27 +1009,24 @@ async function markMessagesAsRead(myId) {
 function renderUserBadge(badgeId) {
     if (!badgeId) return "";
 
-    let extraClass = "";
-    let label = badgeId.toUpperCase();
-
-    // تخصيص الكلاسات لو أدمن أو إديتور
-    if (badgeId === 'admin') extraClass = "badge-admin";
-    if (badgeId === 'editor') extraClass = "badge-editor";
-
-    // لو اللقب طويل ممكن نختصره هنا
-    const shortcuts = {
-        'sticker': 'STK',
-        'glow': 'GLW',
-        'global': 'GBL',
-        'radar': 'RDR',
-        'infinity': 'INF'
+    // مابينج للأسماء بشكل سمبل
+    const badgeMap = {
+        'admin': 'ADMIN',
+        'editor': 'EDITOR',
+        'sticker': 'STICKER',
+        'glow': 'GLOW',
+        'global': 'GLOBAL',
+        'radar': 'RADAR',
+        'infinity': 'INFINITY'
     };
 
-    label = shortcuts[badgeId] || label;
-
+    const label = badgeMap[badgeId] || badgeId.toUpperCase();
+    
+    // بنرجع النص مع كلاس الأدمن لو موجود للتميز البسيط
+    let extraClass = (badgeId === 'admin') ? 'badge-admin' : '';
+    
     return `<span class="user-badge ${extraClass}">${label}</span>`;
 }
-
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
 const closeBtn = document.getElementById("closeBtn");
