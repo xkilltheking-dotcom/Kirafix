@@ -355,7 +355,7 @@ body.dark-mode .setting-card * {
             <span id="user-coins">0</span>
             <span>🪙</span>
         </div>
-        
+
         <p>تكلفة اللفة: 100 كوين</p>
         <div class="wheel-container">
             <div class="pointer"></div>
@@ -379,7 +379,7 @@ body.dark-mode .setting-card * {
     <div class="store-card">
         <h3>💰 شحن رصيد الكوينز</h3>
         <p style="font-size: 13px; color: #6b7280; margin-bottom: 20px;">اختر الباقة المناسبة لك، سيتم إضافة الرصيد فور نجاح عملية الدفع.</p>
-        
+
         <div class="coins-pricing-grid">
             <div class="price-card" onclick="initiatePayment(100, 0.99)">
                 <div class="coin-icon-wrapper">🪙</div>
@@ -466,175 +466,155 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// --- 🔊 نظام الأصوات الجديد (أصوات أنعم وأشيك) ---
-// صوت دوران العجلة (صوت تروس ميكانيكية ناعمة)
+// --- 🔊 نظام الأصوات ---
 const spinSound = new Audio('https://assets.mixkit.co/active_storage/sfx/1471/1471-preview.mp3');
-// صوت الفوز (صوت سحري خفيف)
 const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3');
 
+// --- 🛠️ قاموس البيانات المترجم (للعجلة والأوسمة) ---
 const colors = [
-    { name: 'أحمر', code: 'linear-gradient(135deg, #ff4d4d, #cc0000)', chance: 24.0 },
-    { name: 'أخضر', code: 'linear-gradient(135deg, #4dff4d, #00cc00)', chance: 24.0 },
-    { name: 'أزرق', code: 'linear-gradient(135deg, #4d4dff, #0000cc)', chance: 24.0 },
-    { name: 'جولد', code: 'linear-gradient(135deg, #ffd700, #b8860b)', chance: 1.0 },
-    { name: 'دموي', code: 'linear-gradient(135deg, #8a0303, #4a0000)', chance: 1.0 },
-    { name: 'رينبو', code: 'RAINBOW_SPECIAL', chance: 0.1 }
+    { id: 'red', ar: 'أحمر', en: 'Red', code: 'linear-gradient(135deg, #ff4d4d, #cc0000)', chance: 24.0 },
+    { id: 'green', ar: 'أخضر', en: 'Green', code: 'linear-gradient(135deg, #4dff4d, #00cc00)', chance: 24.0 },
+    { id: 'blue', ar: 'أزرق', en: 'Blue', code: 'linear-gradient(135deg, #4d4dff, #0000cc)', chance: 24.0 },
+    { id: 'gold', ar: 'جولد', en: 'Gold', code: 'linear-gradient(135deg, #ffd700, #b8860b)', chance: 1.0 },
+    { id: 'blood', ar: 'دموي', en: 'Blood', code: 'linear-gradient(135deg, #8a0303, #4a0000)', chance: 1.0 },
+    { id: 'rainbow', ar: 'رينبو', en: 'Rainbow', code: 'RAINBOW_SPECIAL', chance: 0.1 }
 ];
 
 const availableBadges = [
-    { 
-        id: 'sticker', 
-        name: 'المثبت (Sticker)', 
-        icon: '📌', 
-        price: 3000, 
-        benefit: 'تثبيت منشورك في المقدمة لمدة ساعة كاملة.' 
-    },
-    { 
-        id: 'glow', 
-        name: 'المتوهج (Glow)', 
-        icon: '✨', 
-        price: 7500, 
-        benefit: 'إطار مضيء وتأثير بصري يضاعف التفاعل.' 
-    },
-    { 
-        id: 'global', 
-        name: 'العابر (Global)', 
-        icon: '🌍', 
-        price: 12000, 
-        benefit: 'إرسال تنبيه فوري لجميع المستخدمين عند نشرك.' 
-    },
-    { 
-        id: 'radar', 
-        name: 'الرادار (Radar)', 
-        icon: '📡', 
-        price: 18000, 
-        benefit: 'ظهور منشورك كإعلان إجباري (Pop-up) عند دخول أي مستخدم.' 
-    },
-    { 
-        id: 'infinity', 
-        name: 'الناشر اللانهائي', 
-        icon: '🚀', 
-        price: 35000, 
-        benefit: 'تكرار تلقائي لمنشورك في أعلى الصفحة كل ساعتين (أقوى ميزة).' 
-    }
+    { id: 'sticker', icon: '📌', price: 3000, ar: 'المثبت', en: 'Sticker', bAr: 'تثبيت منشورك في المقدمة لمدة ساعة.', bEn: 'Pin your post at the top for 1 hour.' },
+    { id: 'glow', icon: '✨', price: 7500, ar: 'المتوهج', en: 'Glow', bAr: 'إطار مضيء وتأثير بصري يضاعف التفاعل.', bEn: 'Glowing frame and visual effect to boost engagement.' },
+    { id: 'global', icon: '🌍', price: 12000, ar: 'العابر', en: 'Global', bAr: 'إرسال تنبيه فوري لجميع المستخدمين.', bEn: 'Send instant notification to all users.' },
+    { id: 'radar', icon: '📡', price: 18000, ar: 'الرادار', en: 'Radar', bAr: 'ظهور منشورك كإعلان إجباري (Pop-up).', bEn: 'Your post appears as a mandatory Pop-up.' },
+    { id: 'infinity', icon: '🚀', price: 35000, ar: 'الناشر اللانهائي', en: 'Infinity', bAr: 'تكرار تلقائي لمنشورك كل ساعتين.', bEn: 'Auto-repeat your post every 2 hours.' }
 ];
 
+// --- 🌍 نظام الترجمة والإعدادات ---
 function applyGlobalSettings() {
-    // 1. تطبيق المظهر (Dark Mode)
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
-    if (savedDark) {
-        document.body.classList.add('dark-mode');
-    } else {
-        document.body.classList.remove('dark-mode');
-    }
+    document.body.classList.toggle('dark-mode', savedDark);
 
-    // 2. تطبيق اللغة
-    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
-    applyStoreLanguage(savedLang);
-    renderMarket(savedLang);
+    const lang = localStorage.getItem('kirafix-lang') || 'ar';
+    document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+
+    applyLanguageStrings(lang);
+    renderMarket(lang);
+    drawWheel(lang);
 }
 
-function applyStoreLanguage(lang) {
-    const translations = {
+function applyLanguageStrings(lang) {
+    const t = {
         ar: {
             back: "🏠 العودة للرئيسية",
             daily: "🎁 استلام الهدية اليومية",
-            wheelTitle: "🎡 عجلة الحظ - Kirafix",
+            wheel: "🎡 Kirafix Lucky Wheel",
             balance: "رصيدك:",
             spinCost: "تكلفة اللفة: 100 كوين",
             spinBtn: "إبدأ اللف الآن!",
-            marketTitle: "🎖️ متجر الأوسمة والتوثيق",
-            inventoryTitle: "🎒 حقيبتك (Inventory)",
-            colorsTitle: "🎨 الألوان المفتوحة:",
-            badgesTitle: "🎖️ الأوسمة المفتوحة:",
-            buyBtn: "شراء الآن",
+            market: "🎖️ متجر الأوسمة والتوثيق",
+            inv: "🎒 حقيبتك (Inventory)",
+            invColors: "🎨 الألوان المفتوحة:",
+            invBadges: "🎖️ الأوسمة المفتوحة:",
             chargeTitle: "💰 شحن رصيد الكوينز",
-            chargeDesc: "اختر الباقة المناسبة لك، سيتم إضافة الرصيد فور نجاح عملية الدفع.",
-            popular: "الأكثر طلباً",
+            buyNow: "شراء الآن",
             coinUnit: "كوين"
         },
         en: {
             back: "🏠 Back to Home",
             daily: "🎁 Claim Daily Gift",
-            wheelTitle: "🎡 Kirafix Lucky Wheel",
+            wheel: "🎡 Kirafix Lucky Wheel",
             balance: "Balance:",
             spinCost: "Spin Cost: 100 Coins",
             spinBtn: "Spin Now!",
-            marketTitle: "🎖️ Badge & Verification Store",
-            inventoryTitle: "🎒 Your Inventory",
-            colorsTitle: "🎨 Unlocked Colors:",
-            badgesTitle: "🎖️ Unlocked Badges:",
-            buyBtn: "Buy Now",
+            market: "🎖️ Badge & Verification Store",
+            inv: "🎒 Your Inventory",
+            invColors: "🎨 Unlocked Colors:",
+            invBadges: "🎖️ Unlocked Badges:",
             chargeTitle: "💰 Top Up Coins",
-            chargeDesc: "Choose your package; balance is added instantly after payment.",
-            popular: "Most Popular",
+            buyNow: "Buy Now",
             coinUnit: "Coins"
         }
-    };
+    }[lang];
 
-    const t = translations[lang] || translations['ar'];
-
-    // ترجمة النصوص الثابتة
     document.querySelector('.home-btn').textContent = t.back;
     document.getElementById('dailyBtn').textContent = t.daily;
-    document.querySelector('.store-card h2').textContent = t.wheelTitle;
+    document.querySelector('.store-card h2').textContent = t.wheel;
     document.querySelector('.balance-box span:first-child').textContent = t.balance;
     document.querySelector('.store-card p').textContent = t.spinCost;
     document.getElementById('spinBtn').textContent = t.spinBtn;
-    document.querySelectorAll('.store-card h3')[0].textContent = t.marketTitle;
+    document.querySelectorAll('.store-card h3')[0].textContent = t.market;
     document.querySelectorAll('.store-card h3')[1].textContent = t.chargeTitle;
-    document.querySelector('.store-card p[style*="font-size: 13px"]').textContent = t.chargeDesc;
-    document.querySelector('.inventory-section h3').textContent = t.inventoryTitle;
-    document.querySelectorAll('.section-title')[0].textContent = t.colorsTitle;
-    document.querySelectorAll('.section-title')[1].textContent = t.badgesTitle;
+    document.querySelector('.inventory-section h3').textContent = t.inv;
+    document.querySelectorAll('.section-title')[0].textContent = t.invColors;
+    document.querySelectorAll('.section-title')[1].textContent = t.invBadges;
 
-    // ترجمة باقات الشحن
+    // تحديث كروت الشحن
     document.querySelectorAll('.price-card').forEach(card => {
         const amountEl = card.querySelector('.coin-amount');
-        const btnEl = card.querySelector('.buy-coin-btn');
-        const popularEl = card.querySelector('.popular-badge');
-
         if(amountEl) {
-            const amount = amountEl.textContent.split(' ')[0];
-            amountEl.textContent = `${amount} ${t.coinUnit}`;
+            const val = amountEl.textContent.split(' ')[0];
+            amountEl.textContent = `${val} ${t.coinUnit}`;
         }
-        if(btnEl) btnEl.textContent = t.buyBtn;
-        if(popularEl) popularEl.textContent = t.popular;
+        const btn = card.querySelector('.buy-coin-btn');
+        if(btn) btn.textContent = t.buyNow;
     });
-
-    document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
 function renderMarket(lang) {
-    const marketContainer = document.getElementById('badge-market');
-    marketContainer.innerHTML = '';
-
-    marketBadges.forEach(badge => {
-        const name = lang === 'ar' ? badge.ar : badge.en;
-        const benefit = lang === 'ar' ? badge.benefitAr : badge.benefitEn;
-        const buyText = lang === 'ar' ? 'شراء' : 'Buy';
-
-        marketContainer.innerHTML += `
-            <div class="badge-buy-card" onclick="buyBadge('${badge.id}', ${badge.price})">
-                <div class="badge-item badge-${badge.id}">${name}</div>
-                <div class="badge-benefit">${benefit}</div>
-                <div style="margin-top:10px; font-weight:bold; color:var(--gold)">${badge.price} 🪙</div>
-                <button class="buy-coin-btn" style="margin-top:5px">${buyText}</button>
+    const m = document.getElementById("badge-market");
+    m.innerHTML = availableBadges.map(b => `
+        <div class="badge-buy-card" onclick="window.buyBadge('${b.id}', ${b.price})">
+            <div>
+                <div style="font-size:30px">${b.icon}</div>
+                <div style="font-size:14px; font-weight:bold; margin-top:5px">${lang === 'ar' ? b.ar : b.en}</div>
+                <div class="badge-benefit">${lang === 'ar' ? b.bAr : b.bEn}</div>
             </div>
-        `;
-    });
-} 
-    applyGlobalSettings();
+            <div style="color:#10b981; font-size:15px; font-weight:bold; margin-top:10px">${b.price} 🪙</div>
+        </div>
+    `).join('');
+}
 
+// --- 🎡 نظام العجلة ---
+function drawWheel(lang) {
+    const canvas = document.getElementById("wheel-canvas");
+    const ctx = canvas.getContext("2d");
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = canvas.width / 2;
+    const sliceAngle = (2 * Math.PI) / colors.length;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    colors.forEach((color, i) => {
+        ctx.beginPath();
+        ctx.fillStyle = (i % 2 === 0) ? "#1f2937" : "#374151"; 
+        if(color.id === 'gold') ctx.fillStyle = "#ffd700";
+        if(color.id === 'rainbow') ctx.fillStyle = "#8b5cf6";
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, i * sliceAngle, (i + 1) * sliceAngle);
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(i * sliceAngle + sliceAngle / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = color.id === 'gold' ? "#000" : "#fff";
+        ctx.font = "bold 24px Arial";
+        ctx.fillText(lang === 'ar' ? color.ar : color.en, radius - 30, 10);
+        ctx.restore();
+    });
+}
+
+// --- 🔥 منطق Firebase ---
 window.buyBadge = async (id, price) => {
+    if(!auth.currentUser) return;
     const userRef = doc(db, "users", auth.currentUser.uid);
     const snap = await getDoc(userRef);
     const data = snap.data();
-    if ((data.inventoryBadges || []).includes(id)) return alert("تمتلكه بالفعل!");
-    if ((data.coins || 0) < price) return alert("رصيدك لا يكفي!");
-    if(confirm("شراء هذا الوسام؟")) {
+    if ((data.inventoryBadges || []).includes(id)) return alert(document.body.dir === 'rtl' ? "تمتلكه بالفعل!" : "Already owned!");
+    if ((data.coins || 0) < price) return alert(document.body.dir === 'rtl' ? "رصيدك لا يكفي!" : "Not enough coins!");
+    
+    if(confirm(document.body.dir === 'rtl' ? "شراء هذا الوسام؟" : "Purchase this badge?")) {
         await updateDoc(userRef, { coins: increment(-price), inventoryBadges: arrayUnion(id) });
-        alert("تم الشراء بنجاح!");
+        alert("Success!");
     }
 };
 
@@ -658,26 +638,66 @@ async function checkDailyStatus(lastDaily) {
     const today = new Date().toLocaleDateString();
     if (lastDate === today) {
         btn.disabled = true;
-        btn.textContent = "✅ تم استلام هدية اليوم";
+        btn.textContent = document.body.dir === 'rtl' ? "✅ تم استلام هدية اليوم" : "✅ Gift Claimed";
     }
 }
 
 document.getElementById("dailyBtn").onclick = async () => {
     const userRef = doc(db, "users", auth.currentUser.uid);
-    await updateDoc(userRef, { 
-        coins: increment(50), 
-        lastDaily: serverTimestamp() 
-    });
+    await updateDoc(userRef, { coins: increment(50), lastDaily: serverTimestamp() });
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-    alert("🎁 حصلت على 50 كوين هدية يومية!");
 };
 
+// --- 🎡 تشغيل العجلة ---
+let rotation = 0;
+document.getElementById("spinBtn").onclick = async () => {
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    const snap = await getDoc(userRef);
+    if ((snap.data().coins || 0) < 100) return alert("Insufficient balance!");
+
+    document.getElementById("spinBtn").disabled = true;
+    spinSound.currentTime = 0;
+    spinSound.loop = true;
+    spinSound.play();
+
+    await updateDoc(userRef, { coins: increment(-100) });
+
+    let winningIndex = 0;
+    let totalWeight = colors.reduce((s, c) => s + c.chance, 0);
+    let random = Math.random() * totalWeight;
+    let sum = 0;
+    for (let i = 0; i < colors.length; i++) {
+        sum += colors[i].chance;
+        if (random <= sum) { winningIndex = i; break; }
+    }
+
+    const canvas = document.getElementById("wheel-canvas");
+    const sliceAngle = 360 / colors.length;
+    rotation += (360 * 8) + (360 - (winningIndex * sliceAngle) - (sliceAngle / 2));
+    canvas.style.transform = `rotate(${rotation}deg)`;
+
+    setTimeout(async () => {
+        spinSound.pause();
+        winSound.play();
+        const winner = colors[winningIndex];
+        const lang = localStorage.getItem('kirafix-lang') || 'ar';
+        await updateDoc(userRef, { inventory: arrayUnion(winner.code) });
+        confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+        alert(`${lang === 'ar' ? 'مبروك! حصلت على' : 'Congrats! You got'} ${lang === 'ar' ? winner.ar : winner.en}`);
+        document.getElementById("spinBtn").disabled = false;
+    }, 4000);
+};
+
+// استدعاء التشغيل الأولي
+applyGlobalSettings();
+
+// دوال الـ Render الباقية (Inventory) كما هي...
 function renderInventory(items, active) {
     const grid = document.getElementById("color-grid");
     grid.innerHTML = "";
     ['#374151', ...new Set(items)].forEach(code => {
         const d = document.createElement("div");
-        const isRainbow = (code === 'RAINBOW_SPECIAL' || code.includes('red, orange'));
+        const isRainbow = (code === 'RAINBOW_SPECIAL');
         d.className = `item-box ${active === code ? 'active' : ''} ${isRainbow ? 'rainbow' : ''}`;
         if(!isRainbow) d.style.background = code;
         d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeColor: code });
@@ -691,105 +711,12 @@ function renderBadgeInv(badges, active) {
     (badges || []).forEach(id => {
         const bData = availableBadges.find(x => x.id === id);
         const d = document.createElement("div");
-        let specialClass = "";
-        if(id === 'admin') specialClass = "badge-admin";
-        if(id === 'editor') specialClass = "badge-editor";
-        d.className = `item-box ${active === id ? 'active' : ''} ${specialClass}`;
-        if (id === 'admin') d.innerHTML = "<span style='font-size:10px'>ADM🛡️</span>";
-        else if (id === 'editor') d.innerHTML = "<span style='font-size:10px'>EDI⚒️</span>";
-        else d.innerHTML = bData ? bData.icon : "🎖️";
+        d.className = `item-box ${active === id ? 'active' : ''} ${id === 'admin' ? 'badge-admin' : ''}`;
+        d.innerHTML = bData ? bData.icon : (id === 'admin' ? "ADM🛡️" : "🎖️");
         d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
         grid.appendChild(d);
     });
 }
-
-let rotation = 0;
-document.getElementById("spinBtn").onclick = async () => {
-    const userRef = doc(db, "users", auth.currentUser.uid);
-    const snap = await getDoc(userRef);
-    if ((snap.data().coins || 0) < 100) return alert("رصيدك لا يكفي!");
-    
-    document.getElementById("spinBtn").disabled = true;
-    
-    // تشغيل صوت اللف الجديد
-    spinSound.currentTime = 0;
-    spinSound.loop = true; // نخليه يلف طول فترة الحركة
-    spinSound.play().catch(e => console.log("الصوت يحتاج تفاعل"));
-    
-    await updateDoc(userRef, { coins: increment(-100) });
-
-    let winningIndex = 0;
-    let totalWeight = colors.reduce((s, c) => s + c.chance, 0);
-    let random = Math.random() * totalWeight;
-    let sum = 0;
-    for (let i = 0; i < colors.length; i++) {
-        sum += colors[i].chance;
-        if (random <= sum) { winningIndex = i; break; }
-    }
-
-    const sliceAngle = 360 / colors.length;
-    rotation += (360 * 8) + (360 - (winningIndex * sliceAngle) - (sliceAngle / 2));
-    canvas.style.transform = `rotate(${rotation}deg)`;
-
-    setTimeout(async () => {
-        spinSound.pause(); // وقف صوت اللف
-        spinSound.loop = false;
-        
-        winSound.play(); // شغل صوت الفوز "الرايق"
-
-        const winner = colors[winningIndex];
-        await updateDoc(userRef, { inventory: arrayUnion(winner.code) });
-        
-        confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
-
-        alert(`مبروك! حصلت على لون ${winner.name}`);
-        document.getElementById("spinBtn").disabled = false;
-    }, 4000);
-};
-
-if(localStorage.getItem('kirafix-dark') === 'true') document.body.classList.add('dark-mode');
-    window.initiatePayment = (amount, price) => {
-    // هذه الدالة ستكون بوابة الدفع الحقيقية لاحقاً
-    const confirmPay = confirm(`هل تود شراء ${amount} كوين مقابل $${price}؟\n(سيتم تحويلك لصفحة الدفع الآمن)`);
-    
-    if (confirmPay) {
-        alert("سيتم الآن ربطك ببطاقة الفيزا لإتمام عملية الشحن الحقيقية...");
-        // هنا سنضع كود Stripe أو PayPal لاحقاً
-    }
-};
-    const canvas = document.getElementById("wheel-canvas");
-const ctx = canvas.getContext("2d");
-
-function drawWheel() {
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = canvas.width / 2;
-    const sliceAngle = (2 * Math.PI) / colors.length;
-
-    colors.forEach((color, i) => {
-        ctx.beginPath();
-        // بنختار لون سادة للرسم على العجلة عشان الـ Gradient مش بيبان حلو في الـ Arc
-        ctx.fillStyle = (i % 2 === 0) ? "#1f2937" : "#374151"; 
-        if(color.name === 'جولد') ctx.fillStyle = "#ffd700";
-        if(color.name === 'رينبو') ctx.fillStyle = "#8b5cf6";
-        
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, i * sliceAngle, (i + 1) * sliceAngle);
-        ctx.fill();
-
-        // إضافة النص (اسم اللون)
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(i * sliceAngle + sliceAngle / 2);
-        ctx.textAlign = "right";
-        ctx.fillStyle = color.name === 'جولد' ? "#000" : "#fff";
-        ctx.font = "bold 24px Cairo, Arial";
-        ctx.fillText(color.name, radius - 30, 10);
-        ctx.restore();
-    });
-}
-// استدعاء الرسم فوراً
-drawWheel();
 </script>
 </body>
 </html>
