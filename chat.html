@@ -210,6 +210,22 @@ h1, h2, h3, p, span {
     color: #2563eb !important;
     font-weight: bold;
 }
+    /* ده هيجبر أي عنصر واخد كلاس بوست أو كارت إنه يغير خلفيته */
+body.dark-mode .post, 
+body.dark-mode .setting-card, 
+body.dark-mode .composer,
+body.dark-mode div[style*="background:white"], 
+body.dark-mode div[style*="background: white"] {
+    background-color: #1a1a1a !important; /* لون الكارت في الدارك مود */
+    color: #ffffff !important; /* لون الخط */
+    border-color: #333 !important;
+}
+
+/* لو فيه نصوص جوه الكروت لسه سوداء */
+body.dark-mode .post *, 
+body.dark-mode .setting-card * {
+    color: #ffffff !important;
+}
     </style>
 </head>
 <body>
