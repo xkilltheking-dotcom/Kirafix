@@ -279,6 +279,20 @@ body.dark-mode .price-card { background: #111827; border-color: #374151; }
 .vip-pack { border: 1px dashed #2563eb; }
 .royal-pack { border: 2px solid #8b5cf6; background: linear-gradient(to bottom, #ffffff, #f5f3ff); }
 body.dark-mode .royal-pack { background: linear-gradient(to bottom, #111827, #1e1b4b); }
+    .badge-benefit {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 5px;
+    line-height: 1.2;
+}
+body.dark-mode .badge-benefit { color: #9ca3af; }
+
+.badge-buy-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 160px; /* زيادة الارتفاع لاستيعاب الوصف */
+}
     </style>
 
 <div class="container">
@@ -419,37 +433,60 @@ const colors = [
 ];
 
 const availableBadges = [
-    { id: 'verified', name: 'توثيق الحساب', icon: '✔️', price: 5000 },
-    { id: 'king', name: 'الملك', icon: '👑', price: 3000 },
-    { id: 'vip', name: 'عضو VIP', icon: '✨', price: 1500 }
+    { 
+        id: 'promoter', 
+        name: 'المُعلن', 
+        icon: '📢', 
+        price: 1200, 
+        benefit: 'تكرار ظهور منشوراتك للآخرين' 
+    },
+    { 
+        id: 'ghost', 
+        name: 'الشبح', 
+        icon: '👻', 
+        price: 2200, 
+        benefit: 'قراءة الرسائل في خفاء تام' 
+    },
+    { 
+        id: 'king', 
+        name: 'الملك', 
+        icon: '👑', 
+        price: 3000, 
+        benefit: 'أولوية في الدعم الفني وتمييز ذهبي' 
+    },
+    { 
+        id: 'dominator', 
+        name: 'المسيطر', 
+        icon: '⚡', 
+        price: 3500, 
+        benefit: 'إلغاء وقت الانتظار بين التعليقات' 
+    },
+    { 
+        id: 'legend', 
+        name: 'الأسطورة', 
+        icon: '🏆', 
+        price: 4500, 
+        benefit: 'لون اسم فريد ودخول قسم VIP' 
+    },
+    { 
+        id: 'verified', 
+        name: 'توثيق الحساب', 
+        icon: '✔️', 
+        price: 5000, 
+        benefit: 'العلامة الزرقاء الرسمية للحساب' 
+    }
 ];
-
-const canvas = document.getElementById("wheel-canvas");
-const ctx = canvas.getContext("2d");
-
-function drawWheel() {
-    const sliceAngle = (2 * Math.PI) / colors.length;
-    colors.forEach((color, i) => {
-        ctx.beginPath();
-        ctx.fillStyle = color.code.includes('gradient') ? '#ffd700' : (color.code === 'RAINBOW_SPECIAL' ? '#ffffff' : color.code);
-        ctx.moveTo(250, 250);
-        ctx.arc(250, 250, 250, i * sliceAngle, (i + 1) * sliceAngle);
-        ctx.fill();
-        ctx.save();
-        ctx.translate(250, 250); ctx.rotate(i * sliceAngle + sliceAngle / 2);
-        ctx.fillStyle = "white"; ctx.font = "bold 16px Arial";
-        ctx.fillText(color.name[0], 180, 5); ctx.restore();
-    });
-}
-drawWheel();
 
 function renderMarket() {
     const m = document.getElementById("badge-market");
     m.innerHTML = availableBadges.map(b => `
         <div class="badge-buy-card" onclick="window.buyBadge('${b.id}', ${b.price})">
-            <div style="font-size:24px">${b.icon}</div>
-            <div style="font-size:12px; font-weight:bold">${b.name}</div>
-            <div style="color:#10b981; font-size:13px">${b.price} 🪙</div>
+            <div>
+                <div style="font-size:30px">${b.icon}</div>
+                <div style="font-size:14px; font-weight:bold; margin-top:5px">${b.name}</div>
+                <div class="badge-benefit">${b.benefit}</div>
+            </div>
+            <div style="color:#10b981; font-size:15px; font-weight:bold; margin-top:10px">${b.price} 🪙</div>
         </div>
     `).join('');
 }
