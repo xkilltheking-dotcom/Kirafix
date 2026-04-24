@@ -12,6 +12,39 @@
             --gold: #ffd700;
             --dark-bg: #111827;
         }
+    :root {
+    /* الوضع الفاتح - الافتراضي */
+    --bg-color: #f0f2f5;
+    --card-bg: #ffffff;
+    --text-main: #1c1e21; /* اللون الأساسي للنصوص (أسود) */
+    --text-secondary: #65676b;
+                    --gold: #ffd700;
+            --dark-bg: #111827;
+}
+
+body.dark-mode {
+    /* الوضع المظلم */
+    --bg-color: #18191a;
+    --card-bg: #242526;
+    --text-main: #e4e6eb; /* اللون الأساسي للنصوص (أبيض) */
+    --text-secondary: #b0b3b8;
+}
+
+/* الآن أهم خطوة: لا تستخدم color: black أو color: white أبداً */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main); /* سيتحول تلقائياً من أسود لأبيض والعكس */
+}
+
+.post, .setting-card {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+}
+
+/* أي نص عايزه يقلب لوحده اعطيه المتغير ده */
+h1, h2, h3, p, span {
+    color: var(--text-main);
+}
 
         body {
             background-color: #f3f4f6;
