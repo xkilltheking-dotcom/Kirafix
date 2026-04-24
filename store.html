@@ -484,6 +484,28 @@ function renderMarket() {
     `).join('');
 }
 renderMarket();
+    // كود تطبيق الإعدادات المحفوظة - ضعه في كل الصفحات
+function applyGlobalSettings() {
+    // 1. تطبيق وضع الظلام
+    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+    if (savedDark) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+
+    // 2. تطبيق اللغة والاتجاه
+    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+    document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
+    
+    // هنا ممكن تستدعي الدالة اللي بتغير النصوص عندك في الصفحة بناءً على savedLang
+    if (typeof applyMainLanguage === 'function') {
+        applyMainLanguage(savedLang);
+    }
+}
+
+// استدعاء الدالة فوراً
+applyGlobalSettings();
 
 window.buyBadge = async (id, price) => {
     const userRef = doc(db, "users", auth.currentUser.uid);
