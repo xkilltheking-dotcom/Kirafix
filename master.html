@@ -481,7 +481,19 @@ let currentUserData = null;
 
 function getBadgeHTML(badgeId) {
     if (!badgeId || badgeId === "none") return "";
+    
+    const badges = {
+        'sticker': { label: 'المثبت 📌', style: 'background: #3b82f6;' },
+        'glow': { label: 'المتوهج ✨', style: 'background: linear-gradient(45deg, #f59e0b, #ef4444);' },
+        'global': { label: 'العابر 🌍', style: 'background: #8b5cf6;' },
+        'radar': { label: 'الرادار 📡', style: 'background: #06b6d4;' },
+        'infinity': { label: 'اللانهاية 🚀', style: 'background: #ef4444; animation: pulse 1s infinite;' }
+    };
 
+    if (badges[badgeId]) {
+        return `<span class="user-badge" style="${badges[badgeId].style} color:#fff; padding:2px 8px;">${badges[badgeId].label}</span>`;
+    }
+    
     if (badgeId === 'admin') {
         return `<span class="user-badge" style="background: #ef4444; color: #fff; padding: 2px 8px;">ADMIN 🛡️</span>`;
     }
@@ -499,27 +511,6 @@ function getBadgeHTML(badgeId) {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         ">Editor⚒️</span>`;
     }
-
-    let style = "";
-    let label = badgeId;
-    switch(badgeId) {
-        case "DEVELOPER": style = "background: #10b981; color: #fff;"; break;
-        case "VIP": 
-            style = "background: #f59e0b; color: #fff;"; 
-            label = "VIP Gold ✨";
-            break;
-        case "verified": 
-            style = "background: #2563eb; color: #fff;"; 
-            label = "Verified ✔️";
-            break;
-        case "king": 
-            style = "background: #ffd700; color: #000;"; 
-            label = "King 👑";
-            break;
-        case "MOD": style = "background: #3b82f6; color: #fff;"; break;
-        default: style = "background: #6b7280; color: #fff;";
-    }
-    return `<span class="user-badge" style="${style}">${label}</span>`;
 }
 
 function getStyleForName(colorCode) {
@@ -831,11 +822,25 @@ function startPostsListener() {
         container.innerHTML = "";
         const allPosts = [];
         snap.forEach(docSnap => { allPosts.push({ id: docSnap.id, ...docSnap.data() }); });
+        
+        // --- تعديل الترتيب لدعم المزايا القوية ---
         allPosts.sort((a, b) => {
+            // التحقق من وجود ميزة "الناشر اللانهائي" أو "المثبت" لإعطائهم الأولوية القصوى فوق
+            const badgeA = a.userBadge || "";
+            const badgeB = b.userBadge || "";
+            const priorityA = (badgeA === 'infinity' || badgeA === 'sticker') ? 1 : 0;
+            const priorityB = (badgeB === 'infinity' || badgeB === 'sticker') ? 1 : 0;
+
+            if (priorityA !== priorityB) {
+                return priorityB - priorityA; // الأعلى أولوية يظهر أولاً
+            }
+
+            // إذا تساووا في الأولوية، يتم الترتيب الزمني العادي (الأحدث أولاً)
             const dateA = a.createdAt?.toDate() || new Date(0);
             const dateB = b.createdAt?.toDate() || new Date(0);
             return dateB - dateA;
         });
+
         allPosts.forEach((post) => {
             const postId = post.id;
             const currentUid = auth.currentUser?.uid;
@@ -848,8 +853,17 @@ function startPostsListener() {
                 en: { like: 'Like', liked: 'Liked', comment: 'Comment', views: 'Views', comments: 'Comments', input: 'Write a comment...', publish: 'Post' }
             }[currentLang];
             const nameStyle = getStyleForName((post.uid === currentUid && currentUserData?.activeColor) ? currentUserData.activeColor : post.userColor);
+            
+            // --- تعديل الـ Style لدعم ميزة "المتوهج" و "اللانهاية" بصرياً ---
+            let postCustomStyle = "border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;";
+            if (post.userBadge === 'glow') {
+                postCustomStyle += "border: 2px solid #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);";
+            } else if (post.userBadge === 'infinity') {
+                postCustomStyle += "border: 2px solid #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);";
+            }
+
             const postHTML = `
-            <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
+            <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="${postCustomStyle}">
                 <div style="padding:15px;">
                     <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                         <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
@@ -892,6 +906,12 @@ function startPostsListener() {
             const postNode = document.createRange().createContextualFragment(postHTML).firstElementChild;
             container.appendChild(postNode);
             viewObserver.observe(postNode);
+
+            // --- ميزة الرادار: إظهار نافذة منبثقة إجبارية لأي منشور يحمل هذا اللقب ---
+            if (post.userBadge === 'radar' && !sessionStorage.getItem('radar_shown_' + postId)) {
+                if(typeof showRadarPopup === 'function') showRadarPopup(post);
+                sessionStorage.setItem('radar_shown_' + postId, 'true');
+            }
         });
     });
 }
