@@ -356,26 +356,44 @@
             text-transform: uppercase;
         }
         /* التصميم الأساسي للكبسولة */
-.badge-item {
+/* ستايل الألقاب المينيمال */
+.user-badge {
     display: inline-flex;
     align-items: center;
-    padding: 1px 6px;
-    border-radius: 4px;
+    padding: 0px 6px;
+    border-radius: 2px; /* حواف حادة شوية بتدي فخامة */
     font-size: 10px;
     font-weight: 700;
-    margin-right: 6px;
+    margin-right: 5px;
     vertical-align: middle;
-    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border: 1px solid #e5e7eb; /* حدود رفيعة جداً */
+    background: transparent;
+    color: #374151; /* لون رمادي غامق هادي */
 }
 
-/* ألوان مخصصة لكل لقب بناءً على الـ ID */
-.badge-admin    { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; } /* أحمر */
-.badge-editor   { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; } /* أزرق */
-.badge-sticker  { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; } /* برتقالي */
-.badge-glow     { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; } /* بنفسجي */
-.badge-global   { background: #ecfdf5; color: #059669; border: 1px solid #d1fae5; } /* أخضر */
-.badge-radar    { background: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6; } /* روز */
-.badge-infinity { background: #111827; color: #ffffff; border: 1px solid #374151; } /* أسود شيك */
+/* تمييز بسيط جداً للأدمن والإديتور بدون فواكه ألوان */
+.badge-admin {
+    border-color: #000; /* حدود سوداء */
+    color: #000;
+    background: #f3f4f6; /* خلفية رمادي فاتح جداً */
+}
+
+.badge-editor {
+    border-color: #6b7280;
+    color: #4b5563;
+}
+
+/* في حالة الدارك مود */
+body.dark-mode .user-badge {
+    border-color: #374151;
+    color: #9ca3af;
+}
+
+body.dark-mode .badge-admin {
+    border-color: #fff;
+    color: #fff;
+}
     </style>
 </head>
 <body>
@@ -1016,26 +1034,28 @@ async function markMessagesAsRead(myId) {
     `;
     document.body.appendChild(popup);
 }
-    function renderUserBadge(badgeId) {
+function renderUserBadge(badgeId) {
     if (!badgeId) return "";
 
-    let badgeText = "";
-    let badgeClass = `badge-${badgeId}`;
+    let extraClass = "";
+    let label = badgeId.toUpperCase();
 
-    // مابينج للأسماء عشان تظهر مختصرة وشيك جنب الاسم
-    const badgeNames = {
-        'admin': 'ADMIN',
-        'editor': 'EDITOR',
-        'sticker': 'STICKER',
-        'glow': 'GLOW',
-        'global': 'GLOBAL',
-        'radar': 'RADAR',
-        'infinity': 'INFINITY'
+    // تخصيص الكلاسات لو أدمن أو إديتور
+    if (badgeId === 'admin') extraClass = "badge-admin";
+    if (badgeId === 'editor') extraClass = "badge-editor";
+
+    // لو اللقب طويل ممكن نختصره هنا
+    const shortcuts = {
+        'sticker': 'STK',
+        'glow': 'GLW',
+        'global': 'GBL',
+        'radar': 'RDR',
+        'infinity': 'INF'
     };
 
-    badgeText = badgeNames[badgeId] || "USER";
+    label = shortcuts[badgeId] || label;
 
-    return `<span class="badge-item ${badgeClass}">${badgeText}</span>`;
+    return `<span class="user-badge ${extraClass}">${label}</span>`;
 }
 
 const menuBtn = document.getElementById("menuBtn");
