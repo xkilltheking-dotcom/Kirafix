@@ -3,130 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عن Kirafix</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <title id="pageTitle">عن Kirafix</title>
     <style>
-        body{
-           color:#000000;
-        }
         :root {
-    /* الوضع الفاتح - الافتراضي */
-    --bg-color: #f0f2f5;
-    --card-bg: #ffffff;
-    --text-main: #1c1e21; /* اللون الأساسي للنصوص (أسود) */
-    --text-secondary: #65676b;
-}
+            /* الألوان الافتراضية (الوضع الفاتح) */
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1c1e21;
+            --text-secondary: #4b5563;
+            --primary-blue: #2563eb;
+            --border-color: #f3f4f6;
+        }
 
-body.dark-mode {
-    /* الوضع المظلم */
-    --bg-color: #18191a;
-    --card-bg: #242526;
-    --text-main: #e4e6eb; /* اللون الأساسي للنصوص (أبيض) */
-    --text-secondary: #b0b3b8;
-}
+        body.dark-mode {
+            /* الألوان في الوضع المظلم */
+            --bg-color: #18191a;
+            --card-bg: #242526;
+            --text-main: #e4e6eb;
+            --text-secondary: #b0b3b8;
+            --primary-blue: #458eff;
+            --border-color: #3a3b3c;
+        }
 
-/* الآن أهم خطوة: لا تستخدم color: black أو color: white أبداً */
-body {
-    background-color: #000000;
-    color: var(--text-main); /* سيتحول تلقائياً من أسود لأبيض والعكس */
-}
+        body {
+            background-color: var(--bg-color); /* بيسمع من المتغيرات */
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            transition: 0.3s;
+        }
 
-.post, .setting-card {
-    background-color: var(--card-bg);
-    color: var(--text-main);
-}
-
-/* أي نص عايزه يقلب لوحده اعطيه المتغير ده */
-h1, h2, h3, p, span {
-    color: var(--text-main);
-}
         .info-content {
             max-width: 800px;
-            margin: 50px auto;
-            background: white;
+            margin: 80px auto 50px;
+            background: var(--card-bg); /* الكارت هيقلب لوحده */
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             line-height: 1.8;
         }
-        .info-content h1 { color: #2563eb; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; }
-        .info-content p { color: #4b5563; font-size: 17px; }
+
+        .info-content h1 { 
+            color: var(--primary-blue); 
+            border-bottom: 2px solid var(--border-color); 
+            padding-bottom: 10px; 
+        }
+
+        .info-content p { 
+            color: var(--text-secondary); 
+            font-size: 17px; 
+        }
+
         .back-home-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px; /* سيتغير تلقائياً حسب اتجاه الصفحة dir */
-    background: var(--white);
-    color: var(--text);
-    padding: 10px 18px;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: 0.3s;
-    border: 1px solid #ddd;
-}
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            padding: 10px 18px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            border: 1px solid var(--border-color);
+        }
 
-.back-home-btn:hover {
-    transform: translateY(-2px);
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-}
-  /* ده هيجبر أي عنصر واخد كلاس بوست أو كارت إنه يغير خلفيته */
-body.dark-mode .post, 
-body.dark-mode .setting-card, 
-body.dark-mode .composer,
-body.dark-mode div[style*="background:white"], 
-body.dark-mode div[style*="background: white"] {
-    background-color: #1a1a1a !important; /* لون الكارت في الدارك مود */
-    color: #ffffff !important; /* لون الخط */
-    border-color: #333 !important;
-}
-
-/* لو فيه نصوص جوه الكروت لسه سوداء */
-body.dark-mode .post *, 
-body.dark-mode .setting-card * {
-    color: #ffffff !important;
-}
+        .back-home-btn:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
     </style>
 </head>
-<body style="background: #f9fafb;">
-<div class="info-content">
-        <a href="Kirafix.html" class="back-home-btn" id="backHomeBtn">
+<body>
+
+<a href="Kirafix.html" class="back-home-btn" id="backHomeBtn">
     <span class="icon">🏠</span>
-    <span class="text">الرئيسية</span>
+    <span id="lang-back">الرئيسية</span>
 </a>
-    <h1>عن Kirafix</h1>
-    <p><strong>Kirafix</strong> هو سوقك الرقمي المتكامل لبيع وشراء كل شيء بسهولة وأمان. نحن نوفر منصة إعلانية تجمع بين البائع والمشتري في مكان واحد.</p>
-    <p>سواء كنت تبحث عن ترقية أجهزتك، بيع مقتنياتك، أو حتى الإعلان عن خدماتك التقنية، Kirafix يوفر لك الأدوات اللازمة للوصول إلى جمهورك المستهدف، مع نظام <strong>Kira Coins</strong> الذي يمنحك مميزات إضافية لترويج إعلاناتك.</p>
+
+<div class="info-content">
+    <h1 id="lang-about-title">عن Kirafix</h1>
+    <p id="lang-about-desc1"><strong>Kirafix</strong> هو سوقك الرقمي المتكامل لبيع وشراء كل شيء بسهولة وأمان. نحن نوفر منصة إعلانية تجمع بين البائع والمشتري في مكان واحد.</p>
+    <p id="lang-about-desc2">سواء كنت تبحث عن ترقية أجهزتك، بيع مقتنياتك، أو حتى الإعلان عن خدماتك التقنية، Kirafix يوفر لك الأدوات اللازمة للوصول إلى جمهورك المستهدف، مع نظام <strong>Kira Coins</strong> الذي يمنحك مميزات إضافية لترويج إعلاناتك.</p>
 </div>
-    <script>
-        // كود تطبيق الإعدادات المحفوظة - ضعه في كل الصفحات
-function applyGlobalSettings() {
-    // 1. تطبيق وضع الظلام
-    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
-    if (savedDark) {
-        document.body.classList.add('dark-mode');
-    } else {
-        document.body.classList.remove('dark-mode');
+
+<script>
+    function applyGlobalSettings() {
+        // 1. تطبيق وضع الظلام
+        const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+        if (savedDark) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+
+        // 2. تطبيق اللغة
+        const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+        applyLanguage(savedLang);
     }
 
-    // 2. تطبيق اللغة والاتجاه
-    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
-    document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
-    
-    // هنا ممكن تستدعي الدالة اللي بتغير النصوص عندك في الصفحة بناءً على savedLang
-    if (typeof applyMainLanguage === 'function') {
-        applyMainLanguage(savedLang);
-    }
-}
+    function applyLanguage(lang) {
+        const translations = {
+            ar: {
+                title: "عن Kirafix",
+                back: "الرئيسية",
+                aboutTitle: "عن Kirafix",
+                desc1: "<strong>Kirafix</strong> هو سوقك الرقمي المتكامل لبيع وشراء كل شيء بسهولة وأمان. نحن نوفر منصة إعلانية تجمع بين البائع والمشتري في مكان واحد.",
+                desc2: "سواء كنت تبحث عن ترقية أجهزتك، بيع مقتنياتك، أو حتى الإعلان عن خدماتك التقنية، Kirafix يوفر لك الأدوات اللازمة للوصول إلى جمهورك المستهدف، مع نظام <strong>Kira Coins</strong> الذي يمنحك مميزات إضافية لترويج إعلاناتك."
+            },
+            en: {
+                title: "About Kirafix",
+                back: "Home",
+                aboutTitle: "About Kirafix",
+                desc1: "<strong>Kirafix</strong> is your integrated digital marketplace to buy and sell everything easily and safely. We provide an advertising platform that brings sellers and buyers together.",
+                desc2: "Whether you're looking to upgrade your devices, sell your collectibles, or advertise your tech services, Kirafix provides the tools to reach your target audience, with the <strong>Kira Coins</strong> system giving you extra features to promote your ads."
+            }
+        };
 
-// استدعاء الدالة فوراً
-applyGlobalSettings();
-    </script>
+        const t = translations[lang] || translations['ar'];
+
+        document.title = t.title;
+        document.getElementById('lang-back').textContent = t.back;
+        document.getElementById('lang-about-title').textContent = t.aboutTitle;
+        document.getElementById('lang-about-desc1').innerHTML = t.desc1;
+        document.getElementById('lang-about-desc2').innerHTML = t.desc2;
+
+        // ضبط الاتجاه
+        document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+        
+        // تعديل مكان زر الرجوع بناءً على اللغة
+        const backBtn = document.getElementById('backHomeBtn');
+        if(lang === 'ar') {
+            backBtn.style.right = '20px';
+            backBtn.style.left = 'auto';
+        } else {
+            backBtn.style.left = '20px';
+            backBtn.style.right = 'auto';
+        }
+    }
+
+    // استدعاء الإعدادات فور التحميل
+    applyGlobalSettings();
+</script>
+
 </body>
 </html>
