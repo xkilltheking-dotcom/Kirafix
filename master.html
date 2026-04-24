@@ -659,22 +659,25 @@ onAuthStateChanged(auth, async (user) => {
     listenForNotifications(user.uid); 
 
     // 3. إضافة الـ CSS الخاص بالأنيميشن مرة واحدة فقط
-    if (!document.getElementById('kirafix-styles')) {
-        const style = document.createElement('style');
-        style.id = 'kirafix-styles';
-        style.innerHTML = `
-            @keyframes glow-pulse {
-                0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-                50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
-                100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-            }
-            .glow-post {
-                animation: glow-pulse 2s infinite ease-in-out;
-                border: 2px solid #f59e0b !important;
-            }
-        `;
-        document.head.appendChild(style);
-    }
+// داخل onAuthStateChanged
+if (!document.getElementById('kirafix-styles')) {
+    const style = document.createElement('style');
+    style.id = 'kirafix-styles';
+    style.innerHTML = `
+        @keyframes glow-pulse {
+            0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); border-color: #f59e0b !important; }
+            50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.9); border-color: #fbbf24 !important; }
+            100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); border-color: #f59e0b !important; }
+        }
+        .glow-post-active {
+            animation: glow-pulse 2s infinite ease-in-out !important;
+            border: 2px solid #f59e0b !important;
+            position: relative;
+            z-index: 1;
+        }
+    `;
+    document.head.appendChild(style);
+}
 
     // 4. جلب بيانات المستخدم وتحديث الواجهة
     const userDocRef = doc(db, "users", user.uid);
