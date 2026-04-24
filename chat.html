@@ -273,98 +273,112 @@ body.dark-mode .setting-card * {
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    // كود تطبيق الإعدادات المحفوظة - ضعه في كل الصفحات
-function applyGlobalSettings() {
-    // 1. تطبيق وضع الظلام
-    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
-    if (savedDark) {
-        document.body.classList.add('dark-mode');
-    } else {
-        document.body.classList.remove('dark-mode');
-    }
-
-    // 2. تطبيق اللغة والاتجاه
-    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
-    document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
-    
-    // هنا ممكن تستدعي الدالة اللي بتغير النصوص عندك في الصفحة بناءً على savedLang
-    if (typeof applyMainLanguage === 'function') {
-        applyMainLanguage(savedLang);
-    }
-}
-
-// استدعاء الدالة فوراً
-applyGlobalSettings();
 
     let currentUser = null;
     const urlParams = new URLSearchParams(window.location.search);
     const receiverId = urlParams.get('id');
 
-function loadSideChats(myId) {
-    const q = query(
-        collection(db, "chats"),
-        where("users", "array-contains", myId),
-        orderBy("lastUpdate", "desc")
-    );
+    // --- 🌍 نظام الإعدادات والترجمة ---
+    function applyGlobalSettings() {
+        // 1. المظهر (Dark Mode)
+        const isDark = localStorage.getItem('kirafix-dark') === 'true';
+        document.body.classList.toggle('dark-mode', isDark);
 
-    onSnapshot(q, async (snapshot) => {
-        const sideList = document.getElementById("sideChatsList");
-        sideList.innerHTML = "";
+        // 2. اللغة والاتجاه
+        const lang = localStorage.getItem('kirafix-lang') || 'ar';
+        const isRtl = lang === 'ar';
+        document.body.dir = isRtl ? 'rtl' : 'ltr';
+        document.documentElement.lang = lang;
 
-        for (const chatDoc of snapshot.docs) {
-            const data = chatDoc.data();
-            const otherUserId = data.users.find(id => id !== myId);
-            
-            if (!otherUserId) continue;
+        // 3. ترجمة النصوص الثابتة
+        const translations = {
+            ar: {
+                sidebarTitle: "المحادثات",
+                loading: "جاري التحميل...",
+                checking: "جاري التحقق...",
+                online: "نشط الآن",
+                offline: "غير متصل",
+                inputPlaceholder: "اكتب رسالة خاصة...",
+                startChat: "بدء محادثة...",
+                back: "⬅️"
+            },
+            en: {
+                sidebarTitle: "Chats",
+                loading: "Loading...",
+                checking: "Checking...",
+                online: "Online",
+                offline: "Offline",
+                inputPlaceholder: "Type a private message...",
+                startChat: "Start a conversation...",
+                back: "➡️"
+            }
+        };
 
-            const userDoc = await getDoc(doc(db, "users", otherUserId));
-            const userData = userDoc.exists() ? userDoc.data() : { name: "مستخدم مجهول", image: "" };
+        const t = translations[lang];
+        document.querySelector('.sidebar-header').textContent = t.sidebarTitle;
+        document.getElementById('receiverName').textContent = t.loading;
+        document.getElementById('statusLabel').textContent = t.checking;
+        document.getElementById('messageInput').placeholder = t.inputPlaceholder;
+        document.querySelector('.receiver-info a').textContent = isRtl ? "⬅️" : "➡️";
+        
+        return t; // نرجعه عشان نستخدمه في أماكن تانية
+    }
 
-            const isCurrent = otherUserId === receiverId;
-            
-            // التحقق: هل أنا المستلم والرسالة لسه مقرتهاش؟
-            const isUnread = data.isRead === false && data.lastSenderId !== myId;
+    const currentT = applyGlobalSettings();
 
-            const chatItem = document.createElement("a");
-            chatItem.href = `chat.html?id=${otherUserId}`;
-            
-            // إضافة كلاس unread لو الرسالة جديدة
-            chatItem.className = `side-chat-item ${isCurrent ? 'active' : ''} ${isUnread ? 'unread' : ''}`;
-            
-            chatItem.innerHTML = `
-                <img src="${userData.image || 'af80e23deeb127837d30554452546196.jpg'}" class="side-chat-img">
-                <div class="side-chat-details">
-                    <span class="side-chat-name">${userData.name}</span>
-                    <span class="side-chat-last ${isUnread ? 'unread-text' : ''}">${data.lastMessage || "بدء محادثة..."}</span>
-                </div>
-                ${isUnread ? '<div class="unread-badge"></div>' : ''}
-            `;
-            sideList.appendChild(chatItem);
-        }
-    });
-}
+    function loadSideChats(myId) {
+        const lang = localStorage.getItem('kirafix-lang') || 'ar';
+        const q = query(
+            collection(db, "chats"),
+            where("users", "array-contains", myId),
+            orderBy("lastUpdate", "desc")
+        );
+
+        onSnapshot(q, async (snapshot) => {
+            const sideList = document.getElementById("sideChatsList");
+            sideList.innerHTML = "";
+
+            for (const chatDoc of snapshot.docs) {
+                const data = chatDoc.data();
+                const otherUserId = data.users.find(id => id !== myId);
+                if (!otherUserId) continue;
+
+                const userDoc = await getDoc(doc(db, "users", otherUserId));
+                const userData = userDoc.exists() ? userDoc.data() : { name: "User", image: "" };
+                const isCurrent = otherUserId === receiverId;
+
+                const chatItem = document.createElement("a");
+                chatItem.href = `chat.html?id=${otherUserId}`;
+                chatItem.className = `side-chat-item ${isCurrent ? 'active' : ''}`;
+                chatItem.innerHTML = `
+                    <img src="${userData.image || 'af80e23deeb127837d30554452546196.jpg'}" class="side-chat-img">
+                    <div class="side-chat-details">
+                        <span class="side-chat-name">${userData.name}</span>
+                        <span class="side-chat-last">${data.lastMessage || (lang === 'ar' ? 'بدء محادثة...' : 'Start chat...')}</span>
+                    </div>
+                `;
+                sideList.appendChild(chatItem);
+            }
+        });
+    }
 
     onAuthStateChanged(auth, (user) => {
         if (user && receiverId) { 
             currentUser = user; 
-            
-            // تحديث حالة "أحمد" الشخصية لـ أونلاين
             updateDoc(doc(db, "users", user.uid), {
                 status: "online",
                 lastSeen: serverTimestamp()
             });
-
             setupChat();
             loadSideChats(user.uid);
-        } else if (!receiverId) {
-            window.location.href = "Kirafix.html";
         } else {
             window.location.href = "Kirafix.html";
         }
     });
 
     async function setupChat() {
-        // مراقبة حالة الطرف التاني (Real-time Status)
+        const lang = localStorage.getItem('kirafix-lang') || 'ar';
+        
         onSnapshot(doc(db, "users", receiverId), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
@@ -373,10 +387,10 @@ function loadSideChats(myId) {
                 
                 const statusLabel = document.getElementById("statusLabel");
                 if (data.status === "online") {
-                    statusLabel.textContent = "نشط الآن";
-                    statusLabel.style.color = "green";
+                    statusLabel.textContent = lang === 'ar' ? "نشط الآن" : "Online";
+                    statusLabel.style.color = "#10b981"; // لون أخضر ألطف
                 } else {
-                    statusLabel.textContent = "غير متصل";
+                    statusLabel.textContent = lang === 'ar' ? "غير متصل" : "Offline";
                     statusLabel.style.color = "gray";
                 }
             }
@@ -395,20 +409,19 @@ function loadSideChats(myId) {
     async function sendMessage(chatId) {
         const input = document.getElementById("messageInput");
         const text = input.value.trim();
-        
         if (!text || !auth.currentUser) return;
         input.value = ""; 
 
         try {
             const chatRef = doc(db, "chats", chatId);
-await setDoc(chatRef, { 
-    lastMessage: text, 
-    lastUpdate: serverTimestamp(), 
-    lastSenderId: currentUser.uid, 
-    receiverId: receiverId, // مهم جداً عشان التنبيهات
-    isRead: false, 
-    users: [currentUser.uid, receiverId] 
-}, { merge: true });
+            await setDoc(chatRef, { 
+                lastMessage: text, 
+                lastUpdate: serverTimestamp(), 
+                lastSenderId: currentUser.uid, 
+                receiverId: receiverId,
+                isRead: false, 
+                users: [currentUser.uid, receiverId] 
+            }, { merge: true });
 
             await addDoc(collection(db, "chats", chatId, "messages"), {
                 text: text,
@@ -416,43 +429,45 @@ await setDoc(chatRef, {
                 createdAt: serverTimestamp()
             });
         } catch (error) {
-            console.error("خطأ في الإرسال:", error);
+            console.error("Error sending:", error);
         }
     }
 
-async function loadMessages(chatId) {
-    const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "desc"), limit(50));
-    
-    onSnapshot(q, async (snapshot) => {
-        const chatBox = document.getElementById("chatBox");
-        chatBox.innerHTML = "";
-
-        snapshot.docs.reverse().forEach(docSnap => {
-            const msg = docSnap.data();
-
-            const dateObj = msg.createdAt ? msg.createdAt.toDate() : new Date();
-            let hours = dateObj.getHours();
-            let minutes = dateObj.getMinutes();
-            const ampm = hours >= 12 ? 'م' : 'ص';
-            hours = hours % 12;
-            hours = hours ? hours : 12;
-            minutes = minutes < 10 ? '0' + minutes : minutes;
-            const timeStr = `${hours}:${minutes} ${ampm}`;
-
-            const div = document.createElement("div");
-            div.className = `msg-wrapper ${msg.senderId === currentUser.uid ? 'mine' : 'theirs'}`;
-            div.innerHTML = `<div class="msg-bubble">${msg.text}<span class="msg-time">${timeStr}</span></div>`;
-            chatBox.appendChild(div);
-        });
-
-        // 👇 ده كان سبب المشكلة
-        const chatRef = doc(db, "chats", chatId);
-        await updateDoc(chatRef, { isRead: true });
-
-        chatBox.scrollTop = chatBox.scrollHeight;
+    async function loadMessages(chatId) {
+        const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "desc"), limit(50));
+        const lang = localStorage.getItem('kirafix-lang') || 'ar';
         
-    });
-}
+        onSnapshot(q, async (snapshot) => {
+            const chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML = "";
+
+            snapshot.docs.reverse().forEach(docSnap => {
+                const msg = docSnap.data();
+                const dateObj = msg.createdAt ? msg.createdAt.toDate() : new Date();
+                
+                // تنسيق الوقت حسب اللغة
+                const timeStr = dateObj.toLocaleTimeString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+
+                const div = document.createElement("div");
+                div.className = `msg-wrapper ${msg.senderId === currentUser.uid ? 'mine' : 'theirs'}`;
+                div.innerHTML = `<div class="msg-bubble">${msg.text}<span class="msg-time">${timeStr}</span></div>`;
+                chatBox.appendChild(div);
+            });
+
+            // تحديث حالة القراءة
+            const lastDoc = snapshot.docs[0];
+            if(lastDoc && lastDoc.data().senderId !== currentUser.uid) {
+                const chatRef = doc(db, "chats", chatId);
+                await updateDoc(chatRef, { isRead: true });
+            }
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    }
 </script>
 </body>
 </html>
