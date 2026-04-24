@@ -616,6 +616,39 @@ if(localStorage.getItem('kirafix-dark') === 'true') document.body.classList.add(
         // هنا سنضع كود Stripe أو PayPal لاحقاً
     }
 };
+    const canvas = document.getElementById("wheel-canvas");
+const ctx = canvas.getContext("2d");
+
+function drawWheel() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = canvas.width / 2;
+    const sliceAngle = (2 * Math.PI) / colors.length;
+
+    colors.forEach((color, i) => {
+        ctx.beginPath();
+        // بنختار لون سادة للرسم على العجلة عشان الـ Gradient مش بيبان حلو في الـ Arc
+        ctx.fillStyle = (i % 2 === 0) ? "#1f2937" : "#374151"; 
+        if(color.name === 'جولد') ctx.fillStyle = "#ffd700";
+        if(color.name === 'رينبو') ctx.fillStyle = "#8b5cf6";
+        
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, i * sliceAngle, (i + 1) * sliceAngle);
+        ctx.fill();
+
+        // إضافة النص (اسم اللون)
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(i * sliceAngle + sliceAngle / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = color.name === 'جولد' ? "#000" : "#fff";
+        ctx.font = "bold 24px Cairo, Arial";
+        ctx.fillText(color.name, radius - 30, 10);
+        ctx.restore();
+    });
+}
+// استدعاء الرسم فوراً
+drawWheel();
 </script>
 </body>
 </html>
