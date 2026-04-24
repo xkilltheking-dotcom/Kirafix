@@ -890,15 +890,17 @@ allPosts.forEach((post) => {
             }[currentLang];
             const nameStyle = getStyleForName((post.uid === currentUid && currentUserData?.activeColor) ? currentUserData.activeColor : post.userColor);
 
-            let postCustomStyle = "border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;";
-            if (post.userBadge === 'glow') {
-                postCustomStyle += "border: 2px solid #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); animation: glow-pulse 2s infinite ease-in-out;";
-            } else if (post.userBadge === 'infinity') {
-                postCustomStyle += "border: 2px solid #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);";
-            }
+let postCustomClass = "post"; // كلاس افتراضي
+let postCustomStyle = "border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;";
+
+if (post.userBadge === 'glow') {
+    postCustomClass += " glow-post-active"; // بنضيف الكلاس اللي فيه الأنيميشن
+} else if (post.userBadge === 'infinity') {
+    postCustomStyle += "border: 2px solid #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);";
+}
 
             const postHTML = `
-            <div class="post" data-id="${postId}" data-views='${JSON.stringify(views)}' style="${postCustomStyle}">
+                <div class="${postCustomClass}" data-id="${postId}" data-views='${JSON.stringify(views)}' style="${postCustomStyle}">
                 <div style="padding:15px;">
                     <div class="post-header" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                         <a href="chat.html?id=${post.uid}" style="text-decoration:none;">
