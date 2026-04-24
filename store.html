@@ -519,23 +519,8 @@ const availableBadges = [
     }
 ];
 
-function renderMarket() {
-    const m = document.getElementById("badge-market");
-    m.innerHTML = availableBadges.map(b => `
-        <div class="badge-buy-card" onclick="window.buyBadge('${b.id}', ${b.price})">
-            <div>
-                <div style="font-size:30px">${b.icon}</div>
-                <div style="font-size:14px; font-weight:bold; margin-top:5px">${b.name}</div>
-                <div class="badge-benefit">${b.benefit}</div>
-            </div>
-            <div style="color:#10b981; font-size:15px; font-weight:bold; margin-top:10px">${b.price} 🪙</div>
-        </div>
-    `).join('');
-}
-renderMarket();
-    // كود تطبيق الإعدادات المحفوظة - ضعه في كل الصفحات
 function applyGlobalSettings() {
-    // 1. تطبيق وضع الظلام
+    // 1. تطبيق المظهر (Dark Mode)
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) {
         document.body.classList.add('dark-mode');
@@ -543,18 +528,103 @@ function applyGlobalSettings() {
         document.body.classList.remove('dark-mode');
     }
 
-    // 2. تطبيق اللغة والاتجاه
+    // 2. تطبيق اللغة
     const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
-    document.body.dir = (savedLang === 'ar') ? 'rtl' : 'ltr';
-    
-    // هنا ممكن تستدعي الدالة اللي بتغير النصوص عندك في الصفحة بناءً على savedLang
-    if (typeof applyMainLanguage === 'function') {
-        applyMainLanguage(savedLang);
-    }
+    applyStoreLanguage(savedLang);
+    renderMarket(savedLang);
 }
 
-// استدعاء الدالة فوراً
-applyGlobalSettings();
+function applyStoreLanguage(lang) {
+    const translations = {
+        ar: {
+            back: "🏠 العودة للرئيسية",
+            daily: "🎁 استلام الهدية اليومية",
+            wheelTitle: "🎡 عجلة الحظ - Kirafix",
+            balance: "رصيدك:",
+            spinCost: "تكلفة اللفة: 100 كوين",
+            spinBtn: "إبدأ اللف الآن!",
+            marketTitle: "🎖️ متجر الأوسمة والتوثيق",
+            inventoryTitle: "🎒 حقيبتك (Inventory)",
+            colorsTitle: "🎨 الألوان المفتوحة:",
+            badgesTitle: "🎖️ الأوسمة المفتوحة:",
+            buyBtn: "شراء الآن",
+            chargeTitle: "💰 شحن رصيد الكوينز",
+            chargeDesc: "اختر الباقة المناسبة لك، سيتم إضافة الرصيد فور نجاح عملية الدفع.",
+            popular: "الأكثر طلباً",
+            coinUnit: "كوين"
+        },
+        en: {
+            back: "🏠 Back to Home",
+            daily: "🎁 Claim Daily Gift",
+            wheelTitle: "🎡 Kirafix Lucky Wheel",
+            balance: "Balance:",
+            spinCost: "Spin Cost: 100 Coins",
+            spinBtn: "Spin Now!",
+            marketTitle: "🎖️ Badge & Verification Store",
+            inventoryTitle: "🎒 Your Inventory",
+            colorsTitle: "🎨 Unlocked Colors:",
+            badgesTitle: "🎖️ Unlocked Badges:",
+            buyBtn: "Buy Now",
+            chargeTitle: "💰 Top Up Coins",
+            chargeDesc: "Choose your package; balance is added instantly after payment.",
+            popular: "Most Popular",
+            coinUnit: "Coins"
+        }
+    };
+
+    const t = translations[lang] || translations['ar'];
+
+    // ترجمة النصوص الثابتة
+    document.querySelector('.home-btn').textContent = t.back;
+    document.getElementById('dailyBtn').textContent = t.daily;
+    document.querySelector('.store-card h2').textContent = t.wheelTitle;
+    document.querySelector('.balance-box span:first-child').textContent = t.balance;
+    document.querySelector('.store-card p').textContent = t.spinCost;
+    document.getElementById('spinBtn').textContent = t.spinBtn;
+    document.querySelectorAll('.store-card h3')[0].textContent = t.marketTitle;
+    document.querySelectorAll('.store-card h3')[1].textContent = t.chargeTitle;
+    document.querySelector('.store-card p[style*="font-size: 13px"]').textContent = t.chargeDesc;
+    document.querySelector('.inventory-section h3').textContent = t.inventoryTitle;
+    document.querySelectorAll('.section-title')[0].textContent = t.colorsTitle;
+    document.querySelectorAll('.section-title')[1].textContent = t.badgesTitle;
+
+    // ترجمة باقات الشحن
+    document.querySelectorAll('.price-card').forEach(card => {
+        const amountEl = card.querySelector('.coin-amount');
+        const btnEl = card.querySelector('.buy-coin-btn');
+        const popularEl = card.querySelector('.popular-badge');
+
+        if(amountEl) {
+            const amount = amountEl.textContent.split(' ')[0];
+            amountEl.textContent = `${amount} ${t.coinUnit}`;
+        }
+        if(btnEl) btnEl.textContent = t.buyBtn;
+        if(popularEl) popularEl.textContent = t.popular;
+    });
+
+    document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+}
+
+function renderMarket(lang) {
+    const marketContainer = document.getElementById('badge-market');
+    marketContainer.innerHTML = '';
+
+    marketBadges.forEach(badge => {
+        const name = lang === 'ar' ? badge.ar : badge.en;
+        const benefit = lang === 'ar' ? badge.benefitAr : badge.benefitEn;
+        const buyText = lang === 'ar' ? 'شراء' : 'Buy';
+
+        marketContainer.innerHTML += `
+            <div class="badge-buy-card" onclick="buyBadge('${badge.id}', ${badge.price})">
+                <div class="badge-item badge-${badge.id}">${name}</div>
+                <div class="badge-benefit">${benefit}</div>
+                <div style="margin-top:10px; font-weight:bold; color:var(--gold)">${badge.price} 🪙</div>
+                <button class="buy-coin-btn" style="margin-top:5px">${buyText}</button>
+            </div>
+        `;
+    });
+} 
+    applyGlobalSettings();
 
 window.buyBadge = async (id, price) => {
     const userRef = doc(db, "users", auth.currentUser.uid);
