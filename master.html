@@ -649,58 +649,44 @@ function applyMainLanguage(lang) {
 }
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = "index.html"; return; }
-}
+    // 1. التحقق من وجود المستخدم
     if (!user) { 
         window.location.href = "index.html"; 
         return; 
     }
 
-    // تم إضافة القوس المفقود هنا لغلق الدالة
+    // 2. تشغيل التنبيهات
     listenForNotifications(user.uid); 
 
-    listenForNotifications(user.uid
-    // إضافة ستايل التوهج والأنيميشن برمجياً
-const style = document.createElement('style');
-style.innerHTML = `
-    @keyframes glow-pulse {
-        0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-        50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
-        100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
+    // 3. إضافة الـ CSS الخاص بالأنيميشن مرة واحدة فقط
+    if (!document.getElementById('kirafix-styles')) {
+        const style = document.createElement('style');
+        style.id = 'kirafix-styles';
+        style.innerHTML = `
+            @keyframes glow-pulse {
+                0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
+                50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
+                100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
+            }
+            .glow-post {
+                animation: glow-pulse 2s infinite ease-in-out;
+                border: 2px solid #f59e0b !important;
+            }
+        `;
+        document.head.appendChild(style);
     }
-    .glow-post {
-        animation: glow-pulse 2s infinite ease-in-out;
-        border: 2px solid #f59e0b !important;
-    }
-`;
-document.head.appendChild(style);
-    const style = document.createElement('style');
-    style.innerHTML = `
-        @keyframes glow-pulse {
-            0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-            50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
-            100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-        }
-        .glow-post {
-            animation: glow-pulse 2s infinite ease-in-out;
-            border: 2px solid #f59e0b !important;
-        }
-    `;
-    document.head.appendChild(style);
 
+    // 4. جلب بيانات المستخدم وتحديث الواجهة
     const userDocRef = doc(db, "users", user.uid);
     try {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
             currentUserData = userDoc.data();
-            const userImg = currentUserData.image || "af80e23deeb127837d30554452546196.jpg";
+            const userImg = currentUserData.image || DEFAULT_USER_IMG;
+            
             if(document.getElementById("navProfilePic")) document.getElementById("navProfilePic").src = userImg;
-            
-            const compImg = document.querySelector(".composer-header img");
-            if(compImg) compImg.src = userImg;
-            
-            const nameDisplay = document.getElementById("user-name-display");
-            if(nameDisplay) nameDisplay.textContent = currentUserData.name || user.email.split("@")[0];
+            if(document.querySelector(".composer-header img")) document.querySelector(".composer-header img").src = userImg;
+            if(document.getElementById("user-name-display")) document.getElementById("user-name-display").textContent = currentUserData.name || user.email.split("@")[0];
 
             let postsListenerStarted = false;
             let lastActiveColor = null;
@@ -709,7 +695,7 @@ document.head.appendChild(style);
             onSnapshot(userDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     currentUserData = docSnap.data(); 
-                    const rawCoins = docSnap.data().coins || 0;
+                    const rawCoins = currentUserData.coins || 0;
                     const formatted = formatCoins(rawCoins);
                     if (document.getElementById("user-coins")) document.getElementById("user-coins").textContent = formatted;
                     if (document.getElementById("user-coins-side")) document.getElementById("user-coins-side").textContent = formatted;
@@ -725,19 +711,19 @@ document.head.appendChild(style);
                 }
             });
         }
-    } catch (error) { console.error("Firebase Error:", error); }
     } catch (error) { 
         console.error("Firebase Error:", error); 
     }
 
+    // 5. الإعدادات المحلية (اللغة والمود)
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
     const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
     applyMainLanguage(savedLang);
 
+    // 6. إخفاء اللودنج بعد التأكد من انتهاء العمليات الأساسية
     setTimeout(() => {
         const loader = document.getElementById("loadingScreen");
-        if(loader) { loader.style.opacity = "0"; setTimeout(() => { loader.style.display = "none"; }, 600); }
         if(loader) { 
             loader.style.opacity = "0"; 
             setTimeout(() => { loader.style.display = "none"; }, 600); 
