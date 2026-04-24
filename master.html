@@ -874,7 +874,7 @@ function startPostsListener() {
             return dateB - dateA;
         });
 
-        allPosts.forEach((post) => {
+allPosts.forEach((post) => {
             const postId = post.id;
             const currentUid = auth.currentUser?.uid;
             const likes = Array.isArray(post.likes) ? post.likes : [];
@@ -887,12 +887,9 @@ function startPostsListener() {
             }[currentLang];
             const nameStyle = getStyleForName((post.uid === currentUid && currentUserData?.activeColor) ? currentUserData.activeColor : post.userColor);
 
-            // --- تعديل الـ Style لدعم ميزة "المتوهج" و "اللانهاية" بصرياً ---
             let postCustomStyle = "border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;";
             if (post.userBadge === 'glow') {
-            postCustomStyle += "border: 2px solid #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);";
-             // إضافة الكلاس الجديد للأنيميشن
-             postCustomStyle = postCustomStyle.replace("border-radius", " animation: glow-pulse 2s infinite ease-in-out; border-radius");
+                postCustomStyle += "border: 2px solid #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); animation: glow-pulse 2s infinite ease-in-out;";
             } else if (post.userBadge === 'infinity') {
                 postCustomStyle += "border: 2px solid #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);";
             }
@@ -938,27 +935,27 @@ function startPostsListener() {
                     </div>
                 </div>
             </div>`;
+
             const postNode = document.createRange().createContextualFragment(postHTML).firstElementChild;
             container.appendChild(postNode);
             viewObserver.observe(postNode);
 
-            // --- ميزة الرادار: إظهار نافذة منبثقة إجبارية لأي منشور يحمل هذا اللقب ---
-if (post.userBadge === 'radar' && !sessionStorage.getItem('radar_shown_' + postId)) {
-        
-        const now = new Date().getTime();
-        const postTime = post.createdAt?.toDate().getTime() || 0;
-        const oneHourInMs = 60 * 60 * 1000; 
+            // --- ميزة الرادار (تم إصلاح الأقواس هنا) ---
+            if (post.userBadge === 'radar' && !sessionStorage.getItem('radar_shown_' + postId)) {
+                const now = new Date().getTime();
+                const postTime = post.createdAt?.toDate().getTime() || 0;
+                const oneHourInMs = 60 * 60 * 1000; 
 
-        // التحقق إذا كان المنشور جديد (أقل من ساعة)
-        if (now - postTime < oneHourInMs) {
-            if (typeof showRadarPopup === 'function') {
-                showRadarPopup(post);
+                if (now - postTime < oneHourInMs) {
+                    if (typeof showRadarPopup === 'function') {
+                        showRadarPopup(post);
+                    }
+                    sessionStorage.setItem('radar_shown_' + postId, 'true');
+                }
             }
-            // بنسجل إنها ظهرت عشان متبانش تاني طول ما المتصفح مفتوح
-            sessionStorage.setItem('radar_shown_' + postId, 'true');
-        }
-    }
-});
+        }); // إغلاق allPosts.forEach
+    }); // إغلاق onSnapshot
+}
 
 let lastMessageCount = 0; // متغير لمتابعة العدد السابق
 
