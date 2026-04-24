@@ -68,21 +68,21 @@
             background: #2563eb; color: white; border: none; padding: 15px 40px;
             border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s;
         }
-        .spin-btn:disabled { background: #9ca3af; cursor: not-allowed; }
 
-        /* الألقاب */
-        .badge-market { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; margin: 20px 0; }
+        /* Badge Market */
+        .badge-market { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin: 20px 0; }
         .badge-buy-card {
             background: #f9fafb; padding: 15px; border-radius: 15px; border: 1px solid #e5e7eb;
             cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; min-height: 160px;
         }
         body.dark-mode .badge-buy-card { background: #111827; border-color: #374151; }
         .badge-buy-card:hover { border-color: var(--gold); transform: translateY(-3px); }
-        .badge-benefit { font-size: 10px; color: #6b7280; margin-top: 5px; line-height: 1.2; }
+        .badge-benefit { font-size: 11px; color: #6b7280; margin-top: 5px; line-height: 1.2; }
 
         /* Inventory */
+        .section-title { font-size: 14px; color: #888; margin-top: 20px; text-align: right; width: 100%; }
         .color-grid, .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 15px; margin-top: 15px; justify-items: center; }
-        .item-box { width: 50px; height: 50px; border-radius: 12px; cursor: pointer; border: 3px solid transparent; background: #eee; display: flex; align-items: center; justify-content: center; position: relative; transition: 0.2s; }
+        .item-box { width: 50px; height: 50px; border-radius: 12px; cursor: pointer; border: 3px solid transparent; display: flex; align-items: center; justify-content: center; background: #eee; position: relative; }
         body.dark-mode .item-box { background: #111827; }
         .item-box.active { border-color: var(--gold); transform: scale(1.1); }
         .item-box.active::after { content: '✓'; position: absolute; bottom: -5px; right: -5px; background: var(--gold); color: black; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
@@ -90,20 +90,19 @@
         .badge-admin { background: #fee2e2 !important; color: #ef4444 !important; border: 1px solid #fecaca !important; font-weight: bold !important; }
         .badge-editor { background: #f3e8ff !important; color: #9333ea !important; border: 1px solid #e9d5ff !important; font-weight: bold !important; }
 
-        .item-box.rainbow { 
-            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) !important; 
-            background-size: 200% 200% !important; animation: rainbowBG 2s linear infinite !important; 
-        }
+        .item-box.rainbow { background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) !important; background-size: 200% 200% !important; animation: rainbowBG 2s linear infinite !important; }
         @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
 
         /* Pricing */
         .coins-pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 20px; }
-        .price-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 15px; padding: 20px 10px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; }
+        .price-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 15px; padding: 20px 10px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
         body.dark-mode .price-card { background: #111827; border-color: #374151; }
         .price-card:hover { transform: translateY(-5px); border-color: var(--gold); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .popular-badge { position: absolute; top: 0; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; font-size: 9px; padding: 2px 10px; border-radius: 0 0 10px 10px; font-weight: bold; }
         .royal-pack { border: 2px solid #8b5cf6; background: linear-gradient(to bottom, #ffffff, #f5f3ff); }
-        body.dark-mode .royal-pack { background: linear-gradient(to bottom, #111827, #1e1b4b); }
+        .coin-price { color: #10b981; font-weight: bold; font-size: 18px; margin-bottom: 10px; }
+        .buy-coin-btn { background: #f3f4f6; border: none; padding: 8px 15px; border-radius: 10px; font-size: 12px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; }
+        .price-card:hover .buy-coin-btn { background: var(--gold); color: #000; }
     </style>
 </head>
 <body>
@@ -134,30 +133,15 @@
 
     <div class="inventory-section">
         <h3>🎒 حقيبتك (Inventory)</h3>
+        <div class="section-title">🎨 الألوان المفتوحة:</div>
         <div id="color-grid" class="color-grid"></div>
+        <div class="section-title">🎖️ الأوسمة المفتوحة:</div>
         <div id="badge-grid" class="badge-grid"></div>
     </div>
 
     <div class="store-card">
         <h3>💰 شحن رصيد الكوينز</h3>
-        <div class="coins-pricing-grid">
-            <div class="price-card" onclick="initiatePayment(100, 0.99)">
-                <div style="font-size:30px">🪙</div>
-                <div style="font-weight:bold">100 كوين</div>
-                <div style="color:#10b981">$0.99</div>
-            </div>
-            <div class="price-card popular" onclick="initiatePayment(700, 4.99)">
-                <div class="popular-badge">الأكثر طلباً</div>
-                <div style="font-size:30px">🪙</div>
-                <div style="font-weight:bold">700 كوين</div>
-                <div style="color:#10b981">$4.99</div>
-            </div>
-            <div class="price-card royal-pack" onclick="initiatePayment(10000, 49.99)">
-                <div style="font-size:30px">🌌</div>
-                <div style="font-weight:bold">10000 كوين</div>
-                <div style="color:#10b981">$49.99</div>
-            </div>
-        </div>
+        <div class="coins-pricing-grid" id="pricing-grid"></div>
     </div>
 </div>
 
@@ -194,64 +178,64 @@
     const availableBadges = [
         { id: 'sticker', name: 'المثبت', icon: '📌', price: 3000, benefit: 'تثبيت منشورك في المقدمة.' },
         { id: 'glow', name: 'المتوهج', icon: '✨', price: 7500, benefit: 'إطار مضيء وتأثير بصري.' },
+        { id: 'global', name: 'العابر', icon: '🌍', price: 12000, benefit: 'تنبيه لجميع المستخدمين.' },
         { id: 'radar', name: 'الرادار', icon: '📡', price: 18000, benefit: 'ظهور منشورك كإعلان إجباري.' },
         { id: 'infinity', name: 'اللانهائي', icon: '🚀', price: 35000, benefit: 'تكرار تلقائي لمنشورك.' }
     ];
 
-    const canvas = document.getElementById("wheel-canvas");
-    const ctx = canvas.getContext("2d");
-    function drawWheel() {
-        const arc = (2 * Math.PI) / colors.length;
-        colors.forEach((color, i) => {
-            ctx.beginPath();
-            ctx.fillStyle = (color.code === 'RAINBOW_SPECIAL') ? '#ff00ff' : color.code.match(/#[a-f0-9]{6}/i)[0];
-            ctx.moveTo(250, 250);
-            ctx.arc(250, 250, 250, i * arc, (i + 1) * arc);
-            ctx.fill();
-            ctx.save();
-            ctx.translate(250, 250);
-            ctx.rotate(i * arc + arc / 2);
-            ctx.fillStyle = "#fff"; ctx.font = "bold 18px Arial";
-            ctx.fillText(color.name, 120, 10);
-            ctx.restore();
-        });
+    const pricePacks = [
+        { amount: 100, price: 0.99, icon: '🪙' },
+        { amount: 700, price: 4.99, icon: '🪙', popular: true },
+        { amount: 10000, price: 49.99, icon: '🌌', royal: true }
+    ];
+
+    function renderPricing() {
+        document.getElementById("pricing-grid").innerHTML = pricePacks.map(p => `
+            <div class="price-card ${p.popular ? 'popular' : ''} ${p.royal ? 'royal-pack' : ''}" onclick="window.initiatePayment(${p.amount}, ${p.price})">
+                ${p.popular ? '<div class="popular-badge">الأكثر طلباً</div>' : ''}
+                <div style="font-size:35px">${p.icon}</div>
+                <div style="font-weight:bold">${p.amount} كوين</div>
+                <div class="coin-price">$${p.price}</div>
+                <button class="buy-coin-btn">شراء الآن</button>
+            </div>
+        `).join('');
     }
-    drawWheel();
+    renderPricing();
+
+    function renderMarket() {
+        document.getElementById("badge-market").innerHTML = availableBadges.map(b => `
+            <div class="badge-buy-card" onclick="window.buyBadge('${b.id}', ${b.price})">
+                <div><div style="font-size:30px">${b.icon}</div><b>${b.name}</b><div class="badge-benefit">${b.benefit}</div></div>
+                <div style="color:#10b981; font-weight:bold; margin-top:10px">${b.price} 🪙</div>
+            </div>
+        `).join('');
+    }
+    renderMarket();
 
     onAuthStateChanged(auth, (user) => {
-        if (!user) return;
+        if (!user) { window.location.href = "index.html"; return; }
         onSnapshot(doc(db, "users", user.uid), (snap) => {
             if (snap.exists()) {
                 const data = snap.data();
                 const coins = data.coins || 0;
                 document.getElementById("user-coins").textContent = coins >= 1000000 ? (coins/1000000).toFixed(1) + 'M' : coins;
-                renderInv(data.inventory || [], data.activeColor, "color-grid", true);
+                renderColorInv(data.inventory || [], data.activeColor);
                 renderBadgeInv(data.inventoryBadges || [], data.activeBadge);
-                checkDaily(data.lastDaily);
+                const btn = document.getElementById("dailyBtn");
+                if (data.lastDaily && data.lastDaily.toDate().toLocaleDateString() === new Date().toLocaleDateString()) {
+                    btn.disabled = true; btn.textContent = "✅ تم استلام هدية اليوم";
+                }
             }
         });
     });
 
-    async function checkDaily(lastDaily) {
-        const btn = document.getElementById("dailyBtn");
-        if (!lastDaily) return;
-        if (lastDaily.toDate().toLocaleDateString() === new Date().toLocaleDateString()) {
-            btn.disabled = true; btn.textContent = "✅ تم استلام هدية اليوم";
-        }
-    }
-
-    document.getElementById("dailyBtn").onclick = async () => {
-        await updateDoc(doc(db, "users", auth.currentUser.uid), { coins: increment(50), lastDaily: serverTimestamp() });
-        confetti({ particleCount: 100 });
-    };
-
-    function renderInv(items, active, gridId, isColor) {
-        const grid = document.getElementById(gridId); grid.innerHTML = "";
-        ['linear-gradient(135deg, #374151, #111827)', ...new Set(items)].forEach(item => {
+    function renderColorInv(items, active) {
+        const grid = document.getElementById("color-grid"); grid.innerHTML = "";
+        ['#374151', ...new Set(items)].forEach(code => {
             const d = document.createElement("div");
-            d.className = `item-box ${active === item ? 'active' : ''} ${item === 'RAINBOW_SPECIAL' ? 'rainbow' : ''}`;
-            if(isColor && item !== 'RAINBOW_SPECIAL') d.style.background = item;
-            d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeColor: item });
+            d.className = `item-box ${active === code ? 'active' : ''} ${code === 'RAINBOW_SPECIAL' ? 'rainbow' : ''}`;
+            if(code !== 'RAINBOW_SPECIAL') d.style.background = code;
+            d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeColor: code });
             grid.appendChild(d);
         });
     }
@@ -260,25 +244,20 @@
         const grid = document.getElementById("badge-grid"); grid.innerHTML = "";
         (badges || []).forEach(id => {
             const d = document.createElement("div");
-            let specialClass = id === 'admin' ? "badge-admin" : (id === 'editor' ? "badge-editor" : "");
-            d.className = `item-box ${active === id ? 'active' : ''} ${specialClass}`;
-            if (id === 'admin') d.innerHTML = "<small>ADM</small>";
-            else if (id === 'editor') d.innerHTML = "<small>EDI</small>";
-            else {
-                const b = availableBadges.find(x => x.id === id);
-                d.innerHTML = b ? b.icon : "🎖️";
-            }
+            let special = id === 'admin' ? "badge-admin" : (id === 'editor' ? "badge-editor" : "");
+            d.className = `item-box ${active === id ? 'active' : ''} ${special}`;
+            if(id === 'admin') d.innerHTML = "<small>ADM</small>";
+            else if(id === 'editor') d.innerHTML = "<small>EDI</small>";
+            else { const b = availableBadges.find(x => x.id === id); d.innerHTML = b ? b.icon : "🎖️"; }
             d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
             grid.appendChild(d);
         });
     }
 
-    document.getElementById("badge-market").innerHTML = availableBadges.map(b => `
-        <div class="badge-buy-card" onclick="window.buyBadge('${b.id}', ${b.price})">
-            <div><div style="font-size:25px">${b.icon}</div><b>${b.name}</b><div class="badge-benefit">${b.benefit}</div></div>
-            <div style="color:#10b981; font-weight:bold;">${b.price} 🪙</div>
-        </div>
-    `).join('');
+    document.getElementById("dailyBtn").onclick = async () => {
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { coins: increment(50), lastDaily: serverTimestamp() });
+        confetti({ particleCount: 100 });
+    };
 
     let rotation = 0;
     document.getElementById("spinBtn").onclick = async () => {
@@ -286,13 +265,15 @@
         const snap = await getDoc(userRef);
         if ((snap.data().coins || 0) < 100) return alert("رصيدك لا يكفي!");
         document.getElementById("spinBtn").disabled = true;
-        spinSound.play();
+        spinSound.loop = true; spinSound.play();
         await updateDoc(userRef, { coins: increment(-100) });
+
         let winningIndex = Math.floor(Math.random() * colors.length);
-        rotation += (360 * 5) + (360 - (winningIndex * (360/colors.length)) - (180/colors.length));
-        canvas.style.transform = `rotate(${rotation}deg)`;
+        rotation += (360 * 8) + (360 - (winningIndex * (360/colors.length)) - (180/colors.length));
+        document.getElementById("wheel-canvas").style.transform = `rotate(${rotation}deg)`;
+
         setTimeout(async () => {
-            winSound.play();
+            spinSound.pause(); spinSound.loop = false; winSound.play();
             await updateDoc(userRef, { inventory: arrayUnion(colors[winningIndex].code) });
             confetti({ particleCount: 150 });
             alert(`مبروك! حصلت على لون ${colors[winningIndex].name}`);
@@ -307,7 +288,26 @@
         if(confirm("شراء؟")) await updateDoc(doc(db, "users", auth.currentUser.uid), { coins: increment(-price), inventoryBadges: arrayUnion(id) });
     };
 
-    window.initiatePayment = (amount, price) => alert(`تحويل لصفحة دفع آمن لشراء ${amount} كوين...`);
+    window.initiatePayment = async (amount, price) => {
+        if(confirm(`تأكيد شراء ${amount} كوين؟`)) {
+            await updateDoc(doc(db, "users", auth.currentUser.uid), { coins: increment(amount) });
+            alert("تم إضافة الرصيد بنجاح!");
+        }
+    };
+
+    // رسم العجلة
+    const ctx = document.getElementById("wheel-canvas").getContext("2d");
+    function drawWheel() {
+        const arc = (2 * Math.PI) / colors.length;
+        colors.forEach((color, i) => {
+            ctx.beginPath();
+            ctx.fillStyle = (color.code === 'RAINBOW_SPECIAL') ? '#ff00ff' : (color.code.includes('#') ? color.code.match(/#[a-f0-9]{6}/i)[0] : '#333');
+            ctx.moveTo(250, 250); ctx.arc(250, 250, 250, i * arc, (i + 1) * arc); ctx.fill();
+            ctx.save(); ctx.translate(250, 250); ctx.rotate(i * arc + arc / 2);
+            ctx.fillStyle = "#fff"; ctx.font = "bold 20px Arial"; ctx.fillText(color.name, 120, 10); ctx.restore();
+        });
+    }
+    drawWheel();
 </script>
 </body>
 </html>
