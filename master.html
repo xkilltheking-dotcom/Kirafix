@@ -493,35 +493,27 @@ let currentUserData = null;
 function getBadgeHTML(badgeId) {
     if (!badgeId || badgeId === "none") return "";
     
-    const badges = {
-        'sticker': { label: 'المثبت 📌', style: 'background: #3b82f6;' },
-        'glow': { label: 'المتوهج ✨', style: 'background: linear-gradient(45deg, #f59e0b, #ef4444);' },
-        'global': { label: 'العابر 🌍', style: 'background: #8b5cf6;' },
-        'radar': { label: 'الرادار 📡', style: 'background: #06b6d4;' },
-        'infinity': { label: 'اللانهاية 🚀', style: 'background: #ef4444; animation: pulse 1s infinite;' }
+    // مابينج للأسماء بشكل سمبل جداً (نصوص فقط)
+    const names = {
+        'sticker': 'STICKER',
+        'glow': 'GLOW',
+        'global': 'GLOBAL',
+        'radar': 'RADAR',
+        'infinity': 'INFINITY',
+        'admin': 'ADMIN',
+        'editor': 'EDITOR'
     };
-
-    if (badges[badgeId]) {
-        return `<span class="user-badge" style="${badges[badgeId].style} color:#fff; padding:2px 8px;">${badges[badgeId].label}</span>`;
+    
+    const label = names[badgeId] || badgeId.toUpperCase();
+    
+    // تمييز بسيط جداً للأدمن بالإمالة والتحته خط (بدون ألوان)
+    let extraStyle = "";
+    if (badgeId === 'admin') {
+        extraStyle = "font-style: italic; text-decoration: underline; text-underline-offset: 2px;";
     }
     
-    if (badgeId === 'admin') {
-        return `<span class="user-badge" style="background: #ef4444; color: #fff; padding: 2px 8px;">ADMIN 🛡️</span>`;
-    }
-
-    if (badgeId === 'editor') {
-        return `<span class="user-badge" style="
-            background: linear-gradient(45deg, #000428, #004e92); 
-            color: #fff; 
-            padding: 3px 10px; 
-            font-size: 10px; 
-            text-transform: none; 
-            border: 1px solid #00d2ff; 
-            box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); 
-            letter-spacing: 0.5px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        ">Editor⚒️</span>`;
-    }
+    // بنرجع النص مع الكلاس اللي إحنا معرفينه في الـ CSS فوق
+    return `<span class="user-badge" style="${extraStyle}">${label}</span>`;
 }
 
 function getStyleForName(colorCode) {
