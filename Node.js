@@ -73,21 +73,45 @@ app.get("/get-payment-url", async (req, res) => {
 });
 
 app.post("/webhook", async (req, res) => {
-    const data = req.body;
+    try {
+        const data = req.body;
 
-    if (data.type === "TRANSACTION" && data.obj.success) {
+        if (data.type === "TRANSACTION" && data.obj.success === true) {
 
-        const merchantData = data.obj.order.merchant_order_id;
-        const [userId, coins] = merchantData.split("_");
+            const merchantData = data.obj.order.merchant_order_id;
 
-        await db.collection("users").doc(userId).update({
-            coins: admin.firestore.FieldValue.increment(Number(coins))
-        });
+            const [userId, amount] = merchantData.split("_");
 
-        console.log("تم شحن الكوينز بنجاح");
+            // 🔥 تحويل الفلوس لكوينز (مثال بسيط)
+            const coinsMap = {
+                "0.99": 100,
+                "1.99": 250,
+                "3.50": 500,
+                "4.99": 700,
+                "6.99": 1000,
+                "14.99": 2550,
+                "24.99": 5000,
+                "39.99": 8000,
+                "49.99": 10000
+            };
+
+            const coins = coinsMap[amount] || 0;
+
+            if (coins > 0) {
+                await db.collection("users").doc(userId).update({
+                    coins: admin.firestore.FieldValue.increment(coins)
+                });
+
+                console.log(`تم إضافة ${coins} كوين للمستخدم ${userId}`);
+            }
+        }
+
+        res.sendStatus(200);
+
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
     }
-
-    res.sendStatus(200);
 });
 
 app.listen(3000, () => console.log("Server running"));
