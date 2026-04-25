@@ -6,7 +6,7 @@
  <link rel="icon" type="image/png" sizes="192x192" href="./favicon_fixed.png?v=2.0">
 <link rel="apple-touch-icon" href="./favicon_fixed.png?v=2.0">
     <title>Kirafix - Store 🎡</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
 <style>
         :root {
             --gold: #ffd700;
@@ -487,7 +487,28 @@ const availableBadges = [
     { id: 'radar', icon: '📡', price: 18000, ar: 'الرادار', en: 'Radar', bAr: 'ظهور منشورك كإعلان إجباري (Pop-up).', bEn: 'Your post appears as a mandatory Pop-up.' },
     { id: 'infinity', icon: '🚀', price: 35000, ar: 'الناشر اللانهائي', en: 'Infinity', bAr: 'تكرار تلقائي لمنشورك كل ساعتين.', bEn: 'Auto-repeat your post every 2 hours.' }
 ];
+// --- 💳 نظام الدفع (إضافة فقط دون تعديل القديم) ---
+// --- 💳 نظام الدفع الجديد (Paymob) ---
+window.initiatePayment = async (amount, price) => {
+    if (!auth.currentUser) {
+        alert("سجل دخول أولاً!");
+        return;
+    }
 
+    const egpAmount = Math.round(price * 50); // تحويل الدولار لجنيه
+
+    try {
+        // نطلب رابط الدفع من السيرفر بتاعنا
+        const response = await fetch(`https://رابط-السيرفر-بتاعك.com/get-payment-url?userId=${auth.currentUser.uid}&amount_egp=${egpAmount}&method=wallet`);
+        const data = await response.json();
+
+        if (data.url) {
+            window.location.href = data.url; // يفتح صفحة فودافون كاش
+        }
+    } catch (error) {
+        alert("مشكلة في سيرفر الدفع، جرب كمان شوية");
+    }
+};
 // --- 🌍 نظام الترجمة والإعدادات ---
 function applyGlobalSettings() {
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
