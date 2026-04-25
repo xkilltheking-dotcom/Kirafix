@@ -62,5 +62,16 @@ app.get("/get-payment-url", async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+app.post("/webhook", async (req, res) => {
+    const data = req.body;
+
+    if (data.type === "TRANSACTION" && data.obj.success) {
+        const userId = data.obj.order.merchant_order_id;
+
+        // هنا تزود الكوينز في Firebase
+    }
+
+    res.sendStatus(200);
+});
 
 app.listen(3000, () => console.log("Server running"));
