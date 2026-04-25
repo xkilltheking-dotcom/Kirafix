@@ -1,7 +1,16 @@
 const express = require("express");
 const axios = require("axios");
-const app = express();
+const admin = require("firebase-admin");
 
+const serviceAccount = require("./serviceAccountKey.json");
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
+
+const app = express();
 app.use(express.json());
 
 const API_KEY = "YOUR_PAYMOB_API_KEY";
@@ -62,13 +71,20 @@ app.get("/get-payment-url", async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
 app.post("/webhook", async (req, res) => {
     const data = req.body;
 
     if (data.type === "TRANSACTION" && data.obj.success) {
-        const userId = data.obj.order.merchant_order_id;
 
-        // هنا تزود الكوينز في Firebase
+        const merchantData = data.obj.order.merchant_order_id;
+        const [userId, coins] = merchantData.split("_");
+
+        await db.collection("users").doc(userId).update({
+            coins: admin.firestore.FieldValue.increment(Number(coins))
+        });
+
+        console.log("تم شحن الكوينز بنجاح");
     }
 
     res.sendStatus(200);
