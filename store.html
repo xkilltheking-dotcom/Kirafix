@@ -380,71 +380,91 @@ body.dark-mode .setting-card * {
         <h3>💰 شحن رصيد الكوينز</h3>
         <p style="font-size: 13px; color: #6b7280; margin-bottom: 20px;">اختر الباقة المناسبة لك، سيتم إضافة الرصيد فور نجاح عملية الدفع.</p>
 
-        <div class="coins-pricing-grid">
-            <div class="price-card" onclick="initiatePayment(100, 0.99)">
-                <div class="coin-icon-wrapper">🪙</div>
-                <div class="coin-amount">100 كوين</div>
-                <div class="coin-price">$0.99</div>
-                <button class="buy-coin-btn">شراء الآن</button>
-            </div>
+<div class="coins-pricing-grid">
 
-            <div class="price-card" onclick="initiatePayment(250, 1.99)">
-                <div class="coin-icon-wrapper">🪙</div>
-                <div class="coin-amount">250 كوين</div>
-                <div class="coin-price">$1.99</div>
-                <button class="buy-coin-btn">شراء الآن</button>
-            </div>
+    <div class="price-card">
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">100 كوين</div>
+        <div class="coin-price">$0.99</div>
 
-            <div class="price-card" onclick="initiatePayment(500, 3.50)">
-                <div class="coin-icon-wrapper">🪙</div>
-                <div class="coin-amount">500 كوين</div>
-                <div class="coin-price">$3.50</div>
-                <button class="buy-coin-btn">شراء الآن</button>
-            </div>
+        <button onclick="initiatePayment(100, 0.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(100, 0.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
 
-            <div class="price-card popular" onclick="initiatePayment(700, 4.99)">
-                <div class="popular-badge">الأكثر طلباً</div>
-                <div class="coin-icon-wrapper">🪙</div>
-                <div class="coin-amount">700 كوين</div>
-                <div class="coin-price">$4.99</div>
-                <button class="buy-coin-btn">شراء الآن</button>
-            </div>
+    <div class="price-card">
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">250 كوين</div>
+        <div class="coin-price">$1.99</div>
 
-            <div class="price-card" onclick="initiatePayment(1000, 6.99)">
-                <div class="coin-icon-wrapper">🪙</div>
-                <div class="coin-amount">1000 كوين</div>
-                <div class="coin-price">$6.99</div>
-                <button class="buy-coin-btn">شراء الآن</button>
-            </div>
+        <button onclick="initiatePayment(250, 1.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(250, 1.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
 
-            <div class="price-card" onclick="initiatePayment(2550, 14.99)">
-                <div class="coin-icon-wrapper">💎</div>
-                <div class="coin-amount">2550 كوين</div>
-                <div class="coin-price">$14.99</div>
-                <button class="buy-coin-btn">شراء الآن</button>
-            </div>
+    <div class="price-card">
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">500 كوين</div>
+        <div class="coin-price">$3.50</div>
 
-            <div class="price-card vip-pack" onclick="initiatePayment(5000, 24.99)">
-                <div class="coin-icon-wrapper">🔥</div>
-                <div class="coin-amount">5000 كوين</div>
-                <div class="coin-price">$24.99</div>
-                <button class="buy-coin-btn">شراء الآن</button>
-            </div>
+        <button onclick="initiatePayment(500, 3.50, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(500, 3.50, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
 
-            <div class="price-card vip-pack" onclick="initiatePayment(8000, 39.99)">
-                <div class="coin-icon-wrapper">👑</div>
-                <div class="coin-amount">8000 كوين</div>
-                <div class="coin-price">$39.99</div>
-                <button class="buy-coin-btn">شراء الآن</button>
-            </div>
+    <div class="price-card popular">
+        <div class="popular-badge">الأكثر طلباً</div>
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">700 كوين</div>
+        <div class="coin-price">$4.99</div>
 
-            <div class="price-card royal-pack" onclick="initiatePayment(10000, 49.99)">
-                <div class="coin-icon-wrapper">🌌</div>
-                <div class="coin-amount">10000 كوين</div>
-                <div class="coin-price">$49.99</div>
-                <button class="buy-coin-btn">شراء الآن</button>
-            </div>
-        </div>
+        <button onclick="initiatePayment(700, 4.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(700, 4.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card">
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">1000 كوين</div>
+        <div class="coin-price">$6.99</div>
+
+        <button onclick="initiatePayment(1000, 6.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(1000, 6.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card">
+        <div class="coin-icon-wrapper">💎</div>
+        <div class="coin-amount">2550 كوين</div>
+        <div class="coin-price">$14.99</div>
+
+        <button onclick="initiatePayment(2550, 14.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(2550, 14.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card vip-pack">
+        <div class="coin-icon-wrapper">🔥</div>
+        <div class="coin-amount">5000 كوين</div>
+        <div class="coin-price">$24.99</div>
+
+        <button onclick="initiatePayment(5000, 24.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(5000, 24.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card vip-pack">
+        <div class="coin-icon-wrapper">👑</div>
+        <div class="coin-amount">8000 كوين</div>
+        <div class="coin-price">$39.99</div>
+
+        <button onclick="initiatePayment(8000, 39.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(8000, 39.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card royal-pack">
+        <div class="coin-icon-wrapper">🌌</div>
+        <div class="coin-amount">10000 كوين</div>
+        <div class="coin-price">$49.99</div>
+
+        <button onclick="initiatePayment(10000, 49.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(10000, 49.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+</div>
     </div>
 </div>
 
@@ -487,27 +507,14 @@ const availableBadges = [
     { id: 'radar', icon: '📡', price: 18000, ar: 'الرادار', en: 'Radar', bAr: 'ظهور منشورك كإعلان إجباري (Pop-up).', bEn: 'Your post appears as a mandatory Pop-up.' },
     { id: 'infinity', icon: '🚀', price: 35000, ar: 'الناشر اللانهائي', en: 'Infinity', bAr: 'تكرار تلقائي لمنشورك كل ساعتين.', bEn: 'Auto-repeat your post every 2 hours.' }
 ];
-// --- 💳 نظام الدفع (إضافة فقط دون تعديل القديم) ---
-// --- 💳 نظام الدفع الجديد (Paymob) ---
-window.initiatePayment = async (amount, price) => {
-    if (!auth.currentUser) {
-        alert("سجل دخول أولاً!");
-        return;
-    }
+    //نظام الدفع
+window.initiatePayment = async (amount, price, method = "card") => {
+    const egpAmount = Math.round(price * 50);
 
-    const egpAmount = Math.round(price * 50); // تحويل الدولار لجنيه
+    const res = await fetch(`https://your-server.com/get-payment-url?userId=${auth.currentUser.uid}&amount_egp=${egpAmount}&method=${method}`);
+    const data = await res.json();
 
-    try {
-        // نطلب رابط الدفع من السيرفر بتاعنا
-        const response = await fetch(`https://رابط-السيرفر-بتاعك.com/get-payment-url?userId=${auth.currentUser.uid}&amount_egp=${egpAmount}&method=wallet`);
-        const data = await response.json();
-
-        if (data.url) {
-            window.location.href = data.url; // يفتح صفحة فودافون كاش
-        }
-    } catch (error) {
-        alert("مشكلة في سيرفر الدفع، جرب كمان شوية");
-    }
+    window.location.href = data.url;
 };
 // --- 🌍 نظام الترجمة والإعدادات ---
 function applyGlobalSettings() {
