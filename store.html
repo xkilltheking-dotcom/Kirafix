@@ -679,22 +679,13 @@ window.buyBadge = async (id, price) => {
 
 onAuthStateChanged(auth, (user) => {
     if (!user) { window.location.href = "index.html"; return; }
-    
-    // تأكد أن الـ Snapshot بداخل الـ Auth لضمان وجود الـ UID
     onSnapshot(doc(db, "users", user.uid), (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
-            // تحديث الكوينز
-            document.getElementById("user-coins").textContent = 
-                data.coins >= 1000000 ? (data.coins/1000000).toFixed(1) + 'M' : data.coins || 0;
-            
-            // رندر الحقيبة
+            document.getElementById("user-coins").textContent = data.coins >= 1000000 ? (data.coins/1000000).toFixed(1) + 'M' : data.coins || 0;
             renderInventory(data.inventory || [], data.activeColor);
             renderBadgeInv(data.inventoryBadges || [], data.activeBadge);
-            
-            // فحص المهام
             checkDailyStatus(data.lastDaily);
-            checkInstaStatus(data); // استدعاء فحص الإنستجرام هنا
         }
     });
 });
