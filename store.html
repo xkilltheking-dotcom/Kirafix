@@ -133,6 +133,32 @@
         /* Manual Payment Warning */
         .manual-pay-warning { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; text-align: center; }
         body.dark-mode .manual-pay-warning { background: #451a03; border-color: #92400e; color: #fef3c7; }
+        /* Instagram Task Style */
+.social-task-btn {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+.social-task-btn:disabled {
+    background: #6b7280;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+.social-task-btn:hover:not(:disabled) {
+    transform: scale(1.02);
+    filter: brightness(1.1);
+}
     </style>
 </head>
 <body>
@@ -160,6 +186,17 @@
         <h3 id="marketTitle">🎖️ متجر الأوسمة والتوثيق</h3>
         <div class="badge-market" id="badge-market"></div>
     </div>
+    <div class="store-card">
+    <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+        <button id="dailyBtn" class="daily-btn">🎁 استلام الهدية اليومية</button>
+        
+        <button id="instaTaskBtn" class="social-task-btn">
+            <span>📸</span> 
+            <span id="instaLabel">تابعنا على إنستجرام (+150 كوين)</span>
+        </button>
+    </div>
+
+    <h2 id="wheelTitle">🎡 Kirafix Lucky Wheel</h2>
 
     <div class="inventory-section">
         <h3 id="invTitle">🎒 حقيبتك (Inventory)</h3>
@@ -435,6 +472,46 @@ function renderBadgeInv(badges, active) {
         grid.appendChild(d);
     });
 }
+    // فحص حالة مهمة الإنستجرام عند تحميل البيانات
+async function checkSocialStatus(data) {
+    const instaBtn = document.getElementById("instaTaskBtn");
+    const lang = localStorage.getItem('kirafix-lang') || 'ar';
+    
+    if (data.claimedInsta) {
+        instaBtn.disabled = true;
+        document.getElementById('instaLabel').textContent = (lang === 'ar') ? "✅ تمت المتابعة" : "✅ Followed";
+    }
+}
+
+// تنفيذ مهمة الإنستجرام
+document.getElementById("instaTaskBtn").onclick = async () => {
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    const snap = await getDoc(userRef);
+    
+    if (snap.data().claimedInsta) return;
+
+    // فتح الرابط في نافذة جديدة
+    window.open('https://www.instagram.com/kirafix_web/?hl=ar', '_blank');
+
+    // إعطاء المكافأة وحفظ الحالة في قاعدة البيانات
+    setTimeout(async () => {
+        await updateDoc(userRef, { 
+            coins: increment(150), 
+            claimedInsta: true 
+        });
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        alert(localStorage.getItem('kirafix-lang') === 'ar' ? "شكراً للمتابعة! تم إضافة 150 كوين" : "Thanks for following! 150 coins added.");
+    }, 2000); // تأخير بسيط للإحساس بالتفاعل
+};
+
+// لا تنسَ استدعاء الدالة داخل الـ onSnapshot
+onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        // ... الكود القديم
+        checkSocialStatus(data); // استدعاء الدالة الجديدة هنا
+    }
+});
 
 applyGlobalSettings();
 </script>
