@@ -342,6 +342,60 @@ body.dark-mode .post *,
 body.dark-mode .setting-card * {
     color: #ffffff !important;
 }
+    /* تنسيق رسالة التنبيه */
+.payment-notice {
+    background: #fff9c4; /* لون أصفر خفيف */
+    border: 1px solid #fbc02d;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-align: right;
+}
+
+body.dark-mode .payment-notice {
+    background: #3e2723; /* لون بني داكن في الوضع المظلم */
+    border-color: #5d4037;
+}
+
+.notice-icon {
+    font-size: 24px;
+}
+
+.notice-content strong {
+    display: block;
+    color: #f57f17;
+    margin-bottom: 4px;
+}
+
+.notice-content p {
+    margin: 0;
+    font-size: 13px;
+    color: #5d4037;
+}
+
+body.dark-mode .notice-content p {
+    color: #d7ccc8;
+}
+
+/* تعديل زر الشحن ليناسب شكل الواتساب */
+.buy-coin-btn {
+    background: #25d366 !important; /* لون الواتساب */
+    color: white !important;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.buy-coin-btn:hover {
+    background: #128c7e !important;
+    transform: scale(1.05);
+}
     </style>
 
 <div class="container">
@@ -379,6 +433,13 @@ body.dark-mode .setting-card * {
     <div class="store-card">
         <h3>💰 شحن رصيد الكوينز</h3>
         <p style="font-size: 13px; color: #6b7280; margin-bottom: 20px;">اختر الباقة المناسبة لك، سيتم إضافة الرصيد فور نجاح عملية الدفع.</p>
+        <div class="payment-notice">
+        <div class="notice-icon">⚠️</div>
+        <div class="notice-content">
+            <strong id="notice-title">تنبيه هام:</strong>
+            <p id="notice-text">عملية الدفع الأوتوماتيكي تحت الصيانة حالياً. يمكنك الشحن يدوياً عبر التواصل معنا مباشرة.</p>
+        </div>
+    </div>
 
 <div class="coins-pricing-grid">
 
@@ -387,8 +448,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">100 كوين</div>
         <div class="coin-price">$0.99</div>
 
-        <button onclick="initiatePayment(100, 0.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(100, 0.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card">
@@ -396,8 +456,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">250 كوين</div>
         <div class="coin-price">$1.99</div>
 
-        <button onclick="initiatePayment(250, 1.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(250, 1.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card">
@@ -405,8 +464,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">500 كوين</div>
         <div class="coin-price">$3.50</div>
 
-        <button onclick="initiatePayment(500, 3.50, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(500, 3.50, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card popular">
@@ -415,8 +473,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">700 كوين</div>
         <div class="coin-price">$4.99</div>
 
-        <button onclick="initiatePayment(700, 4.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(700, 4.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card">
@@ -424,8 +481,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">1000 كوين</div>
         <div class="coin-price">$6.99</div>
 
-        <button onclick="initiatePayment(1000, 6.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(1000, 6.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card">
@@ -433,8 +489,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">2550 كوين</div>
         <div class="coin-price">$14.99</div>
 
-        <button onclick="initiatePayment(2550, 14.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(2550, 14.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+   
     </div>
 
     <div class="price-card vip-pack">
@@ -442,8 +497,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">5000 كوين</div>
         <div class="coin-price">$24.99</div>
 
-        <button onclick="initiatePayment(5000, 24.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(5000, 24.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+>
     </div>
 
     <div class="price-card vip-pack">
@@ -451,8 +505,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">8000 كوين</div>
         <div class="coin-price">$39.99</div>
 
-        <button onclick="initiatePayment(8000, 39.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(8000, 39.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card royal-pack">
@@ -460,8 +513,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">10000 كوين</div>
         <div class="coin-price">$49.99</div>
 
-        <button onclick="initiatePayment(10000, 49.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(10000, 49.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
 </div>
@@ -590,6 +642,9 @@ function applyLanguageStrings(lang) {
             market: "🎖️ متجر الأوسمة والتوثيق", inv: "🎒 حقيبتك (Inventory)",
             invColors: "🎨 الألوان المفتوحة:", invBadges: "🎖️ الأوسمة المفتوحة:",
             chargeTitle: "💰 شحن رصيد الكوينز", buyNow: "💳 شحن الآن", coinUnit: "كوين"
+            noticeTitle: "تنبيه هام:",
+            noticeText: "عملية الدفع الأوتوماتيكي تحت الصيانة حالياً. يمكنك الشحن يدوياً عبر التواصل معنا مباشرة.",
+            buyNow: "💬 اطلب عبر واتساب"
         },
         en: {
             back: "🏠 Back to Home", daily: "🎁 Claim Daily Gift", wheel: "🎡 Kirafix Lucky Wheel",
@@ -597,6 +652,9 @@ function applyLanguageStrings(lang) {
             market: "🎖️ Badge & Verification Store", inv: "🎒 Your Inventory",
             invColors: "🎨 Unlocked Colors:", invBadges: "🎖️ Unlocked Badges:",
             chargeTitle: "💰 Top Up Coins", buyNow: "💳 Top Up", coinUnit: "Coins"
+            noticeTitle: "Important Notice:",
+            noticeText: "Automated payments are currently under maintenance. Please contact us for manual top-up.",
+            buyNow: "💬 Order via WhatsApp"
         }
     }[lang];
 
@@ -611,6 +669,9 @@ function applyLanguageStrings(lang) {
     document.querySelector('.inventory-section h3').textContent = t.inv;
     document.querySelectorAll('.section-title')[0].textContent = t.invColors;
     document.querySelectorAll('.section-title')[1].textContent = t.invBadges;
+    document.getElementById('notice-title').textContent = t.noticeTitle;
+    document.getElementById('notice-text').textContent = t.noticeText;
+    document.querySelectorAll('.buy-coin-btn').forEach(btn => btn.textContent = t.buyNow);
 
     document.querySelectorAll('.buy-coin-btn').forEach(btn => btn.textContent = t.buyNow);
 }
