@@ -64,6 +64,10 @@ h1, h2, h3, p, span {
             margin: 20px auto;
             padding: 20px;
         }
+    body.dark-mode #insta-task-box {
+    background: #111827 !important;
+    border-color: #374151 !important;
+}
 
         .home-btn {
             display: inline-block;
@@ -368,16 +372,20 @@ body.dark-mode .setting-card * {
         <h3>🎖️ متجر الأوسمة والتوثيق</h3>
         <div class="badge-market" id="badge-market"></div>
     </div>
-    <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
-    <button id="dailyBtn" class="daily-btn">🎁 استلام الهدية اليومية</button>
     <div class="store-card">
-    <h3>🎁 هدية المتابعة</h3>
-    <p id="follow-text">تابعنا على إنستجرام واحصل على 120 كوين!</p>
-
-    <button onclick="followInstagram()" class="spin-btn">
-        📸 متابعة الآن
-    </button>
-</div>
+    <h3>📱 مهام السوشيال ميديا</h3>
+    <div id="social-tasks">
+        <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px;" id="insta-task-box">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">📸</span>
+                <div style="text-align: right;">
+                    <div style="font-weight: bold; font-size: 14px;" id="insta-text-title">متابعة إنستجرام</div>
+                    <div style="font-size: 12px; color: #10b981;">+150 كوين 🪙</div>
+                </div>
+            </div>
+            <button id="instaBtn" class="buy-coin-btn" style="width: auto; padding: 8px 20px; background: #e1306c; color: white;">متابعة</button>
+        </div>
+    </div>
 </div>
 
     <div class="inventory-section">
@@ -387,81 +395,81 @@ body.dark-mode .setting-card * {
         <div class="section-title">🎖️ الأوسمة المفتوحة:</div>
         <div id="badge-grid" class="badge-grid"></div>
     </div>
-    <div class="store-card">
-        <h3>💰 شحن رصيد الكوينز</h3>
-        <p style="font-size: 13px; color: #6b7280; margin-bottom: 20px;">اختر الباقة المناسبة لك، سيتم إضافة الرصيد فور نجاح عملية الدفع.</p>
+<div class="store-card">
+    <h3>💰 شحن رصيد الكوينز</h3>
 
-<div class="coins-pricing-grid">
-
-    <div class="price-card">
-        <div class="coin-icon-wrapper">🪙</div>
-        <div class="coin-amount">100 كوين</div>
-        <div class="coin-price">$0.99</div>
-
+    <div style="background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: bold;">
+        ⚠️ الخدمة غير متاحة أوتوماتيكياً في الوقت الحالي.<br>
+        للتواصل للشحن اليدوي يرجى مراسلتنا عبر واتساب:<br>
+        <a href="https://wa.me/201283380890" style="color: #059669; text-decoration: none; font-size: 18px;">01283380890</a>
     </div>
 
-    <div class="price-card">
-        <div class="coin-icon-wrapper">🪙</div>
-        <div class="coin-amount">250 كوين</div>
-        <div class="coin-price">$1.99</div>
+    <div class="coins-pricing-grid">
+        <div class="price-card">
+            <div class="coin-icon-wrapper">🪙</div>
+            <div class="coin-amount">100 كوين</div>
+            <div class="coin-price">$0.99</div>
+            <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
+        </div>
 
+        <div class="price-card">
+            <div class="coin-icon-wrapper">🪙</div>
+            <div class="coin-amount">250 كوين</div>
+            <div class="coin-price">$1.99</div>
+            <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
+        </div>
 
+        <div class="price-card">
+            <div class="coin-icon-wrapper">🪙</div>
+            <div class="coin-amount">500 كوين</div>
+            <div class="coin-price">$3.50</div>
+            <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
+        </div>
+
+        <div class="price-card popular">
+            <div class="popular-badge">الأكثر طلباً</div>
+            <div class="coin-icon-wrapper">🪙</div>
+            <div class="coin-amount">700 كوين</div>
+            <div class="coin-price">$4.99</div>
+            <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
+        </div>
+
+        <div class="price-card">
+            <div class="coin-icon-wrapper">🪙</div>
+            <div class="coin-amount">1000 كوين</div>
+            <div class="coin-price">$6.99</div>
+            <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
+        </div>
+
+        <div class="price-card">
+            <div class="coin-icon-wrapper">💎</div>
+            <div class="coin-amount">2550 كوين</div>
+            <div class="coin-price">$14.99</div>
+            <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
+        </div>
+
+        <div class="price-card vip-pack">
+            <div class="coin-icon-wrapper">🔥</div>
+            <div class="coin-amount">5000 كوين</div>
+            <div class="coin-price">$24.99</div>
+            <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
+        </div>
+
+        <div class="price-card vip-pack">
+            <div class="coin-icon-wrapper">👑</div>
+            <div class="coin-amount">8000 كوين</div>
+            <div class="coin-price">$39.99</div>
+            <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
+        </div>
+
+        <div class="price-card royal-pack">
+            <div class="coin-icon-wrapper">🌌</div>
+            <div class="coin-amount">10000 كوين</div>
+            <div class="coin-price">$49.99</div>
+            <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
+        </div>
     </div>
-
-    <div class="price-card">
-        <div class="coin-icon-wrapper">🪙</div>
-        <div class="coin-amount">500 كوين</div>
-        <div class="coin-price">$3.50</div>
-
-
-    </div>
-
-    <div class="price-card popular">
-        <div class="popular-badge">الأكثر طلباً</div>
-        <div class="coin-icon-wrapper">🪙</div>
-        <div class="coin-amount">700 كوين</div>
-        <div class="coin-price">$4.99</div>
-
-    </div>
-
-    <div class="price-card">
-        <div class="coin-icon-wrapper">🪙</div>
-        <div class="coin-amount">1000 كوين</div>
-        <div class="coin-price">$6.99</div>
-
-
-    </div>
-
-    <div class="price-card">
-        <div class="coin-icon-wrapper">💎</div>
-        <div class="coin-amount">2550 كوين</div>
-        <div class="coin-price">$14.99</div>
-
-    </div>
-
-    <div class="price-card vip-pack">
-        <div class="coin-icon-wrapper">🔥</div>
-        <div class="coin-amount">5000 كوين</div>
-        <div class="coin-price">$24.99</div>
-
-
-    </div>
-
-    <div class="price-card vip-pack">
-        <div class="coin-icon-wrapper">👑</div>
-        <div class="coin-amount">8000 كوين</div>
-        <div class="coin-price">$39.99</div>
-
-
-    </div>
-
-    <div class="price-card royal-pack">
-        <div class="coin-icon-wrapper">🌌</div>
-        <div class="coin-amount">10000 كوين</div>
-        <div class="coin-price">$49.99</div>
-
-
-    </div>
+</div>
 
 </div>
     </div>
@@ -527,15 +535,6 @@ function applyGlobalSettings() {
     renderMarket(lang);
     drawWheel(lang);
 }
-    window.showUnavailableMessage = () => {
-    const lang = localStorage.getItem('kirafix-lang') || 'ar';
-
-    if (lang === 'ar') {
-        alert("الخدمة غير متاحة أوتوماتيكياً حالياً.\nللشحن اليدوي تواصل معنا على واتساب: 01283380890");
-    } else {
-        alert("This service is currently unavailable automatically.\nFor manual recharge, contact us on WhatsApp: 01283380890");
-    }
-};
 
 function applyLanguageStrings(lang) {
     const t = {
@@ -553,9 +552,17 @@ function applyLanguageStrings(lang) {
             chargeTitle: "💰 شحن رصيد الكوينز",
             buyNow: "شراء الآن",
             coinUnit: "كوين"
-            follow: "🎁 هدية المتابعة",
-           followText: "تابعنا على إنستجرام واحصل على 120 كوين!",
-           followBtn: "📸 متابعة الآن"
+            buyNow: "شراء يدوي",
+            coinUnit: "كوين",
+            // نصوص رسالة الشحن اليدوي
+            manualAlert: `⚠️ الخدمة غير متاحة أوتوماتيكياً في الوقت الحالي.<br>
+                          للتواصل للشحن اليدوي يرجى مراسلتنا عبر واتساب:<br>
+                          <a href="https://wa.me/201283380890" style="color: #059669; text-decoration: none; font-size: 18px;">01283380890</a>`,
+            // نصوص المهام
+            tasksTitle: "📱 مهام السوشيال ميديا",
+            instaFollow: "متابعة إنستجرام",
+            instaReward: "+150 كوين 🪙",
+            instaBtn: "متابعة"
         },
         en: {
             back: "🏠 Back to Home",
@@ -571,12 +578,21 @@ function applyLanguageStrings(lang) {
             chargeTitle: "💰 Top Up Coins",
             buyNow: "Buy Now",
             coinUnit: "Coins"
-            follow: "🎁 Follow Reward",
-            followText: "Follow us on Instagram and get 120 coins!",
-            followBtn: "📸 Follow Now"
+            buyNow: "Manual Buy",
+            coinUnit: "Coins",
+            // Manual Recharge Alert
+            manualAlert: `⚠️ Automatic service is currently unavailable.<br>
+                          For manual recharge, please contact us via WhatsApp:<br>
+                          <a href="https://wa.me/201283380890" style="color: #059669; text-decoration: none; font-size: 18px;">01283380890</a>`,
+            // Tasks Strings
+            tasksTitle: "📱 Social Media Tasks",
+            instaFollow: "Follow Instagram",
+            instaReward: "+150 Coins 🪙",
+            instaBtn: "Follow"
         }
     }[lang];
 
+    // تطبيق النصوص على العناصر
     document.querySelector('.home-btn').textContent = t.back;
     document.getElementById('dailyBtn').textContent = t.daily;
     document.querySelector('.store-card h2').textContent = t.wheel;
@@ -585,12 +601,20 @@ function applyLanguageStrings(lang) {
     document.getElementById('spinBtn').textContent = t.spinBtn;
     document.querySelectorAll('.store-card h3')[0].textContent = t.market;
     document.querySelectorAll('.store-card h3')[1].textContent = t.chargeTitle;
+    
+    // شحن الكوينز والمهام
+    document.getElementById('charge-title').textContent = t.chargeTitle;
+    document.getElementById('manual-recharge-alert').innerHTML = t.manualAlert;
+    document.getElementById('tasks-title').textContent = t.tasksTitle;
+    document.getElementById('insta-text-title').textContent = t.instaFollow;
+    document.getElementById('insta-reward-text').textContent = t.instaReward;
+    
+    const instaBtn = document.getElementById('instaBtn');
+    if (instaBtn.textContent !== "✅") instaBtn.textContent = t.instaBtn;
+
     document.querySelector('.inventory-section h3').textContent = t.inv;
     document.querySelectorAll('.section-title')[0].textContent = t.invColors;
     document.querySelectorAll('.section-title')[1].textContent = t.invBadges;
-    document.querySelectorAll('.store-card h3')[2].textContent = t.follow;
-    document.getElementById('follow-text').textContent = t.followText;
-    document.querySelector('[onclick="followInstagram()"]').textContent = t.followBtn;
 
     // تحديث كروت الشحن
     document.querySelectorAll('.price-card').forEach(card => {
@@ -762,34 +786,44 @@ function renderBadgeInv(badges, active) {
         grid.appendChild(d);
     });
 }
-    window.followInstagram = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const userRef = doc(db, "users", user.uid);
+    // --- 📸 مهمة إنستجرام ---
+document.getElementById("instaBtn").onclick = async () => {
+    const userRef = doc(db, "users", auth.currentUser.uid);
     const snap = await getDoc(userRef);
     const data = snap.data();
 
-    if (data.followRewardClaimed) {
-        alert(document.body.dir === 'rtl' ? "تم استلام الهدية بالفعل!" : "Reward already claimed!");
+    // التحقق لو كان العميل عمل المهمة قبل كدة
+    if (data.completedTasks && data.completedTasks.includes('instagram_follow')) {
+        const lang = localStorage.getItem('kirafix-lang') || 'ar';
+        alert(lang === 'ar' ? "لقد استلمت هذه الهدية بالفعل!" : "Already claimed!");
         return;
     }
 
-    // يفتح الانستجرام
-    window.open("https://www.instagram.com/kirafix_web/?hl=ar", "_blank");
+    // فتح رابط إنستجرام في نافذة جديدة
+    window.open('https://www.instagram.com/kirafix_web/?hl=ar', '_blank');
 
-    // تأكيد
+    // إعطاء الهدية وتحديث قاعدة البيانات
     setTimeout(async () => {
-        if (confirm(document.body.dir === 'rtl' ? "هل تابعت الحساب؟" : "Did you follow the account?")) {
-            await updateDoc(userRef, {
-                coins: increment(120),
-                followRewardClaimed: true
-            });
-
-            alert(document.body.dir === 'rtl' ? "🎉 تم إضافة 120 كوين!" : "🎉 120 coins added!");
-        }
-    }, 2000);
+        await updateDoc(userRef, {
+            coins: increment(150),
+            completedTasks: arrayUnion('instagram_follow')
+        });
+        
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        document.getElementById("instaBtn").disabled = true;
+        document.getElementById("instaBtn").textContent = "✅";
+        document.getElementById("insta-task-box").style.opacity = "0.6";
+    }, 2000); // تأخير بسيط للإيحاء بالتحقق
 };
+
+// تحديث حالة الزرار عند تحميل الصفحة (داخل onSnapshot)
+// ابحث عن onSnapshot وضيف السطر ده جواها:
+if (data.completedTasks && data.completedTasks.includes('instagram_follow')) {
+    const btn = document.getElementById("instaBtn");
+    btn.disabled = true;
+    btn.textContent = "✅";
+    document.getElementById("insta-task-box").style.opacity = "0.6";
+}
 </script>
 </body>
 </html>
