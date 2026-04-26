@@ -55,6 +55,13 @@
             color: var(--primary-blue);
             font-weight: bold;
         }
+        .warning-text {
+            color: #ff4b4b;
+            font-weight: bold;
+            display: none;
+            font-size: 11px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -64,9 +71,10 @@
     <h2 id="lang-title">الإعدادات</h2>
 
     <div class="setting-card">
-        <div>
+<div>
             <h3 id="lang-label-language">لغة التطبيق</h3>
             <p style="font-size: 12px; color: gray;" id="lang-desc-language">اختر اللغة المفضلة لواجهة المستخدم</p>
+            <div id="ar-warning" class="warning-text">⚠️ اللغة العربية (غير موصى بها)</div>
         </div>
         <select id="languageSelect">
             <option value="ar">العربية</option>
@@ -78,9 +86,10 @@
     </div>
 
     <div class="setting-card">
-        <div>
-            <h3 id="lang-label-theme">المظهر (Dark Mode)</h3>
+<div>
+            <h3 id="lang-label-theme">المظهر (Theme)</h3>
             <p style="font-size: 12px; color: gray;" id="lang-desc-theme">تبديل بين الوضع الفاتح والمظلم</p>
+            <div id="light-warning" class="warning-text">⚠️ الوضع المضيء (غير موصى به)</div>
         </div>
         <button class="toggle-btn" id="darkModeBtn">تفعيل</button>
     </div>
