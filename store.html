@@ -34,6 +34,7 @@
             transition: 0.3s;
         }
 
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; }
         .container {
             max-width: 600px;
             margin: 20px auto;
@@ -41,6 +42,10 @@
         }
 
         .home-btn {
+            display: inline-block; margin-bottom: 15px; padding: 10px 20px;
+            background: var(--card-bg); color: var(--text-main);
+            text-decoration: none; border-radius: 12px; font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s;
             display: inline-block;
             margin-bottom: 15px;
             padding: 10px 20px;
@@ -56,6 +61,9 @@
         .home-btn:hover { transform: scale(1.05); background: var(--gold); color: black; }
 
         .store-card, .inventory-section {
+            background: var(--card-bg); border-radius: 20px; padding: 30px;
+            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 2px solid var(--gold); margin-bottom: 20px;
             background: var(--card-bg);
             border-radius: 20px;
             padding: 30px;
@@ -67,6 +75,9 @@
         }
 
         .balance-box {
+            background: var(--gold); color: #000; padding: 10px 20px;
+            border-radius: 50px; display: inline-flex; align-items: center;
+            gap: 10px; font-weight: bold; margin-bottom: 20px;
             background: var(--gold);
             color: #000;
             padding: 10px 20px;
@@ -79,6 +90,9 @@
         }
 
         .daily-btn {
+            background: #10b981; color: white; border: none; padding: 8px 15px;
+            border-radius: 10px; cursor: pointer; font-weight: bold;
+            margin-bottom: 15px; display: block; width: 100%; transition: 0.3s;
             background: #10b981;
             color: white;
             border: none;
@@ -100,13 +114,17 @@
         .spin-btn { background: #2563eb; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         .spin-btn:disabled { background: #9ca3af; cursor: not-allowed; }
 
+        .spin-btn { background: #2563eb; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
         /* Market & Inventory */
         .badge-market { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin: 20px 0; }
+        .badge-buy-card { background: var(--bg-color); padding: 15px; border-radius: 15px; border: 1px solid #e5e7eb; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; min-height: 160px; }
         .badge-buy-card { background: var(--card-bg); padding: 15px; border-radius: 15px; border: 1px solid #e5e7eb; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; min-height: 160px; }
         body.dark-mode .badge-buy-card { border-color: #374151; }
         .badge-buy-card:hover { border-color: var(--gold); transform: translateY(-3px); }
 
         .color-grid, .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 15px; margin-top: 15px; justify-items: center; }
+        .item-box { width: 50px; height: 50px; border-radius: 12px; cursor: pointer; border: 3px solid transparent; display: flex; align-items: center; justify-content: center; background: #eee; }
         .item-box { width: 50px; height: 50px; border-radius: 12px; cursor: pointer; border: 3px solid transparent; transition: 0.2s; position: relative; display: flex; align-items: center; justify-content: center; background: #eee; font-size: 18px; overflow: hidden; }
         body.dark-mode .item-box { background: #111827; }
         .item-box.active { border-color: var(--gold); transform: scale(1.1); }
@@ -114,6 +132,9 @@
 
         /* Pricing Grid */
         .coins-pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 20px; }
+        .price-card { background: var(--card-bg); border: 1px solid #e5e7eb; border-radius: 15px; padding: 20px 10px; text-align: center; transition: 0.3s; }
+        .buy-coin-btn { background: #f3f4f6; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 5px;}
+        
         .price-card { background: var(--card-bg); border: 1px solid #e5e7eb; border-radius: 15px; padding: 20px 10px; text-align: center; transition: 0.3s; position: relative; }
         body.dark-mode .price-card { border-color: #374151; }
         .price-card:hover { transform: translateY(-5px); border-color: var(--gold); }
@@ -133,47 +154,26 @@
         /* Manual Payment Warning */
         .manual-pay-warning { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; text-align: center; }
         body.dark-mode .manual-pay-warning { background: #451a03; border-color: #92400e; color: #fef3c7; }
-        /* Instagram Task Style */
-.social-task-btn {
-    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: bold;
-    width: 100%;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: 0.3s;
-}
-.social-task-btn:disabled {
-    background: #6b7280;
-    cursor: not-allowed;
-    opacity: 0.8;
-}
-.social-task-btn:hover:not(:disabled) {
-    transform: scale(1.02);
-    filter: brightness(1.1);
-}
     </style>
 </head>
 <body>
 
 <div class="container">
+    <a href="index.html" class="home-btn">🏠</a>
     <a href="index.html" class="home-btn" id="backBtn">🏠 العودة للرئيسية</a>
 
     <div class="store-card">
+        <button id="dailyBtn" class="daily-btn">🎁</button>
+        <h2 id="wheel-title">🎡 Kirafix Lucky Wheel</h2>
         <button id="dailyBtn" class="daily-btn">🎁 استلام الهدية اليومية</button>
         <h2 id="wheelTitle">🎡 Kirafix Lucky Wheel</h2>
         <div class="balance-box">
+            <span id="balance-label">رصيدك:</span>
             <span id="balanceLabel">رصيدك:</span>
             <span id="user-coins">0</span>
             <span>🪙</span>
         </div>
+        <p id="spin-cost-text">تكلفة اللفة: 100 كوين</p>
         <p id="spinCostLabel">تكلفة اللفة: 100 كوين</p>
         <div class="wheel-container">
             <div class="pointer"></div>
@@ -183,21 +183,24 @@
     </div>
 
     <div class="store-card">
+        <h3 id="tasks-title">📱 مهام السوشيال ميديا</h3>
+        <div id="insta-task-box" style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-color); padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">📸</span>
+                <div style="text-align: right;">
+                    <div id="insta-text-title" style="font-weight: bold; font-size: 14px;"></div>
+                    <div id="insta-reward-text" style="font-size: 12px; color: #10b981;"></div>
+                </div>
+            </div>
+            <button id="instaBtn" class="buy-coin-btn" style="width: auto; background: #e1306c; color: white;">Follow</button>
+        </div>
         <h3 id="marketTitle">🎖️ متجر الأوسمة والتوثيق</h3>
         <div class="badge-market" id="badge-market"></div>
     </div>
+
     <div class="store-card">
-    <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
-        <button id="dailyBtn" class="daily-btn">🎁 استلام الهدية اليومية</button>
-        
-        <button id="instaTaskBtn" class="social-task-btn">
-            <span>📸</span> 
-            <span id="instaLabel">تابعنا على إنستجرام (+150 كوين)</span>
-        </button>
-    </div>
-
-    <h2 id="wheelTitle">🎡 Kirafix Lucky Wheel</h2>
-
+        <h3 id="market-title">🎖️ متجر الأوسمة والتوثيق</h3>
+        <div class="badge-market" id="badge-market"></div>
     <div class="inventory-section">
         <h3 id="invTitle">🎒 حقيبتك (Inventory)</h3>
         <div class="section-title" id="invColorsLabel">🎨 الألوان المفتوحة:</div>
@@ -207,6 +210,9 @@
     </div>
 
     <div class="store-card">
+        <h3 id="charge-title">💰 شحن رصيد الكوينز</h3>
+        <div id="manual-recharge-alert" style="background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 14px;"></div>
+        
         <h3 id="chargeTitle">💰 شحن رصيد الكوينز</h3>
         <div class="manual-pay-warning" id="manualWarning">
             ⚠️ الخدمة غير متاحة أوتوماتيكياً حالياً.<br>
@@ -216,6 +222,10 @@
 
         <div class="coins-pricing-grid">
             <div class="price-card">
+                <div style="font-size:30px">🪙</div>
+                <div class="coin-amount">100 كوين</div>
+                <div style="color:#10b981; font-weight:bold">$0.99</div>
+                <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn buy-now-label">شراء</button>
                 <div class="coin-icon-wrapper">🪙</div>
                 <div class="coin-amount">100 <span class="coin-unit">كوين</span></div>
                 <div class="coin-price">$0.99</div>
@@ -228,6 +238,10 @@
                 <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn buyNowLabel">شراء يدوي</button>
             </div>
             <div class="price-card">
+                <div style="font-size:30px">💎</div>
+                <div class="coin-amount">500 كوين</div>
+                <div style="color:#10b981; font-weight:bold">$3.50</div>
+                <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn buy-now-label">شراء</button>
                 <div class="coin-icon-wrapper">💎</div>
                 <div class="coin-amount">1000 <span class="coin-unit">كوين</span></div>
                 <div class="coin-price">$6.99</div>
@@ -240,6 +254,14 @@
                 <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn buyNowLabel">شراء يدوي</button>
             </div>
         </div>
+    </div>
+
+    <div class="inventory-section">
+        <h3 id="inv-title">🎒 حقيبتك (Inventory)</h3>
+        <div class="section-title" id="inv-colors-label">🎨 الألوان المفتوحة:</div>
+        <div id="color-grid" class="color-grid"></div>
+        <div class="section-title" id="inv-badges-label">🎖️ الأوسمة المفتوحة:</div>
+        <div id="badge-grid" class="badge-grid"></div>
     </div>
 </div>
 
@@ -282,6 +304,7 @@ const availableBadges = [
     { id: 'infinity', icon: '🚀', price: 35000, ar: 'الناشر اللانهائي', en: 'Infinity', bAr: 'تكرار تلقائي لمنشورك كل ساعتين.', bEn: 'Auto-repeat your post every 2 hours.' }
 ];
 
+function applyLanguageStrings(lang) {
 // --- 🌍 الترجمة ---
 function applyGlobalSettings() {
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
@@ -292,6 +315,9 @@ function applyGlobalSettings() {
 
     const t = {
         ar: {
+            back: "🏠 العودة للرئيسية", daily: "🎁 استلام الهدية اليومية", wheel: "🎡 Kirafix Lucky Wheel", balance: "رصيدك:", cost: "تكلفة اللفة: 100 كوين", spin: "إبدأ اللف الآن!", market: "🎖️ متجر الأوسمة والتوثيق", inv: "🎒 حقيبتك (Inventory)", colors: "🎨 الألوان المفتوحة:", badges: "🎖️ الأوسمة المفتوحة:", charge: "💰 شحن رصيد الكوينز", buy: "شراء يدوي", unit: "كوين",
+            manualMsg: `⚠️ الخدمة غير متاحة أوتوماتيكياً حالياً.<br>للشحن اليدوي تواصل واتساب:<br><a href="https://wa.me/201283380890" style="color:#059669; font-size:18px;">01283380890</a>`,
+            tasks: "📱 مهام السوشيال ميديا", instaT: "متابعة إنستجرام", instaR: "+150 كوين 🪙", instaB: "متابعة"
             back: "🏠 العودة للرئيسية", daily: "🎁 استلام الهدية اليومية", wheel: "🎡 Kirafix Lucky Wheel",
             balance: "رصيدك:", spinCost: "تكلفة اللفة: 100 كوين", spinBtn: "إبدأ اللف الآن!",
             market: "🎖️ متجر الأوسمة والتوثيق", inv: "🎒 حقيبتك (Inventory)",
@@ -300,6 +326,9 @@ function applyGlobalSettings() {
             warning: "⚠️ الخدمة غير متاحة أوتوماتيكياً حالياً.<br>للشحن اليدوي تواصل معنا واتساب:<br>"
         },
         en: {
+            back: "🏠 Back to Home", daily: "🎁 Claim Daily Gift", wheel: "🎡 Kirafix Lucky Wheel", balance: "Balance:", cost: "Spin Cost: 100 Coins", spin: "Spin Now!", market: "🎖️ Badge & Verification Store", inv: "🎒 Your Inventory", colors: "🎨 Unlocked Colors:", badges: "🎖️ Unlocked Badges:", charge: "💰 Top Up Coins", buy: "Manual Buy", unit: "Coins",
+            manualMsg: `⚠️ Auto-service is unavailable.<br>Contact via WhatsApp for manual recharge:<br><a href="https://wa.me/201283380890" style="color:#059669; font-size:18px;">01283380890</a>`,
+            tasks: "📱 Social Media Tasks", instaT: "Follow Instagram", instaR: "+150 Coins 🪙", instaB: "Follow"
             back: "🏠 Back to Home", daily: "🎁 Claim Daily Gift", wheel: "🎡 Kirafix Lucky Wheel",
             balance: "Balance:", spinCost: "Spin Cost: 100 Coins", spinBtn: "Spin Now!",
             market: "🎖️ Badge Store", inv: "🎒 Your Inventory",
@@ -309,8 +338,25 @@ function applyGlobalSettings() {
         }
     }[lang];
 
+    document.querySelector('.home-btn').textContent = lang === 'ar' ? "🏠" : "🏠"; 
     document.getElementById('backBtn').textContent = t.back;
     document.getElementById('dailyBtn').textContent = t.daily;
+    document.getElementById('wheel-title').textContent = t.wheel;
+    document.getElementById('balance-label').textContent = t.balance;
+    document.getElementById('spin-cost-text').textContent = t.cost;
+    document.getElementById('spinBtn').textContent = t.spin;
+    document.getElementById('market-title').textContent = t.market;
+    document.getElementById('charge-title').textContent = t.charge;
+    document.getElementById('manual-recharge-alert').innerHTML = t.manualMsg;
+    document.getElementById('tasks-title').textContent = t.tasks;
+    document.getElementById('insta-text-title').textContent = t.instaT;
+    document.getElementById('insta-reward-text').textContent = t.instaR;
+    if(document.getElementById('instaBtn').textContent !== "✅") document.getElementById('instaBtn').textContent = t.instaB;
+    document.getElementById('inv-title').textContent = t.inv;
+    document.getElementById('inv-colors-label').textContent = t.colors;
+    document.getElementById('inv-badges-label').textContent = t.badges;
+    document.querySelectorAll('.buy-now-label').forEach(b => b.textContent = t.buy);
+}
     document.getElementById('wheelTitle').textContent = t.wheel;
     document.getElementById('balanceLabel').textContent = t.balance;
     document.getElementById('spinCostLabel').textContent = t.spinCost;
@@ -325,6 +371,12 @@ function applyGlobalSettings() {
     document.querySelectorAll('.buyNowLabel').forEach(b => b.textContent = t.buy);
     document.querySelectorAll('.coin-unit').forEach(u => u.textContent = t.unit);
 
+function applyGlobalSettings() {
+    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+    document.body.classList.toggle('dark-mode', savedDark);
+    const lang = localStorage.getItem('kirafix-lang') || 'ar';
+    document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+    applyLanguageStrings(lang);
     renderMarket(lang);
     drawWheel(lang);
 }
@@ -336,6 +388,7 @@ function renderMarket(lang) {
             <div>
                 <div style="font-size:30px">${b.icon}</div>
                 <div style="font-size:14px; font-weight:bold; margin-top:5px">${lang === 'ar' ? b.ar : b.en}</div>
+                <div style="font-size:11px; color:#6b7280;">${lang === 'ar' ? b.bAr : b.bEn}</div>
                 <div class="badge-benefit">${lang === 'ar' ? b.bAr : b.bEn}</div>
             </div>
             <div style="color:#10b981; font-size:15px; font-weight:bold; margin-top:10px">${b.price} 🪙</div>
@@ -377,14 +430,27 @@ onAuthStateChanged(auth, (user) => {
     onSnapshot(doc(db, "users", user.uid), (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
+            document.getElementById("user-coins").textContent = data.coins || 0;
             document.getElementById("user-coins").textContent = data.coins >= 1000000 ? (data.coins/1000000).toFixed(1) + 'M' : data.coins || 0;
             renderInventory(data.inventory || [], data.activeColor);
             renderBadgeInv(data.inventoryBadges || [], data.activeBadge);
             checkDailyStatus(data.lastDaily);
+            if (data.completedTasks && data.completedTasks.includes('instagram_follow')) {
+                const btn = document.getElementById("instaBtn");
+                btn.disabled = true; btn.textContent = "✅";
+                document.getElementById("insta-task-box").style.opacity = "0.6";
+            }
         }
     });
 });
 
+document.getElementById("instaBtn").onclick = async () => {
+    window.open('https://www.instagram.com/kirafix_web/?hl=ar', '_blank');
+    setTimeout(async () => {
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        await updateDoc(userRef, { coins: increment(150), completedTasks: arrayUnion('instagram_follow') });
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }, 2000);
 async function checkDailyStatus(lastDaily) {
     const btn = document.getElementById("dailyBtn");
     if (!lastDaily) return;
@@ -402,12 +468,14 @@ document.getElementById("dailyBtn").onclick = async () => {
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 };
 
+// --- باقي وظائف العجلة والحقيبة (بدون تغيير) ---
 window.buyBadge = async (id, price) => {
     const userRef = doc(db, "users", auth.currentUser.uid);
     const snap = await getDoc(userRef);
     const data = snap.data();
     if ((data.inventoryBadges || []).includes(id)) return alert("Owned!");
     if ((data.coins || 0) < price) return alert("No coins!");
+    if(confirm("Buy?")) {
     if(confirm("Confirm purchase?")) {
         await updateDoc(userRef, { coins: increment(-price), inventoryBadges: arrayUnion(id) });
     }
@@ -420,8 +488,11 @@ document.getElementById("spinBtn").onclick = async () => {
     if ((snap.data().coins || 0) < 100) return alert("No coins!");
 
     document.getElementById("spinBtn").disabled = true;
+    spinSound.play();
     spinSound.currentTime = 0; spinSound.loop = true; spinSound.play();
     await updateDoc(userRef, { coins: increment(-100) });
+    let winningIndex = Math.floor(Math.random() * colors.length); // تبسيط للمثال
+    rotation += (360 * 5) + (360 - (winningIndex * (360/colors.length)));
 
     let winningIndex = 0;
     let totalWeight = colors.reduce((s, c) => s + c.chance, 0);
@@ -437,6 +508,8 @@ document.getElementById("spinBtn").onclick = async () => {
     document.getElementById("wheel-canvas").style.transform = `rotate(${rotation}deg)`;
 
     setTimeout(async () => {
+        winSound.play();
+        await updateDoc(userRef, { inventory: arrayUnion(colors[winningIndex].code) });
         spinSound.pause(); winSound.play();
         const winner = colors[winningIndex];
         await updateDoc(userRef, { inventory: arrayUnion(winner.code) });
@@ -452,6 +525,8 @@ function renderInventory(items, active) {
     // إضافة نظام إنستجرام (تدرجات الألوان) والتأكد من التكرار
     ['#374151', ...new Set(items)].forEach(code => {
         const d = document.createElement("div");
+        d.className = `item-box ${active === code ? 'active' : ''}`;
+        d.style.background = code;
         const isSpecial = code.includes('gradient') || code === 'RAINBOW_SPECIAL';
         d.className = `item-box ${active === code ? 'active' : ''} ${code === 'RAINBOW_SPECIAL' ? 'rainbow' : ''}`;
         if(code !== 'RAINBOW_SPECIAL') d.style.background = code;
@@ -467,51 +542,23 @@ function renderBadgeInv(badges, active) {
         const bData = availableBadges.find(x => x.id === id);
         const d = document.createElement("div");
         d.className = `item-box ${active === id ? 'active' : ''}`;
+        d.innerHTML = "🎖️";
         d.innerHTML = bData ? bData.icon : "🎖️";
         d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
         grid.appendChild(d);
     });
 }
-    // فحص حالة مهمة الإنستجرام عند تحميل البيانات
-async function checkSocialStatus(data) {
-    const instaBtn = document.getElementById("instaTaskBtn");
-    const lang = localStorage.getItem('kirafix-lang') || 'ar';
-    
-    if (data.claimedInsta) {
-        instaBtn.disabled = true;
-        document.getElementById('instaLabel').textContent = (lang === 'ar') ? "✅ تمت المتابعة" : "✅ Followed";
+
+async function checkDailyStatus(lastDaily) {
+    if (!lastDaily) return;
+    if (lastDaily.toDate().toLocaleDateString() === new Date().toLocaleDateString()) {
+        document.getElementById("dailyBtn").disabled = true;
     }
 }
 
-// تنفيذ مهمة الإنستجرام
-document.getElementById("instaTaskBtn").onclick = async () => {
-    const userRef = doc(db, "users", auth.currentUser.uid);
-    const snap = await getDoc(userRef);
-    
-    if (snap.data().claimedInsta) return;
-
-    // فتح الرابط في نافذة جديدة
-    window.open('https://www.instagram.com/kirafix_web/?hl=ar', '_blank');
-
-    // إعطاء المكافأة وحفظ الحالة في قاعدة البيانات
-    setTimeout(async () => {
-        await updateDoc(userRef, { 
-            coins: increment(150), 
-            claimedInsta: true 
-        });
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        alert(localStorage.getItem('kirafix-lang') === 'ar' ? "شكراً للمتابعة! تم إضافة 150 كوين" : "Thanks for following! 150 coins added.");
-    }, 2000); // تأخير بسيط للإحساس بالتفاعل
+document.getElementById("dailyBtn").onclick = async () => {
+    await updateDoc(doc(db, "users", auth.currentUser.uid), { coins: increment(50), lastDaily: serverTimestamp() });
 };
-
-// لا تنسَ استدعاء الدالة داخل الـ onSnapshot
-onSnapshot(doc(db, "users", user.uid), (docSnap) => {
-    if (docSnap.exists()) {
-        const data = docSnap.data();
-        // ... الكود القديم
-        checkSocialStatus(data); // استدعاء الدالة الجديدة هنا
-    }
-});
 
 applyGlobalSettings();
 </script>
