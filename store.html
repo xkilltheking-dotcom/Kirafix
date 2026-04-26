@@ -64,10 +64,6 @@ h1, h2, h3, p, span {
             margin: 20px auto;
             padding: 20px;
         }
-    body.dark-mode #insta-task-box {
-    background: #111827 !important;
-    border-color: #374151 !important;
-}
 
         .home-btn {
             display: inline-block;
@@ -372,21 +368,6 @@ body.dark-mode .setting-card * {
         <h3>🎖️ متجر الأوسمة والتوثيق</h3>
         <div class="badge-market" id="badge-market"></div>
     </div>
-    <div class="store-card">
-    <h3>📱 مهام السوشيال ميديا</h3>
-    <div id="social-tasks">
-        <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px;" id="insta-task-box">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 24px;">📸</span>
-                <div style="text-align: right;">
-                    <div style="font-weight: bold; font-size: 14px;" id="insta-text-title">متابعة إنستجرام</div>
-                    <div style="font-size: 12px; color: #10b981;">+150 كوين 🪙</div>
-                </div>
-            </div>
-            <button id="instaBtn" class="buy-coin-btn" style="width: auto; padding: 8px 20px; background: #e1306c; color: white;">متابعة</button>
-        </div>
-    </div>
-</div>
 
     <div class="inventory-section">
         <h3>🎒 حقيبتك (Inventory)</h3>
@@ -395,6 +376,47 @@ body.dark-mode .setting-card * {
         <div class="section-title">🎖️ الأوسمة المفتوحة:</div>
         <div id="badge-grid" class="badge-grid"></div>
     </div>
+    <div class="store-card">
+        <h3>💰 شحن رصيد الكوينز</h3>
+        <p style="font-size: 13px; color: #6b7280; margin-bottom: 20px;">اختر الباقة المناسبة لك، سيتم إضافة الرصيد فور نجاح عملية الدفع.</p>
+
+<div class="coins-pricing-grid">
+
+    <div class="price-card">
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">100 كوين</div>
+        <div class="coin-price">$0.99</div>
+
+        <button onclick="initiatePayment(100, 0.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(100, 0.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card">
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">250 كوين</div>
+        <div class="coin-price">$1.99</div>
+
+        <button onclick="initiatePayment(250, 1.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(250, 1.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card">
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">500 كوين</div>
+        <div class="coin-price">$3.50</div>
+
+        <button onclick="initiatePayment(500, 3.50, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(500, 3.50, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card popular">
+        <div class="popular-badge">الأكثر طلباً</div>
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">700 كوين</div>
+        <div class="coin-price">$4.99</div>
+
+        <button onclick="initiatePayment(700, 4.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(700, 4.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
 <div class="store-card">
     <h3>💰 شحن رصيد الكوينز</h3>
     
@@ -404,6 +426,14 @@ body.dark-mode .setting-card * {
         <a href="https://wa.me/201283380890" style="color: #059669; text-decoration: none; font-size: 18px;">01283380890</a>
     </div>
 
+    <div class="price-card">
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">1000 كوين</div>
+        <div class="coin-price">$6.99</div>
+
+        <button onclick="initiatePayment(1000, 6.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(1000, 6.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
     <div class="coins-pricing-grid">
         <div class="price-card">
             <div class="coin-icon-wrapper">🪙</div>
@@ -412,6 +442,10 @@ body.dark-mode .setting-card * {
             <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
         </div>
 
+    <div class="price-card">
+        <div class="coin-icon-wrapper">💎</div>
+        <div class="coin-amount">2550 كوين</div>
+        <div class="coin-price">$14.99</div>
         <div class="price-card">
             <div class="coin-icon-wrapper">🪙</div>
             <div class="coin-amount">250 كوين</div>
@@ -419,6 +453,9 @@ body.dark-mode .setting-card * {
             <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
         </div>
 
+        <button onclick="initiatePayment(2550, 14.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(2550, 14.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
         <div class="price-card">
             <div class="coin-icon-wrapper">🪙</div>
             <div class="coin-amount">500 كوين</div>
@@ -426,6 +463,10 @@ body.dark-mode .setting-card * {
             <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
         </div>
 
+    <div class="price-card vip-pack">
+        <div class="coin-icon-wrapper">🔥</div>
+        <div class="coin-amount">5000 كوين</div>
+        <div class="coin-price">$24.99</div>
         <div class="price-card popular">
             <div class="popular-badge">الأكثر طلباً</div>
             <div class="coin-icon-wrapper">🪙</div>
@@ -434,6 +475,9 @@ body.dark-mode .setting-card * {
             <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
         </div>
 
+        <button onclick="initiatePayment(5000, 24.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(5000, 24.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
         <div class="price-card">
             <div class="coin-icon-wrapper">🪙</div>
             <div class="coin-amount">1000 كوين</div>
@@ -441,6 +485,10 @@ body.dark-mode .setting-card * {
             <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
         </div>
 
+    <div class="price-card vip-pack">
+        <div class="coin-icon-wrapper">👑</div>
+        <div class="coin-amount">8000 كوين</div>
+        <div class="coin-price">$39.99</div>
         <div class="price-card">
             <div class="coin-icon-wrapper">💎</div>
             <div class="coin-amount">2550 كوين</div>
@@ -448,6 +496,9 @@ body.dark-mode .setting-card * {
             <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
         </div>
 
+        <button onclick="initiatePayment(8000, 39.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(8000, 39.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
         <div class="price-card vip-pack">
             <div class="coin-icon-wrapper">🔥</div>
             <div class="coin-amount">5000 كوين</div>
@@ -455,6 +506,10 @@ body.dark-mode .setting-card * {
             <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
         </div>
 
+    <div class="price-card royal-pack">
+        <div class="coin-icon-wrapper">🌌</div>
+        <div class="coin-amount">10000 كوين</div>
+        <div class="coin-price">$49.99</div>
         <div class="price-card vip-pack">
             <div class="coin-icon-wrapper">👑</div>
             <div class="coin-amount">8000 كوين</div>
@@ -462,6 +517,8 @@ body.dark-mode .setting-card * {
             <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn">شراء يدوي</button>
         </div>
 
+        <button onclick="initiatePayment(10000, 49.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(10000, 49.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
         <div class="price-card royal-pack">
             <div class="coin-icon-wrapper">🌌</div>
             <div class="coin-amount">10000 كوين</div>
@@ -524,6 +581,18 @@ window.initiatePayment = async (amount, price, method = "card") => {
     window.location.href = data.url;
 };
 // --- 🌍 نظام الترجمة والإعدادات ---
+function applyGlobalSettings() {
+    const savedDark = localStorage.getItem('kirafix-dark') === 'true';
+    document.body.classList.toggle('dark-mode', savedDark);
+
+    const lang = localStorage.getItem('kirafix-lang') || 'ar';
+    document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+
+    applyLanguageStrings(lang);
+    renderMarket(lang);
+    drawWheel(lang);
+}
+
 function applyLanguageStrings(lang) {
     const t = {
         ar: {
@@ -538,17 +607,8 @@ function applyLanguageStrings(lang) {
             invColors: "🎨 الألوان المفتوحة:",
             invBadges: "🎖️ الأوسمة المفتوحة:",
             chargeTitle: "💰 شحن رصيد الكوينز",
-            buyNow: "شراء يدوي",
-            coinUnit: "كوين",
-            // نصوص رسالة الشحن اليدوي
-            manualAlert: `⚠️ الخدمة غير متاحة أوتوماتيكياً في الوقت الحالي.<br>
-                          للتواصل للشحن اليدوي يرجى مراسلتنا عبر واتساب:<br>
-                          <a href="https://wa.me/201283380890" style="color: #059669; text-decoration: none; font-size: 18px;">01283380890</a>`,
-            // نصوص المهام
-            tasksTitle: "📱 مهام السوشيال ميديا",
-            instaFollow: "متابعة إنستجرام",
-            instaReward: "+150 كوين 🪙",
-            instaBtn: "متابعة"
+            buyNow: "شراء الآن",
+            coinUnit: "كوين"
         },
         en: {
             back: "🏠 Back to Home",
@@ -562,21 +622,11 @@ function applyLanguageStrings(lang) {
             invColors: "🎨 Unlocked Colors:",
             invBadges: "🎖️ Unlocked Badges:",
             chargeTitle: "💰 Top Up Coins",
-            buyNow: "Manual Buy",
-            coinUnit: "Coins",
-            // Manual Recharge Alert
-            manualAlert: `⚠️ Automatic service is currently unavailable.<br>
-                          For manual recharge, please contact us via WhatsApp:<br>
-                          <a href="https://wa.me/201283380890" style="color: #059669; text-decoration: none; font-size: 18px;">01283380890</a>`,
-            // Tasks Strings
-            tasksTitle: "📱 Social Media Tasks",
-            instaFollow: "Follow Instagram",
-            instaReward: "+150 Coins 🪙",
-            instaBtn: "Follow"
+            buyNow: "Buy Now",
+            coinUnit: "Coins"
         }
     }[lang];
 
-    // تطبيق النصوص على العناصر
     document.querySelector('.home-btn').textContent = t.back;
     document.getElementById('dailyBtn').textContent = t.daily;
     document.querySelector('.store-card h2').textContent = t.wheel;
@@ -584,17 +634,7 @@ function applyLanguageStrings(lang) {
     document.querySelector('.store-card p').textContent = t.spinCost;
     document.getElementById('spinBtn').textContent = t.spinBtn;
     document.querySelectorAll('.store-card h3')[0].textContent = t.market;
-    
-    // شحن الكوينز والمهام
-    document.getElementById('charge-title').textContent = t.chargeTitle;
-    document.getElementById('manual-recharge-alert').innerHTML = t.manualAlert;
-    document.getElementById('tasks-title').textContent = t.tasksTitle;
-    document.getElementById('insta-text-title').textContent = t.instaFollow;
-    document.getElementById('insta-reward-text').textContent = t.instaReward;
-    
-    const instaBtn = document.getElementById('instaBtn');
-    if (instaBtn.textContent !== "✅") instaBtn.textContent = t.instaBtn;
-
+    document.querySelectorAll('.store-card h3')[1].textContent = t.chargeTitle;
     document.querySelector('.inventory-section h3').textContent = t.inv;
     document.querySelectorAll('.section-title')[0].textContent = t.invColors;
     document.querySelectorAll('.section-title')[1].textContent = t.invBadges;
@@ -663,7 +703,7 @@ window.buyBadge = async (id, price) => {
     const data = snap.data();
     if ((data.inventoryBadges || []).includes(id)) return alert(document.body.dir === 'rtl' ? "تمتلكه بالفعل!" : "Already owned!");
     if ((data.coins || 0) < price) return alert(document.body.dir === 'rtl' ? "رصيدك لا يكفي!" : "Not enough coins!");
-    
+
     if(confirm(document.body.dir === 'rtl' ? "شراء هذا الوسام؟" : "Purchase this badge?")) {
         await updateDoc(userRef, { coins: increment(-price), inventoryBadges: arrayUnion(id) });
         alert("Success!");
@@ -768,44 +808,6 @@ function renderBadgeInv(badges, active) {
         d.onclick = () => updateDoc(doc(db, "users", auth.currentUser.uid), { activeBadge: id });
         grid.appendChild(d);
     });
-}
-    // --- 📸 مهمة إنستجرام ---
-document.getElementById("instaBtn").onclick = async () => {
-    const userRef = doc(db, "users", auth.currentUser.uid);
-    const snap = await getDoc(userRef);
-    const data = snap.data();
-
-    // التحقق لو كان العميل عمل المهمة قبل كدة
-    if (data.completedTasks && data.completedTasks.includes('instagram_follow')) {
-        const lang = localStorage.getItem('kirafix-lang') || 'ar';
-        alert(lang === 'ar' ? "لقد استلمت هذه الهدية بالفعل!" : "Already claimed!");
-        return;
-    }
-
-    // فتح رابط إنستجرام في نافذة جديدة
-    window.open('https://www.instagram.com/kirafix_web/?hl=ar', '_blank');
-
-    // إعطاء الهدية وتحديث قاعدة البيانات
-    setTimeout(async () => {
-        await updateDoc(userRef, {
-            coins: increment(150),
-            completedTasks: arrayUnion('instagram_follow')
-        });
-        
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-        document.getElementById("instaBtn").disabled = true;
-        document.getElementById("instaBtn").textContent = "✅";
-        document.getElementById("insta-task-box").style.opacity = "0.6";
-    }, 2000); // تأخير بسيط للإيحاء بالتحقق
-};
-
-// تحديث حالة الزرار عند تحميل الصفحة (داخل onSnapshot)
-// ابحث عن onSnapshot وضيف السطر ده جواها:
-if (data.completedTasks && data.completedTasks.includes('instagram_follow')) {
-    const btn = document.getElementById("instaBtn");
-    btn.disabled = true;
-    btn.textContent = "✅";
-    document.getElementById("insta-task-box").style.opacity = "0.6";
 }
 </script>
 </body>
