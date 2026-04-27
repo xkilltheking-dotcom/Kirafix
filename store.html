@@ -376,95 +376,40 @@ body.dark-mode .setting-card * {
         <div class="section-title">🎖️ الأوسمة المفتوحة:</div>
         <div id="badge-grid" class="badge-grid"></div>
     </div>
-    <div class="store-card">
-        <h3>💰 شحن رصيد الكوينز</h3>
-        <p style="font-size: 13px; color: #6b7280; margin-bottom: 20px;">اختر الباقة المناسبة لك، سيتم إضافة الرصيد فور نجاح عملية الدفع.</p>
+<div class="store-card">
+        <h3 id="chargeTitle">💰 شحن رصيد الكوينز</h3>
+        <div class="manual-pay-warning" id="manualWarning">
+            ⚠️ الخدمة غير متاحة أوتوماتيكياً حالياً.<br>
+            للشحن اليدوي تواصل معنا واتساب:<br>
+            <a href="https://wa.me/201283380890" style="color: #10b981; font-size: 18px;">01283380890</a>
+        </div>
 
-<div class="coins-pricing-grid">
-
-    <div class="price-card">
-        <div class="coin-icon-wrapper">🪙</div>
-        <div class="coin-amount">100 كوين</div>
-        <div class="coin-price">$0.99</div>
-
-        <button onclick="initiatePayment(100, 0.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(100, 0.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
-    </div>
-
-    <div class="price-card">
-        <div class="coin-icon-wrapper">🪙</div>
-        <div class="coin-amount">250 كوين</div>
-        <div class="coin-price">$1.99</div>
-
-        <button onclick="initiatePayment(250, 1.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(250, 1.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
-    </div>
-
-    <div class="price-card">
-        <div class="coin-icon-wrapper">🪙</div>
-        <div class="coin-amount">500 كوين</div>
-        <div class="coin-price">$3.50</div>
-
-        <button onclick="initiatePayment(500, 3.50, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(500, 3.50, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
-    </div>
-
-    <div class="price-card popular">
-        <div class="popular-badge">الأكثر طلباً</div>
-        <div class="coin-icon-wrapper">🪙</div>
-        <div class="coin-amount">700 كوين</div>
-        <div class="coin-price">$4.99</div>
-
-        <button onclick="initiatePayment(700, 4.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(700, 4.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
-    </div>
-
-    <div class="price-card">
-        <div class="coin-icon-wrapper">🪙</div>
-        <div class="coin-amount">1000 كوين</div>
-        <div class="coin-price">$6.99</div>
-
-        <button onclick="initiatePayment(1000, 6.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(1000, 6.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
-    </div>
-
-    <div class="price-card">
-        <div class="coin-icon-wrapper">💎</div>
-        <div class="coin-amount">2550 كوين</div>
-        <div class="coin-price">$14.99</div>
-
-        <button onclick="initiatePayment(2550, 14.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(2550, 14.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
-    </div>
-
-    <div class="price-card vip-pack">
-        <div class="coin-icon-wrapper">🔥</div>
-        <div class="coin-amount">5000 كوين</div>
-        <div class="coin-price">$24.99</div>
-
-        <button onclick="initiatePayment(5000, 24.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(5000, 24.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
-    </div>
-
-    <div class="price-card vip-pack">
-        <div class="coin-icon-wrapper">👑</div>
-        <div class="coin-amount">8000 كوين</div>
-        <div class="coin-price">$39.99</div>
-
-        <button onclick="initiatePayment(8000, 39.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(8000, 39.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
-    </div>
-
-    <div class="price-card royal-pack">
-        <div class="coin-icon-wrapper">🌌</div>
-        <div class="coin-amount">10000 كوين</div>
-        <div class="coin-price">$49.99</div>
-
-        <button onclick="initiatePayment(10000, 49.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(10000, 49.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
-    </div>
-
-</div>
+        <div class="coins-pricing-grid">
+            <div class="price-card">
+                <div class="coin-icon-wrapper">🪙</div>
+                <div class="coin-amount">100 <span class="coin-unit">كوين</span></div>
+                <div class="coin-price">$0.99</div>
+                <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn buyNowLabel">شراء يدوي</button>
+            </div>
+            <div class="price-card">
+                <div class="coin-icon-wrapper">🪙</div>
+                <div class="coin-amount">500 <span class="coin-unit">كوين</span></div>
+                <div class="coin-price">$3.50</div>
+                <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn buyNowLabel">شراء يدوي</button>
+            </div>
+            <div class="price-card">
+                <div class="coin-icon-wrapper">💎</div>
+                <div class="coin-amount">1000 <span class="coin-unit">كوين</span></div>
+                <div class="coin-price">$6.99</div>
+                <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn buyNowLabel">شراء يدوي</button>
+            </div>
+            <div class="price-card">
+                <div class="coin-icon-wrapper">👑</div>
+                <div class="coin-amount">5000 <span class="coin-unit">كوين</span></div>
+                <div class="coin-price">$24.99</div>
+                <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn buyNowLabel">شراء يدوي</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -545,6 +490,7 @@ function applyLanguageStrings(lang) {
             chargeTitle: "💰 شحن رصيد الكوينز",
             buyNow: "شراء الآن",
             coinUnit: "كوين"
+            warning: "⚠️ الخدمة غير متاحة أوتوماتيكياً حالياً.<br>للشحن اليدوي تواصل معنا واتساب:<br>"
         },
         en: {
             back: "🏠 Back to Home",
@@ -560,6 +506,7 @@ function applyLanguageStrings(lang) {
             chargeTitle: "💰 Top Up Coins",
             buyNow: "Buy Now",
             coinUnit: "Coins"
+            warning: "⚠️ Service currently not automatic.<br>For manual top-up, contact us via WhatsApp:<br>"
         }
     }[lang];
 
