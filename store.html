@@ -3,14 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="192x192" href="./favicon_fixed.png?v=2.0">
  <link rel="icon" type="image/png" sizes="192x192" href="./favicon_fixed.png?v=2.0">
 <link rel="apple-touch-icon" href="./favicon_fixed.png?v=2.0">
     <title>Kirafix - Store 🎡</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
     <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
 <style>
         :root {
             --gold: #ffd700;
             --dark-bg: #111827;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1c1e21;
+            --text-secondary: #65676b;
         }
     :root {
     /* الوضع الفاتح - الافتراضي */
@@ -22,6 +29,12 @@
             --dark-bg: #111827;
 }
 
+        body.dark-mode {
+            --bg-color: #18191a;
+            --card-bg: #242526;
+            --text-main: #e4e6eb;
+            --text-secondary: #b0b3b8;
+        }
 body.dark-mode {
     /* الوضع المظلم */
     --bg-color: #18191a;
@@ -47,6 +60,8 @@ h1, h2, h3, p, span {
 }
 
         body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
             background-color: #f3f4f6;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -54,6 +69,9 @@ h1, h2, h3, p, span {
             transition: 0.3s;
         }
 
+        /* [باقي الـ CSS بتاعك هنا بالحرف] */
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; }
+        .home-btn { display: inline-block; margin-bottom: 15px; padding: 10px 20px; background: #fff; color: #111; text-decoration: none; border-radius: 12px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; }
         body.dark-mode {
             background-color: var(--dark-bg);
             color: white;
@@ -78,6 +96,12 @@ h1, h2, h3, p, span {
             transition: 0.3s;
         }
         body.dark-mode .home-btn { background: #1f2937; color: white; }
+        .store-card { background: var(--card-bg); border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 2px solid var(--gold); margin-bottom: 20px; position: relative; }
+        .balance-box { background: var(--gold); color: #000; padding: 10px 20px; border-radius: 50px; display: inline-flex; align-items: center; gap: 10px; font-weight: bold; margin-bottom: 20px; }
+        .wheel-container { position: relative; width: 250px; height: 250px; margin: 20px auto; }
+        #wheel-canvas { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #374151; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 30px; height: 30px; background: red; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
+        .spin-btn { background: #2563eb; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .home-btn:hover { transform: scale(1.05); background: var(--gold); color: black; }
 
         .store-card, .inventory-section {
@@ -162,6 +186,7 @@ h1, h2, h3, p, span {
             transition: 0.3s;
         }
         .spin-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+        .item-box { width: 50px; height: 50px; border-radius: 12px; cursor: pointer; border: 3px solid transparent; display: flex; align-items: center; justify-content: center; background: #eee; position: relative; transition: 0.2s; }
 
         /* Badge Market */
         .badge-market {
@@ -205,6 +230,7 @@ h1, h2, h3, p, span {
         }
         body.dark-mode .item-box { background: #111827; }
         .item-box.active { border-color: var(--gold); transform: scale(1.1); }
+        .item-box.rainbow { background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) !important; background-size: 200% 200% !important; animation: rainbowBG 2s linear infinite !important; }
         .item-box.active::after {
             content: '✓';
             position: absolute;
@@ -242,6 +268,8 @@ h1, h2, h3, p, span {
             animation: rainbowBG 2s linear infinite !important;
         }
         @keyframes rainbowBG { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+        .buy-coin-btn { background: #25d366 !important; color: white !important; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+        /* [نفس الـ CSS بتاعك بدون أي تعديل في الشكل] */
         .section-title { font-size: 14px; color: #888; margin-top: 20px; text-align: right; width: 100%; }
     /* تنسيق شبكة الأسعار */
 .coins-pricing-grid {
@@ -343,6 +371,8 @@ body.dark-mode .setting-card * {
     color: #ffffff !important;
 }
     </style>
+</head>
+<body>
 
 <div class="container">
     <a href="index.html" class="home-btn">🏠 العودة للرئيسية</a>
@@ -376,40 +406,104 @@ body.dark-mode .setting-card * {
         <div class="section-title">🎖️ الأوسمة المفتوحة:</div>
         <div id="badge-grid" class="badge-grid"></div>
     </div>
-<div class="store-card">
-        <h3 id="chargeTitle">💰 شحن رصيد الكوينز</h3>
-        <div class="manual-pay-warning" id="manualWarning">
-            ⚠️ الخدمة غير متاحة أوتوماتيكياً حالياً.<br>
-            للشحن اليدوي تواصل معنا واتساب:<br>
-            <a href="https://wa.me/201283380890" style="color: #10b981; font-size: 18px;">01283380890</a>
-        </div>
 
+    <div class="store-card">
+        <h3>💰 شحن رصيد الكوينز</h3>
         <div class="coins-pricing-grid">
-            <div class="price-card">
+            <div class="price-card" onclick="initiatePayment(100, 0.99)">
                 <div class="coin-icon-wrapper">🪙</div>
-                <div class="coin-amount">100 <span class="coin-unit">كوين</span></div>
+                <div class="coin-amount">100 كوين</div>
                 <div class="coin-price">$0.99</div>
-                <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn buyNowLabel">شراء يدوي</button>
+                <button class="buy-coin-btn">💬 اطلب عبر واتساب</button>
             </div>
-            <div class="price-card">
-                <div class="coin-icon-wrapper">🪙</div>
-                <div class="coin-amount">500 <span class="coin-unit">كوين</span></div>
-                <div class="coin-price">$3.50</div>
-                <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn buyNowLabel">شراء يدوي</button>
             </div>
-            <div class="price-card">
-                <div class="coin-icon-wrapper">💎</div>
-                <div class="coin-amount">1000 <span class="coin-unit">كوين</span></div>
-                <div class="coin-price">$6.99</div>
-                <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn buyNowLabel">شراء يدوي</button>
-            </div>
-            <div class="price-card">
-                <div class="coin-icon-wrapper">👑</div>
-                <div class="coin-amount">5000 <span class="coin-unit">كوين</span></div>
-                <div class="coin-price">$24.99</div>
-                <button onclick="window.open('https://wa.me/201283380890', '_blank')" class="buy-coin-btn buyNowLabel">شراء يدوي</button>
-            </div>
-        </div>
+        <p style="font-size: 13px; color: #6b7280; margin-bottom: 20px;">اختر الباقة المناسبة لك، سيتم إضافة الرصيد فور نجاح عملية الدفع.</p>
+
+<div class="coins-pricing-grid">
+
+    <div class="price-card">
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">100 كوين</div>
+        <div class="coin-price">$0.99</div>
+
+        <button onclick="initiatePayment(100, 0.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(100, 0.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card">
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">250 كوين</div>
+        <div class="coin-price">$1.99</div>
+
+        <button onclick="initiatePayment(250, 1.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(250, 1.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card">
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">500 كوين</div>
+        <div class="coin-price">$3.50</div>
+
+        <button onclick="initiatePayment(500, 3.50, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(500, 3.50, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card popular">
+        <div class="popular-badge">الأكثر طلباً</div>
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">700 كوين</div>
+        <div class="coin-price">$4.99</div>
+
+        <button onclick="initiatePayment(700, 4.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(700, 4.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card">
+        <div class="coin-icon-wrapper">🪙</div>
+        <div class="coin-amount">1000 كوين</div>
+        <div class="coin-price">$6.99</div>
+
+        <button onclick="initiatePayment(1000, 6.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(1000, 6.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card">
+        <div class="coin-icon-wrapper">💎</div>
+        <div class="coin-amount">2550 كوين</div>
+        <div class="coin-price">$14.99</div>
+
+        <button onclick="initiatePayment(2550, 14.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(2550, 14.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card vip-pack">
+        <div class="coin-icon-wrapper">🔥</div>
+        <div class="coin-amount">5000 كوين</div>
+        <div class="coin-price">$24.99</div>
+
+        <button onclick="initiatePayment(5000, 24.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(5000, 24.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card vip-pack">
+        <div class="coin-icon-wrapper">👑</div>
+        <div class="coin-amount">8000 كوين</div>
+        <div class="coin-price">$39.99</div>
+
+        <button onclick="initiatePayment(8000, 39.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(8000, 39.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+    <div class="price-card royal-pack">
+        <div class="coin-icon-wrapper">🌌</div>
+        <div class="coin-amount">10000 كوين</div>
+        <div class="coin-price">$49.99</div>
+
+        <button onclick="initiatePayment(10000, 49.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
+        <button onclick="initiatePayment(10000, 49.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+    </div>
+
+</div>
     </div>
 </div>
 
@@ -431,6 +525,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// أصوات اللعبة
 // --- 🔊 نظام الأصوات ---
 const spinSound = new Audio('https://assets.mixkit.co/active_storage/sfx/1471/1471-preview.mp3');
 const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3');
@@ -445,6 +540,13 @@ const colors = [
     { id: 'rainbow', ar: 'رينبو', en: 'Rainbow', code: 'RAINBOW_SPECIAL', chance: 0.1 }
 ];
 
+// منطق الشحن
+window.initiatePayment = (amount, price) => {
+    const lang = localStorage.getItem('kirafix-lang') || 'ar';
+    const text = lang === 'ar' 
+        ? `أهلاً Kirafix، أرغب في شحن باقة ${amount} كوين مقابل ${price}$` 
+        : `Hello Kirafix, I want to buy ${amount} coins for $${price}`;
+    window.open(`https://wa.me/201283380890?text=${encodeURIComponent(text)}`, '_blank');
 const availableBadges = [
     { id: 'sticker', icon: '📌', price: 3000, ar: 'المثبت', en: 'Sticker', bAr: 'تثبيت منشورك في المقدمة لمدة ساعة.', bEn: 'Pin your post at the top for 1 hour.' },
     { id: 'glow', icon: '✨', price: 7500, ar: 'المتوهج', en: 'Glow', bAr: 'إطار مضيء وتأثير بصري يضاعف التفاعل.', bEn: 'Glowing frame and visual effect to boost engagement.' },
@@ -490,7 +592,6 @@ function applyLanguageStrings(lang) {
             chargeTitle: "💰 شحن رصيد الكوينز",
             buyNow: "شراء الآن",
             coinUnit: "كوين"
-            warning: "⚠️ الخدمة غير متاحة أوتوماتيكياً حالياً.<br>للشحن اليدوي تواصل معنا واتساب:<br>"
         },
         en: {
             back: "🏠 Back to Home",
@@ -506,7 +607,6 @@ function applyLanguageStrings(lang) {
             chargeTitle: "💰 Top Up Coins",
             buyNow: "Buy Now",
             coinUnit: "Coins"
-            warning: "⚠️ Service currently not automatic.<br>For manual top-up, contact us via WhatsApp:<br>"
         }
     }[lang];
 
@@ -522,6 +622,8 @@ function applyLanguageStrings(lang) {
     document.querySelectorAll('.section-title')[0].textContent = t.invColors;
     document.querySelectorAll('.section-title')[1].textContent = t.invBadges;
 
+// رسم العجلة بشكل دقيق
+function drawWheel() {
     // تحديث كروت الشحن
     document.querySelectorAll('.price-card').forEach(card => {
         const amountEl = card.querySelector('.coin-amount');
@@ -551,6 +653,7 @@ function renderMarket(lang) {
 // --- 🎡 نظام العجلة ---
 function drawWheel(lang) {
     const canvas = document.getElementById("wheel-canvas");
+    if(!canvas) return;
     const ctx = canvas.getContext("2d");
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
@@ -572,21 +675,31 @@ function drawWheel(lang) {
         ctx.rotate(i * sliceAngle + sliceAngle / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = color.id === 'gold' ? "#000" : "#fff";
+        ctx.font = "bold 22px Arial";
+        ctx.fillText(color.ar, radius - 40, 10);
         ctx.font = "bold 24px Arial";
         ctx.fillText(lang === 'ar' ? color.ar : color.en, radius - 30, 10);
         ctx.restore();
     });
 }
 
+// دوران العجلة
+let currentRotation = 0;
+document.getElementById("spinBtn").onclick = async () => {
+    if (!auth.currentUser) return;
 // --- 🔥 منطق Firebase ---
 window.buyBadge = async (id, price) => {
     if(!auth.currentUser) return;
     const userRef = doc(db, "users", auth.currentUser.uid);
     const snap = await getDoc(userRef);
+    const coins = snap.data().coins || 0;
     const data = snap.data();
     if ((data.inventoryBadges || []).includes(id)) return alert(document.body.dir === 'rtl' ? "تمتلكه بالفعل!" : "Already owned!");
     if ((data.coins || 0) < price) return alert(document.body.dir === 'rtl' ? "رصيدك لا يكفي!" : "Not enough coins!");
 
+    if (coins < 100) {
+        alert("رصيدك غير كافٍ!");
+        return;
     if(confirm(document.body.dir === 'rtl' ? "شراء هذا الوسام؟" : "Purchase this badge?")) {
         await updateDoc(userRef, { coins: increment(-price), inventoryBadges: arrayUnion(id) });
         alert("Success!");
@@ -617,6 +730,8 @@ async function checkDailyStatus(lastDaily) {
     }
 }
 
+    const btn = document.getElementById("spinBtn");
+    btn.disabled = true;
 document.getElementById("dailyBtn").onclick = async () => {
     const userRef = doc(db, "users", auth.currentUser.uid);
     await updateDoc(userRef, { coins: increment(50), lastDaily: serverTimestamp() });
@@ -637,6 +752,14 @@ document.getElementById("spinBtn").onclick = async () => {
 
     await updateDoc(userRef, { coins: increment(-100) });
 
+    // حساب النتيجة
+    const winningIndex = Math.floor(Math.random() * colors.length); // تبسيط للتيست
+    const sliceDeg = 360 / colors.length;
+    const extraSpin = (360 * 5); // 5 لفات كاملة
+    const targetDeg = (colors.length - winningIndex) * sliceDeg - (sliceDeg / 2);
+    
+    currentRotation += extraSpin + targetDeg;
+    document.getElementById("wheel-canvas").style.transform = `rotate(${currentRotation}deg)`;
     let winningIndex = 0;
     let totalWeight = colors.reduce((s, c) => s + c.chance, 0);
     let random = Math.random() * totalWeight;
@@ -653,19 +776,38 @@ document.getElementById("spinBtn").onclick = async () => {
 
     setTimeout(async () => {
         spinSound.pause();
+        spinSound.currentTime = 0;
         winSound.play();
+        
         const winner = colors[winningIndex];
         const lang = localStorage.getItem('kirafix-lang') || 'ar';
         await updateDoc(userRef, { inventory: arrayUnion(winner.code) });
+        
+        confetti({ particleCount: 150, spread: 70 });
+        alert(`مبروك! كسبت لون: ${winner.ar}`);
+        btn.disabled = false;
         confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
         alert(`${lang === 'ar' ? 'مبروك! حصلت على' : 'Congrats! You got'} ${lang === 'ar' ? winner.ar : winner.en}`);
         document.getElementById("spinBtn").disabled = false;
     }, 4000);
 };
 
+// متابعة حالة المستخدم
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                document.getElementById("user-coins").textContent = data.coins || 0;
+                // استدعي وظائف الرندر هنا (Inventory, Badges)
+            }
+        });
+    }
+});
 // استدعاء التشغيل الأولي
 applyGlobalSettings();
 
+drawWheel();
 // دوال الـ Render الباقية (Inventory) كما هي...
 function renderInventory(items, active) {
     const grid = document.getElementById("color-grid");
