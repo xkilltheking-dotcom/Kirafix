@@ -674,7 +674,7 @@ document.getElementById("dailyBtn").onclick = async () => {
 };
 
 // --- 🎡 تشغيل العجلة ---
-let rotation = 0;
+let currentRotation = 0; // تغييرنا المتغير ليكون تراكمي
 let isSpinning = false;
 
 document.getElementById("spinBtn").onclick = async () => {
@@ -682,26 +682,29 @@ document.getElementById("spinBtn").onclick = async () => {
 
     const userRef = doc(db, "users", auth.currentUser.uid);
     const snap = await getDoc(userRef);
+    const userData = snap.data();
 
-    if ((snap.data().coins || 0) < 100) {
-        return alert("Insufficient balance!");
+    // 1. التأكد من الرصيد
+    if ((userData.coins || 0) < 100) {
+        const lang = localStorage.getItem('kirafix-lang') || 'ar';
+        return alert(lang === 'ar' ? "رصيدك غير كافٍ!" : "Insufficient balance!");
     }
 
+    // 2. تفعيل حالة الدوران وتعطيل الزر
     isSpinning = true;
     const btn = document.getElementById("spinBtn");
     btn.disabled = true;
 
+    // 3. تشغيل الصوت وخصم الكوينز
     spinSound.currentTime = 0;
-    spinSound.loop = false;
+    spinSound.loop = true; // نجعله يتكرر أثناء الدوران
     spinSound.play();
-
     await updateDoc(userRef, { coins: increment(-100) });
 
-    // 🎯 تحديد الفائز
+    // 4. تحديد الفائز بالاحتمالات
     let winningIndex = 0;
     let totalWeight = colors.reduce((s, c) => s + c.chance, 0);
     let random = Math.random() * totalWeight;
-
     let sum = 0;
     for (let i = 0; i < colors.length; i++) {
         sum += colors[i].chance;
@@ -711,45 +714,50 @@ document.getElementById("spinBtn").onclick = async () => {
         }
     }
 
+    // 5. حساب زاوية الدوران (تراكمية عشان العجلة ما ترجعش لورا)
     const canvas = document.getElementById("wheel-canvas");
     const sliceAngle = 360 / colors.length;
+    const extraSpins = 3600; // 10 لفات كاملة للسرعة
+    const targetAngle = (colors.length - winningIndex) * sliceAngle - (sliceAngle / 2);
+    
+    currentRotation += extraSpins + targetAngle; 
+    canvas.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.15, 1)";
+    canvas.style.transform = `rotate(${currentRotation}deg)`;
 
-    // 🎡 تصحيح الدوران (مهم جدًا)
-    const pointerOffset = 270;
-    const targetAngle = winningIndex * sliceAngle;
-
-    rotation = (360 * 6) + (pointerOffset - targetAngle - sliceAngle / 2);
-    canvas.style.transform = `rotate(${rotation}deg)`;
-
-    // 🎯 النتيجة بعد انتهاء الحركة
+    // 6. النتيجة بعد انتهاء الـ Animation (4 ثواني)
     setTimeout(async () => {
+        // إيقاف صوت اللف وتشغيل صوت الفوز
         spinSound.pause();
+        spinSound.currentTime = 0;
         winSound.play();
 
         const winner = colors[winningIndex];
         const lang = localStorage.getItem('kirafix-lang') || 'ar';
 
+        // إضافة الجائزة للمخزن
         await updateDoc(userRef, {
             inventory: arrayUnion(winner.code)
         });
 
+        // تأثير الاحتفال
         confetti({
             particleCount: 150,
             spread: 100,
             origin: { y: 0.6 }
         });
 
+        // إظهار الرسالة
         alert(
             lang === 'ar'
-                ? `🎉 مبروك! اللون اللي طلع: ${winner.ar}`
+                ? `🎉 مبروك! حصلت على لون: ${winner.ar}`
                 : `🎉 Congrats! You got: ${winner.en}`
         );
 
-        // ✅ إعادة التفعيل الصح
+        // أهم خطوة: إعادة تفعيل الزر والسماح باللف مرة أخرى
         isSpinning = false;
         btn.disabled = false;
 
-    }, 4200);
+    }, 4100); // 4100 ملي ثانية (أطول قليلاً من وقت الـ CSS transition)
 };
 
 // استدعاء التشغيل الأولي
