@@ -770,22 +770,37 @@ function renderBadgeInv(badges, active) {
         grid.appendChild(d);
     });
 }
-    document.getElementById("instaBtn").onclick = async () => {
+document.getElementById("instaBtn").onclick = async () => {
     const userRef = doc(db, "users", auth.currentUser.uid);
     const snap = await getDoc(userRef);
     const data = snap.data();
 
+    // لو واخد الهدية قبل كده
     if (data.instagramClaimed) {
-        return alert("تم استلام الهدية بالفعل!");
+        return alert("❌ تم استلام الهدية بالفعل!");
     }
 
-    const confirmFollow = confirm("هل قمت بمتابعة الحساب؟");
-    if (!confirmFollow) return;
+    // أول مرة: افتح إنستجرام
+    if (!localStorage.getItem("instaVisited")) {
+        window.open("https://www.instagram.com/kirafix_web/?hl=ar", "_blank");
+
+        localStorage.setItem("instaVisited", "true");
+
+        alert("📲 تابع الحساب الأول، وبعدها ارجع واضغط تاني لأخذ 100 كوين 🎁");
+        return;
+    }
+
+    // بعد الرجوع وتأكيد المستخدم
+    const confirmClaim = confirm("هل قمت بمتابعة الحساب؟");
+    if (!confirmClaim) return;
 
     await updateDoc(userRef, {
         coins: increment(100),
         instagramClaimed: true
     });
+
+    // تنظيف الحالة
+    localStorage.removeItem("instaVisited");
 
     alert("🎉 تم إضافة 100 كوين!");
 };
