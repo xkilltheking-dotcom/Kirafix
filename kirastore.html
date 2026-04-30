@@ -725,44 +725,40 @@ document.getElementById("spinBtn").onclick = async () => {
     canvas.style.transform = `rotate(${currentRotation}deg)`;
 
     // 6. النتيجة بعد انتهاء الـ Animation (4 ثواني)
-setTimeout(async () => {
-    try {
+    setTimeout(async () => {
+        // إيقاف صوت اللف وتشغيل صوت الفوز
         spinSound.pause();
         spinSound.currentTime = 0;
-
         winSound.play();
 
         const winner = colors[winningIndex];
         const lang = localStorage.getItem('kirafix-lang') || 'ar';
 
+        // إضافة الجائزة للمخزن
         await updateDoc(userRef, {
             inventory: arrayUnion(winner.code)
         });
 
-        // 🔥 حماية من كسر الكود لو confetti مش شغال
-        if (typeof confetti === "function") {
-            confetti({
-                particleCount: 150,
-                spread: 100,
-                origin: { y: 0.6 }
-            });
-        }
+        // تأثير الاحتفال
+        confetti({
+            particleCount: 150,
+            spread: 100,
+            origin: { y: 0.6 }
+        });
 
+        // إظهار الرسالة
         alert(
             lang === 'ar'
                 ? `🎉 مبروك! حصلت على لون: ${winner.ar}`
                 : `🎉 Congrats! You got: ${winner.en}`
         );
 
-    } catch (err) {
-        console.error("Spin error:", err);
-    } finally {
-        // 🔥 أهم جزء (ده اللي بيحل مشكلة اللفة التانية)
+        // أهم خطوة: إعادة تفعيل الزر والسماح باللف مرة أخرى
         isSpinning = false;
         btn.disabled = false;
-    }
 
-}, 4100);
+    }, 4100); // 4100 ملي ثانية (أطول قليلاً من وقت الـ CSS transition)
+};
 
 // استدعاء التشغيل الأولي
 applyGlobalSettings();
