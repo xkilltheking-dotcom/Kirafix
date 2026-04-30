@@ -349,6 +349,9 @@ body.dark-mode .setting-card * {
 
     <div class="store-card">
         <button id="dailyBtn" class="daily-btn">🎁 استلام الهدية اليومية</button>
+        <button id="instaBtn" class="daily-btn" style="background:#E1306C;">
+📸 تابعنا على إنستجرام وخد 100 كوين
+</button>
         <h2>🎡 Kirafix Lucky Wheel</h2>
         <div class="balance-box">
             <span>رصيدك:</span>
@@ -376,10 +379,15 @@ body.dark-mode .setting-card * {
         <div class="section-title">🎖️ الأوسمة المفتوحة:</div>
         <div id="badge-grid" class="badge-grid"></div>
     </div>
+    
     <div class="store-card">
         <h3>💰 شحن رصيد الكوينز</h3>
         <p style="font-size: 13px; color: #6b7280; margin-bottom: 20px;">اختر الباقة المناسبة لك، سيتم إضافة الرصيد فور نجاح عملية الدفع.</p>
-
+    <div style="margin-top: 20px; padding: 15px; background:#fef3c7; border-radius: 10px; color:#92400e; font-weight:bold;">
+        ⚠️ هذه الخدمة لا تعمل أوتوماتيكياً حالياً  
+        للشحن اليدوي تواصل معنا على:  
+        📞 01283380890
+    </div>
 <div class="coins-pricing-grid">
 
     <div class="price-card">
@@ -387,8 +395,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">100 كوين</div>
         <div class="coin-price">$0.99</div>
 
-        <button onclick="initiatePayment(100, 0.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(100, 0.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card">
@@ -396,8 +403,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">250 كوين</div>
         <div class="coin-price">$1.99</div>
 
-        <button onclick="initiatePayment(250, 1.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(250, 1.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card">
@@ -405,8 +411,6 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">500 كوين</div>
         <div class="coin-price">$3.50</div>
 
-        <button onclick="initiatePayment(500, 3.50, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(500, 3.50, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
     </div>
 
     <div class="price-card popular">
@@ -415,8 +419,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">700 كوين</div>
         <div class="coin-price">$4.99</div>
 
-        <button onclick="initiatePayment(700, 4.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(700, 4.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card">
@@ -424,8 +427,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">1000 كوين</div>
         <div class="coin-price">$6.99</div>
 
-        <button onclick="initiatePayment(1000, 6.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(1000, 6.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card">
@@ -433,8 +435,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">2550 كوين</div>
         <div class="coin-price">$14.99</div>
 
-        <button onclick="initiatePayment(2550, 14.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(2550, 14.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card vip-pack">
@@ -442,8 +443,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">5000 كوين</div>
         <div class="coin-price">$24.99</div>
 
-        <button onclick="initiatePayment(5000, 24.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(5000, 24.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card vip-pack">
@@ -451,8 +451,7 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">8000 كوين</div>
         <div class="coin-price">$39.99</div>
 
-        <button onclick="initiatePayment(8000, 39.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(8000, 39.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
+
     </div>
 
     <div class="price-card royal-pack">
@@ -460,8 +459,6 @@ body.dark-mode .setting-card * {
         <div class="coin-amount">10000 كوين</div>
         <div class="coin-price">$49.99</div>
 
-        <button onclick="initiatePayment(10000, 49.99, 'card')" class="buy-coin-btn">💳 فيزا</button>
-        <button onclick="initiatePayment(10000, 49.99, 'wallet')" class="buy-coin-btn">📱 فودافون كاش</button>
     </div>
 
 </div>
@@ -678,14 +675,23 @@ document.getElementById("dailyBtn").onclick = async () => {
 
 // --- 🎡 تشغيل العجلة ---
 let rotation = 0;
+let isSpinning = false;
+
 document.getElementById("spinBtn").onclick = async () => {
+    if (isSpinning) return;
+
     const userRef = doc(db, "users", auth.currentUser.uid);
     const snap = await getDoc(userRef);
-    if ((snap.data().coins || 0) < 100) return alert("Insufficient balance!");
 
+    if ((snap.data().coins || 0) < 100) {
+        return alert("Insufficient balance!");
+    }
+
+    isSpinning = true;
     document.getElementById("spinBtn").disabled = true;
+
     spinSound.currentTime = 0;
-    spinSound.loop = true;
+    spinSound.loop = false;
     spinSound.play();
 
     await updateDoc(userRef, { coins: increment(-100) });
@@ -693,26 +699,45 @@ document.getElementById("spinBtn").onclick = async () => {
     let winningIndex = 0;
     let totalWeight = colors.reduce((s, c) => s + c.chance, 0);
     let random = Math.random() * totalWeight;
+
     let sum = 0;
     for (let i = 0; i < colors.length; i++) {
         sum += colors[i].chance;
-        if (random <= sum) { winningIndex = i; break; }
+        if (random <= sum) {
+            winningIndex = i;
+            break;
+        }
     }
 
     const canvas = document.getElementById("wheel-canvas");
     const sliceAngle = 360 / colors.length;
-    rotation += (360 * 8) + (360 - (winningIndex * sliceAngle) - (sliceAngle / 2));
+
+    rotation += 360 * 6 + (360 - (winningIndex * sliceAngle) - (sliceAngle / 2));
     canvas.style.transform = `rotate(${rotation}deg)`;
 
     setTimeout(async () => {
         spinSound.pause();
         winSound.play();
+
         const winner = colors[winningIndex];
         const lang = localStorage.getItem('kirafix-lang') || 'ar';
-        await updateDoc(userRef, { inventory: arrayUnion(winner.code) });
+
+        await updateDoc(userRef, {
+            inventory: arrayUnion(winner.code)
+        });
+
         confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
-        alert(`${lang === 'ar' ? 'مبروك! حصلت على' : 'Congrats! You got'} ${lang === 'ar' ? winner.ar : winner.en}`);
+
+        // ✅ رسالة واضحة للنتيجة
+        alert(
+            lang === 'ar'
+                ? `🎉 مبروك! اللون اللي طلع: ${winner.ar}`
+                : `🎉 Congrats! You got: ${winner.en}`
+        );
+
         document.getElementById("spinBtn").disabled = false;
+        isSpinning = false;
+
     }, 4000);
 };
 
@@ -745,6 +770,25 @@ function renderBadgeInv(badges, active) {
         grid.appendChild(d);
     });
 }
+    document.getElementById("instaBtn").onclick = async () => {
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    const snap = await getDoc(userRef);
+    const data = snap.data();
+
+    if (data.instagramClaimed) {
+        return alert("تم استلام الهدية بالفعل!");
+    }
+
+    const confirmFollow = confirm("هل قمت بمتابعة الحساب؟");
+    if (!confirmFollow) return;
+
+    await updateDoc(userRef, {
+        coins: increment(100),
+        instagramClaimed: true
+    });
+
+    alert("🎉 تم إضافة 100 كوين!");
+};
 </script>
 </body>
 </html>
