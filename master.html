@@ -462,9 +462,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstati
 const IMGBB_API_KEY = "a870d9c05acad152564a134e6f4228c9"; 
 const CLOUDINARY_UPLOAD_PRESET = "kirafix_posts";
 const CLOUDINARY_CLOUD_NAME = "dno9n87sc";
-    // أضف هذا السطر مع الثوابت في الأعلى
 const messageSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3'); 
-// يمكنك تغيير الرابط لأي ملف mp3 تفضله
 
 function formatCoins(num) {
     if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
@@ -492,8 +490,6 @@ let currentUserData = null;
 
 function getBadgeHTML(badgeId) {
     if (!badgeId || badgeId === "none") return "";
-
-    // مابينج للأسماء بشكل سمبل جداً (نصوص فقط)
     const names = {
         'sticker': 'STICKER',
         'glow': 'GLOW',
@@ -503,16 +499,11 @@ function getBadgeHTML(badgeId) {
         'admin': 'ADMIN',
         'editor': 'EDITOR'
     };
-
     const label = names[badgeId] || badgeId.toUpperCase();
-
-    // تمييز بسيط جداً للأدمن بالإمالة والتحته خط (بدون ألوان)
     let extraStyle = "";
     if (badgeId === 'admin') {
         extraStyle = "font-style: italic; text-decoration: underline; text-underline-offset: 2px;";
     }
-
-    // بنرجع النص مع الكلاس اللي إحنا معرفينه في الـ CSS فوق
     return `<span class="user-badge" style="${extraStyle}">${label}</span>`;
 }
 
@@ -553,7 +544,6 @@ window.sendComment = async (postId) => {
     const input = document.getElementById(`input-${postId}`);
     const text = input.value.trim();
     if (!text || !auth.currentUser) return;
-
     try {
         await addDoc(collection(db, "posts", postId, "comments"), {
             text: text,
@@ -649,37 +639,31 @@ function applyMainLanguage(lang) {
 }
 
 onAuthStateChanged(auth, async (user) => {
-    // 1. التحقق من وجود المستخدم
     if (!user) { 
         window.location.href = "index.html"; 
         return; 
     }
-
-    // 2. تشغيل التنبيهات
     listenForNotifications(user.uid); 
 
-    // 3. إضافة الـ CSS الخاص بالأنيميشن مرة واحدة فقط
-// داخل onAuthStateChanged
-if (!document.getElementById('kirafix-styles')) {
-    const style = document.createElement('style');
-    style.id = 'kirafix-styles';
-    style.innerHTML = `
-        @keyframes glow-pulse {
-            0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); border-color: #f59e0b !important; }
-            50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.9); border-color: #fbbf24 !important; }
-            100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); border-color: #f59e0b !important; }
-        }
-        .glow-post-active {
-            animation: glow-pulse 2s infinite ease-in-out !important;
-            border: 2px solid #f59e0b !important;
-            position: relative;
-            z-index: 1;
-        }
-    `;
-    document.head.appendChild(style);
-}
+    if (!document.getElementById('kirafix-styles')) {
+        const style = document.createElement('style');
+        style.id = 'kirafix-styles';
+        style.innerHTML = `
+            @keyframes glow-pulse {
+                0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); border-color: #f59e0b !important; }
+                50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.9); border-color: #fbbf24 !important; }
+                100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); border-color: #f59e0b !important; }
+            }
+            .glow-post-active {
+                animation: glow-pulse 2s infinite ease-in-out !important;
+                border: 2px solid #f59e0b !important;
+                position: relative;
+                z-index: 1;
+            }
+        `;
+        document.head.appendChild(style);
+    }
 
-    // 4. جلب بيانات المستخدم وتحديث الواجهة
     const userDocRef = doc(db, "users", user.uid);
     try {
         const userDoc = await getDoc(userDocRef);
@@ -718,13 +702,11 @@ if (!document.getElementById('kirafix-styles')) {
         console.error("Firebase Error:", error); 
     }
 
-    // 5. الإعدادات المحلية (اللغة والمود)
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
     const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
     applyMainLanguage(savedLang);
 
-    // 6. إخفاء اللودنج بعد التأكد من انتهاء العمليات الأساسية
     setTimeout(() => {
         const loader = document.getElementById("loadingScreen");
         if(loader) { 
@@ -742,8 +724,8 @@ document.getElementById("but").onclick = () => {
 const imgInput = document.getElementById("imgInput");
 const videoInput = document.getElementById("videoInput");
 const mediaPreview = document.getElementById("mediaPreview");
-document.getElementById("imgBtn").onclick = () => imgInput.click();
-document.getElementById("videoBtn").onclick = () => videoInput.click();
+if(document.getElementById("imgBtn")) document.getElementById("imgBtn").onclick = () => imgInput.click();
+if(document.getElementById("videoBtn")) document.getElementById("videoBtn").onclick = () => videoInput.click();
 
 let selectedFile = null;
 let fileType = null;
@@ -791,7 +773,6 @@ document.getElementById("se").onclick = async () => {
     let fileUrl = null;
 
     try {
-        // 1. رفع الميديا أولاً إذا وجدت
         if (selectedFile) {
             fileUrl = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
@@ -818,7 +799,6 @@ document.getElementById("se").onclick = async () => {
             });
         }
 
-        // 2. إنشاء المنشور في الـ Firestore
         const postRef = await addDoc(collection(db, "posts"), {
             text: text,
             email: auth.currentUser.email,
@@ -833,11 +813,10 @@ document.getElementById("se").onclick = async () => {
             likes: [], views: [], commentsCount: 0
         });
 
-        // 3. تفعيل ميزة الـ Global (التنبيه العالمي)
         if (currentUserData?.activeBadge === 'global') {
             await addDoc(collection(db, "global_alerts"), {
                 message: `تنبيه عالمي من ${currentUserData.name}: ${text.substring(0, 50)}...`,
-                url: `index.html?post=${postRef.id}`, // تم استخدام postRef.id الصحيح هنا
+                url: `index.html?post=${postRef.id}`,
                 createdAt: serverTimestamp()
             });
         }
@@ -855,29 +834,6 @@ document.getElementById("se").onclick = async () => {
         btn.disabled = false; 
         btn.innerText = "نشر"; 
     }
-};
-
-        await addDoc(collection(db, "posts"), {
-            text: text,
-            email: auth.currentUser.email,
-            uid: auth.currentUser.uid,
-            userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
-            userImage: userImg,
-            userColor: currentUserData?.activeColor || '#374151', 
-            userBadge: currentUserData?.activeBadge || 'none',
-            createdAt: serverTimestamp(),
-            image: fileType === 'image' ? fileUrl : null,
-            video: fileType === 'video' ? fileUrl : null,
-            likes: [], views: [], commentsCount: 0
-        });
-
-        await addKiraCoins(7); 
-        document.getElementById("tex").value = "";
-        mediaPreview.innerHTML = ""; mediaPreview.style.display = "none";
-        selectedFile = null; fileType = null; 
-        btn.disabled = false; btn.innerText = "نشر";
-        document.getElementById("composerBox").style.display = "none";
-    } catch (error) { console.error(error); alert("مشكلة في النشر: " + error.message); btn.disabled = false; btn.innerText = "نشر"; }
 };
 
 function timeAgo(timestamp) {
@@ -899,24 +855,18 @@ function startPostsListener() {
         const allPosts = [];
         snap.forEach(docSnap => { allPosts.push({ id: docSnap.id, ...docSnap.data() }); });
 
-        // --- تعديل الترتيب لدعم المزايا القوية ---
-// تعديل داخل دالة الترتيب (Sort) في startPostsListener
-allPosts.sort((a, b) => {
-    const now = new Date().getTime();
-    const oneHour = 60 * 60 * 1000;
-    
-    // فحص هل لقب Sticker ما زال سارياً (أقل من ساعة)
-    const isStickerA = a.userBadge === 'sticker' && (now - (a.createdAt?.toDate().getTime() || 0) < oneHour);
-    const isStickerB = b.userBadge === 'sticker' && (now - (b.createdAt?.toDate().getTime() || 0) < oneHour);
+        allPosts.sort((a, b) => {
+            const now = new Date().getTime();
+            const oneHour = 60 * 60 * 1000;
+            const isStickerA = a.userBadge === 'sticker' && (now - (a.createdAt?.toDate().getTime() || 0) < oneHour);
+            const isStickerB = b.userBadge === 'sticker' && (now - (b.createdAt?.toDate().getTime() || 0) < oneHour);
+            const priorityA = (isStickerA || a.userBadge === 'infinity') ? 1 : 0;
+            const priorityB = (isStickerB || b.userBadge === 'infinity') ? 1 : 0;
+            if (priorityA !== priorityB) return priorityB - priorityA;
+            return (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0);
+        });
 
-    const priorityA = (isStickerA || a.userBadge === 'infinity') ? 1 : 0;
-    const priorityB = (isStickerB || b.userBadge === 'infinity') ? 1 : 0;
-
-    if (priorityA !== priorityB) return priorityB - priorityA;
-    return (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0);
-});
-
-allPosts.forEach((post) => {
+        allPosts.forEach((post) => {
             const postId = post.id;
             const currentUid = auth.currentUser?.uid;
             const likes = Array.isArray(post.likes) ? post.likes : [];
@@ -929,14 +879,14 @@ allPosts.forEach((post) => {
             }[currentLang];
             const nameStyle = getStyleForName((post.uid === currentUid && currentUserData?.activeColor) ? currentUserData.activeColor : post.userColor);
 
-let postCustomClass = "post"; // كلاس افتراضي
-let postCustomStyle = "border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;";
+            let postCustomClass = "post"; 
+            let postCustomStyle = "border-radius:12px; margin-bottom:15px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;";
 
-if (post.userBadge === 'glow') {
-    postCustomClass += " glow-post-active"; // بنضيف الكلاس اللي فيه الأنيميشن
-} else if (post.userBadge === 'infinity') {
-    postCustomStyle += "border: 2px solid #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);";
-}
+            if (post.userBadge === 'glow') {
+                postCustomClass += " glow-post-active"; 
+            } else if (post.userBadge === 'infinity') {
+                postCustomStyle += "border: 2px solid #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);";
+            }
 
             const postHTML = `
                 <div class="${postCustomClass}" data-id="${postId}" data-views='${JSON.stringify(views)}' style="${postCustomStyle}">
@@ -984,12 +934,10 @@ if (post.userBadge === 'glow') {
             container.appendChild(postNode);
             viewObserver.observe(postNode);
 
-            // --- ميزة الرادار (تم إصلاح الأقواس هنا) ---
             if (post.userBadge === 'radar' && !sessionStorage.getItem('radar_shown_' + postId)) {
                 const now = new Date().getTime();
                 const postTime = post.createdAt?.toDate().getTime() || 0;
                 const oneHourInMs = 60 * 60 * 1000; 
-
                 if (now - postTime < oneHourInMs) {
                     if (typeof showRadarPopup === 'function') {
                         showRadarPopup(post);
@@ -997,11 +945,11 @@ if (post.userBadge === 'glow') {
                     sessionStorage.setItem('radar_shown_' + postId, 'true');
                 }
             }
-        }); // إغلاق allPosts.forEach
-    }); // إغلاق onSnapshot
+        });
+    });
 }
 
-let lastMessageCount = 0; // متغير لمتابعة العدد السابق
+let lastMessageCount = 0; 
 
 function listenForNotifications(myId) {
     const q = query(
@@ -1009,23 +957,16 @@ function listenForNotifications(myId) {
         where("receiverId", "==", myId), 
         where("isRead", "==", false)     
     );
-
     onSnapshot(q, (snapshot) => {
         const newMsgs = snapshot.docs.filter(d => d.data().lastSenderId !== myId);
         const count = newMsgs.length;
-
-        // --- التعديل هنا ---
         if (count > lastMessageCount) {
-            // تشغيل الصوت إذا زاد عدد الرسائل (وصول رسالة جديدة)
             messageSound.play().catch(e => console.log("التفاعل مع الصفحة مطلوب لتشغيل الصوت أول مرة"));
             showToast(`لديك ${count} رسالة جديدة!`, true);
         } else if (count === 0) {
             showToast("", false);
         }
-
-        lastMessageCount = count; // تحديث الرقم الأخير
-        // -----------------
-
+        lastMessageCount = count;
         const badge = document.getElementById("notification-badge");
         if (badge) {
             if (count > 0) {
@@ -1037,12 +978,11 @@ function listenForNotifications(myId) {
         }
     });
 }
+
 function showToast(message, show) {
     let toast = document.getElementById("msg-toast");
     if (!toast) return;
-
     const toastStyle = "position:fixed; bottom:20px; left:20px; background:#2563eb; color:white; padding:12px 20px; border-radius:8px; z-index:10000; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition: opacity 0.5s; cursor:pointer;";
-
     if (show) {
         toast.style.cssText = toastStyle + " display:block; opacity:1;";
         toast.textContent = message;
@@ -1061,7 +1001,6 @@ async function markMessagesAsRead(myId) {
         where("receiverId", "==", myId),
         where("isRead", "==", false)
     );
-
     const snapshot = await getDocs(q);
     snapshot.forEach(async (docSnap) => {
         await updateDoc(doc(db, "chats", docSnap.id), {
@@ -1069,40 +1008,32 @@ async function markMessagesAsRead(myId) {
         });
     });
 }
+
 function showRadarPopup(post) {
     const popup = document.createElement('div');
-    const postId = post.id; // بناخد الأيدي بتاع المنشور
-
+    const postId = post.id; 
     popup.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#ffffff !important; z-index:20000; padding:20px; border-radius:15px; box-shadow:0 0 50px rgba(0,0,0,0.5); width:85%; max-width:350px; text-align:center; direction:rtl; border: 2px solid #06b6d4; color: #000000 !important;";
-
     popup.innerHTML = `
         <div style="font-size:40px; margin-bottom:10px;">📡</div>
         <h3 style="color:#000000 !important; margin:10px 0; font-weight: 800; font-family: sans-serif;">إشعار عاجل!</h3> 
         <p style="font-weight:bold; color:#333333 !important; font-size: 16px; margin-bottom: 15px;">قام ${post.userName} بنشر تحديث جديد الآن!</p>
         <button id="view-post-btn" style="background:#06b6d4 !important; color:#ffffff !important; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:bold; margin-top:10px; width: 100%;">مشاهدة المنشور</button>
     `;
-
     document.body.appendChild(popup);
-
-    // إضافة وظيفة الزرار برمجياً عشان نتحكم في السكرول
     popup.querySelector('#view-post-btn').onclick = () => {
         const postElement = document.querySelector(`[data-id="${postId}"]`);
         if (postElement) {
-            // بيخلي المتصفح يروح للمنشور بنعومة
             postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-            // إضافة تأثير بسيط عشان المستخدم يعرف هو أنهي بوست بالظبط
             postElement.style.transition = "0.5s";
             postElement.style.transform = "scale(1.02)";
             setTimeout(() => { postElement.style.transform = "scale(1)"; }, 1000);
         }
-        popup.remove(); // بنشيل النافذة بعد الضغط
+        popup.remove();
     };
 }
+
 function renderUserBadge(badgeId) {
     if (!badgeId) return "";
-
-    // مابينج للأسماء بشكل سمبل
     const badgeMap = {
         'admin': 'ADMIN',
         'editor': 'EDITOR',
@@ -1112,14 +1043,11 @@ function renderUserBadge(badgeId) {
         'radar': 'RADAR',
         'infinity': 'INFINITY'
     };
-
     const label = badgeMap[badgeId] || badgeId.toUpperCase();
-
-    // بنرجع النص مع كلاس الأدمن لو موجود للتميز البسيط
     let extraClass = (badgeId === 'admin') ? 'badge-admin' : '';
-
     return `<span class="user-badge ${extraClass}">${label}</span>`;
 }
+
 const menuBtn = document.getElementById("menuBtn");
 const sideNav = document.getElementById("sideNav");
 const closeBtn = document.getElementById("closeBtn");
