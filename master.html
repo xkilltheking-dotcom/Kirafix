@@ -791,6 +791,7 @@ document.getElementById("se").onclick = async () => {
     let fileUrl = null;
 
     try {
+        // 1. رفع الميديا أولاً إذا وجدت
         if (selectedFile) {
             fileUrl = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
@@ -816,6 +817,45 @@ document.getElementById("se").onclick = async () => {
                 xhr.send(formData);
             });
         }
+
+        // 2. إنشاء المنشور في الـ Firestore
+        const postRef = await addDoc(collection(db, "posts"), {
+            text: text,
+            email: auth.currentUser.email,
+            uid: auth.currentUser.uid,
+            userName: currentUserData?.name || auth.currentUser.email.split("@")[0],
+            userImage: userImg,
+            userColor: currentUserData?.activeColor || '#374151', 
+            userBadge: currentUserData?.activeBadge || 'none',
+            createdAt: serverTimestamp(),
+            image: fileType === 'image' ? fileUrl : null,
+            video: fileType === 'video' ? fileUrl : null,
+            likes: [], views: [], commentsCount: 0
+        });
+
+        // 3. تفعيل ميزة الـ Global (التنبيه العالمي)
+        if (currentUserData?.activeBadge === 'global') {
+            await addDoc(collection(db, "global_alerts"), {
+                message: `تنبيه عالمي من ${currentUserData.name}: ${text.substring(0, 50)}...`,
+                url: `index.html?post=${postRef.id}`, // تم استخدام postRef.id الصحيح هنا
+                createdAt: serverTimestamp()
+            });
+        }
+
+        await addKiraCoins(7); 
+        document.getElementById("tex").value = "";
+        mediaPreview.innerHTML = ""; mediaPreview.style.display = "none";
+        selectedFile = null; fileType = null; 
+        btn.disabled = false; btn.innerText = "نشر";
+        document.getElementById("composerBox").style.display = "none";
+        
+    } catch (error) { 
+        console.error(error); 
+        alert("مشكلة في النشر: " + error.message); 
+        btn.disabled = false; 
+        btn.innerText = "نشر"; 
+    }
+};
 
         await addDoc(collection(db, "posts"), {
             text: text,
@@ -860,22 +900,21 @@ function startPostsListener() {
         snap.forEach(docSnap => { allPosts.push({ id: docSnap.id, ...docSnap.data() }); });
 
         // --- تعديل الترتيب لدعم المزايا القوية ---
-        allPosts.sort((a, b) => {
-            // التحقق من وجود ميزة "الناشر اللانهائي" أو "المثبت" لإعطائهم الأولوية القصوى فوق
-            const badgeA = a.userBadge || "";
-            const badgeB = b.userBadge || "";
-            const priorityA = (badgeA === 'infinity' || badgeA === 'sticker') ? 1 : 0;
-            const priorityB = (badgeB === 'infinity' || badgeB === 'sticker') ? 1 : 0;
+// تعديل داخل دالة الترتيب (Sort) في startPostsListener
+allPosts.sort((a, b) => {
+    const now = new Date().getTime();
+    const oneHour = 60 * 60 * 1000;
+    
+    // فحص هل لقب Sticker ما زال سارياً (أقل من ساعة)
+    const isStickerA = a.userBadge === 'sticker' && (now - (a.createdAt?.toDate().getTime() || 0) < oneHour);
+    const isStickerB = b.userBadge === 'sticker' && (now - (b.createdAt?.toDate().getTime() || 0) < oneHour);
 
-            if (priorityA !== priorityB) {
-                return priorityB - priorityA; // الأعلى أولوية يظهر أولاً
-            }
+    const priorityA = (isStickerA || a.userBadge === 'infinity') ? 1 : 0;
+    const priorityB = (isStickerB || b.userBadge === 'infinity') ? 1 : 0;
 
-            // إذا تساووا في الأولوية، يتم الترتيب الزمني العادي (الأحدث أولاً)
-            const dateA = a.createdAt?.toDate() || new Date(0);
-            const dateB = b.createdAt?.toDate() || new Date(0);
-            return dateB - dateA;
-        });
+    if (priorityA !== priorityB) return priorityB - priorityA;
+    return (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0);
+});
 
 allPosts.forEach((post) => {
             const postId = post.id;
