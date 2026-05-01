@@ -675,48 +675,53 @@ function showGlobalBanner(msg, url) {
         const style = document.createElement('style');
         style.id = 'kirafix-styles';
 // تحديث كود الاستايل ليدعم الدارك مود
+// تحديث كود الاستايل ليدعم الدارك مود بشكل احترافي
 style.innerHTML = `
-            @keyframes glow-pulse {
-                0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-                50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
-                100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-            }
-            
-            /* --- تأثير التوهج (Glow) --- */
-            .glow-post-active {
-                animation: glow-pulse 2s infinite ease-in-out !important;
-                border: 2px solid #f59e0b !important;
-                position: relative;
-            }
+    @keyframes glow-pulse {
+        0% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+        50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.9), 0 0 10px rgba(245, 158, 11, 0.6); }
+        100% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+    }
+    
+    /* --- تأثير التوهج (Glow) --- */
+    .glow-post-active {
+        animation: glow-pulse 2s infinite ease-in-out !important;
+        border: 2px solid #f59e0b !important;
+        position: relative;
+    }
 
-            body.dark-mode .glow-post-active {
-                background: #1f2937 !important;
-                color: white !important;
-            }
+    /* تعديل الدارك مود للـ Glow ليكون أكثر سطوعاً */
+    body.dark-mode .glow-post-active {
+        background: #1f2937 !important;
+        color: white !important;
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.3) !important; /* إضافة توهج ثابت خفيف */
+    }
 
-            body:not(.dark-mode) .glow-post-active {
-                background: white !important;
-                color: black !important;
-            }
+    body:not(.dark-mode) .glow-post-active {
+        background: white !important;
+        color: black !important;
+    }
 
-            /* --- تأثير اللانهائي (Infinity) --- */
-            .infinity-post-active {
-                border: 2px solid #ef4444 !important;
-                position: relative;
-            }
+    /* --- تأثير اللانهائي (Infinity) --- */
+    .infinity-post-active {
+        border: 2px solid #ef4444 !important;
+        position: relative;
+    }
 
-            body.dark-mode .infinity-post-active {
-                background: #1f2937 !important;
-                box-shadow: 0 0 15px rgba(239, 68, 68, 0.2) !important;
-                color: white !important;
-            }
+    /* تعديل الدارك مود للـ Infinity (لون أحمر نيون) */
+    body.dark-mode .infinity-post-active {
+        background: #1f2937 !important;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(239, 68, 68, 0.2) !important;
+        border-color: #ff4d4d !important; /* درجة أحمر أفتح للدارك مود */
+        color: white !important;
+    }
 
-            body:not(.dark-mode) .infinity-post-active {
-                background: white !important;
-                box-shadow: 0 0 15px rgba(239, 68, 68, 0.1) !important;
-                color: black !important;
-            }
-        `;
+    body:not(.dark-mode) .infinity-post-active {
+        background: white !important;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.1) !important;
+        color: black !important;
+    }
+`;
         document.head.appendChild(style);
     }
 
