@@ -395,6 +395,7 @@ body.dark-mode .user-badge {
             <div class="side-links" style="margin-top: 60px;"> 
                 <a href="#">الرئيسية</a>
                 <a href="profile.html">البروفايل</a>
+                <a href="supermarket.html" id="storeLinkSide">المتجر 🛒</a>
                 <a href="kirastore.html" id="storeLinkSide">المتجر 🛒</a>
                 <a href="contact.html"> اتصل بنا </a>
                 <a href="privacy.html"> سياسة الخصوصيه </a>
@@ -410,6 +411,7 @@ body.dark-mode .user-badge {
         <div class="links">
             <a href="#">Home</a>
             <a href="profile.html">Profile</a>
+            <a href="supermarket.html">Store</a> 
             <a href="kirastore.html">Store</a> 
             <a href="contact.html"> اتصل بنا </a>
             <a href="privacy.html"> سياسة الخصوصيه </a>
@@ -686,7 +688,7 @@ if (!document.getElementById('kirafix-styles')) {
         if (userDoc.exists()) {
             currentUserData = userDoc.data();
             const userImg = currentUserData.image || DEFAULT_USER_IMG;
-            
+
             if(document.getElementById("navProfilePic")) document.getElementById("navProfilePic").src = userImg;
             if(document.querySelector(".composer-header img")) document.querySelector(".composer-header img").src = userImg;
             if(document.getElementById("user-name-display")) document.getElementById("user-name-display").textContent = currentUserData.name || user.email.split("@")[0];
@@ -851,40 +853,31 @@ function timeAgo(timestamp) {
     return "الآن";
 }
 
-// 🔥 التعديل الوحيد في ترتيب البوستات (Sticker)
 function startPostsListener() {
     return onSnapshot(collection(db, "posts"), (snap) => {
         const container = document.getElementById("postsContainer");
         if(!container) return;
         container.innerHTML = "";
-
         const allPosts = [];
         snap.forEach(docSnap => { allPosts.push({ id: docSnap.id, ...docSnap.data() }); });
 
+        // --- تعديل الترتيب لدعم المزايا القوية ---
         allPosts.sort((a, b) => {
+            // التحقق من وجود ميزة "الناشر اللانهائي" أو "المثبت" لإعطائهم الأولوية القصوى فوق
+            const badgeA = a.userBadge || "";
+            const badgeB = b.userBadge || "";
+            const priorityA = (badgeA === 'infinity' || badgeA === 'sticker') ? 1 : 0;
+            const priorityB = (badgeB === 'infinity' || badgeB === 'sticker') ? 1 : 0;
 
-            // ⭐ Sticker priority (ساعة)
-            const stickerA = isStickerActive(a) ? 2 : 0;
-            const stickerB = isStickerActive(b) ? 2 : 0;
+            if (priorityA !== priorityB) {
+                return priorityB - priorityA; // الأعلى أولوية يظهر أولاً
+            }
 
-            if(stickerA !== stickerB) return stickerB - stickerA;
-
-            // Infinity + Sticker القديم
-            const priorityA = (a.userBadge === 'infinity') ? 1 : 0;
-            const priorityB = (b.userBadge === 'infinity') ? 1 : 0;
-
-            if (priorityA !== priorityB) return priorityB - priorityA;
-
+            // إذا تساووا في الأولوية، يتم الترتيب الزمني العادي (الأحدث أولاً)
             const dateA = a.createdAt?.toDate() || new Date(0);
             const dateB = b.createdAt?.toDate() || new Date(0);
             return dateB - dateA;
         });
-
-        allPosts.forEach((post) => {
-
-            // 🔥 تشغيل الوظايف
-            triggerGlobalPost(post);
-            handleInfinity(post);
 
 allPosts.forEach((post) => {
             const postId = post.id;
@@ -1044,14 +1037,14 @@ function showRadarPopup(post) {
     const postId = post.id; // بناخد الأيدي بتاع المنشور
 
     popup.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#ffffff !important; z-index:20000; padding:20px; border-radius:15px; box-shadow:0 0 50px rgba(0,0,0,0.5); width:85%; max-width:350px; text-align:center; direction:rtl; border: 2px solid #06b6d4; color: #000000 !important;";
-    
+
     popup.innerHTML = `
         <div style="font-size:40px; margin-bottom:10px;">📡</div>
         <h3 style="color:#000000 !important; margin:10px 0; font-weight: 800; font-family: sans-serif;">إشعار عاجل!</h3> 
         <p style="font-weight:bold; color:#333333 !important; font-size: 16px; margin-bottom: 15px;">قام ${post.userName} بنشر تحديث جديد الآن!</p>
         <button id="view-post-btn" style="background:#06b6d4 !important; color:#ffffff !important; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:bold; margin-top:10px; width: 100%;">مشاهدة المنشور</button>
     `;
-    
+
     document.body.appendChild(popup);
 
     // إضافة وظيفة الزرار برمجياً عشان نتحكم في السكرول
@@ -1060,7 +1053,7 @@ function showRadarPopup(post) {
         if (postElement) {
             // بيخلي المتصفح يروح للمنشور بنعومة
             postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
+
             // إضافة تأثير بسيط عشان المستخدم يعرف هو أنهي بوست بالظبط
             postElement.style.transition = "0.5s";
             postElement.style.transform = "scale(1.02)";
