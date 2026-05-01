@@ -900,12 +900,39 @@ document.getElementById("se").onclick = async () => {
 function timeAgo(timestamp) {
     if (!timestamp) return "الآن";
     const seconds = Math.floor((new Date() - timestamp.toDate()) / 1000);
+    
     if (seconds < 60) return "الآن";
-    let interval = Math.floor(seconds / 3600);
-    if (interval >= 1) return "منذ " + interval + " ساعة";
-    interval = Math.floor(seconds / 60);
-    if (interval >= 1) return "منذ " + interval + " دقيقة";
-    return "الآن";
+    
+    let interval = Math.floor(seconds / 60);
+    if (interval < 60) return "منذ " + interval + " دقيقة";
+    
+    interval = Math.floor(seconds / 3600);
+    if (interval < 24) return "منذ " + interval + " ساعة";
+    
+    // حساب الأيام
+    interval = Math.floor(seconds / 86400);
+    if (interval < 30) {
+        if (interval === 1) return "منذ يوم";
+        if (interval === 2) return "منذ يومين";
+        if (interval <= 10) return "منذ " + interval + " أيام";
+        return "منذ " + interval + " يومًا";
+    }
+    
+    // حساب الشهور
+    interval = Math.floor(seconds / 2592000); // 30 يوم
+    if (interval < 12) {
+        if (interval === 1) return "منذ شهر";
+        if (interval === 2) return "منذ شهرين";
+        if (interval <= 10) return "منذ " + interval + " أشهر";
+        return "منذ " + interval + " شهرًا";
+    }
+    
+    // حساب السنين
+    interval = Math.floor(seconds / 31536000); // 365 يوم
+    if (interval === 1) return "منذ سنة";
+    if (interval === 2) return "منذ سنتين";
+    if (interval <= 10) return "منذ " + interval + " سنوات";
+    return "منذ " + interval + " سنة";
 }
 
 function startPostsListener() {
