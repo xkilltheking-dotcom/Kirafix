@@ -644,6 +644,32 @@ onAuthStateChanged(auth, async (user) => {
         return; 
     }
     listenForNotifications(user.uid); 
+    // مراقب التنبيهات العالمية - يوضع داخل onAuthStateChanged
+onSnapshot(collection(db, "global_alerts"), (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+            const alertData = change.data();
+            const now = new Date().getTime();
+            // إظهار التنبيه فقط إذا كان جديداً (آخر دقيقتين مثلاً)
+            if (alertData.createdAt && (now - alertData.createdAt.toDate().getTime() < 120000)) {
+                showGlobalBanner(alertData.message, alertData.url);
+            }
+        }
+    });
+});
+
+function showGlobalBanner(msg, url) {
+    let banner = document.getElementById('global-banner');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'global-banner';
+        banner.style = "position:fixed; top:0; left:0; width:100%; background:linear-gradient(90deg, #f59e0b, #ef4444); color:white; padding:10px; text-align:center; z-index:30000; font-weight:bold; cursor:pointer; animation: slideDown 0.5s ease;";
+        document.body.prepend(banner);
+    }
+    banner.textContent = "🌍 إعلان عالمي: " + msg;
+    banner.onclick = () => { window.location.href = url; banner.remove(); };
+    setTimeout(() => banner.remove(), 10000); // يختفي بعد 10 ثواني
+}
 
     if (!document.getElementById('kirafix-styles')) {
         const style = document.createElement('style');
@@ -854,17 +880,25 @@ function startPostsListener() {
         container.innerHTML = "";
         const allPosts = [];
         snap.forEach(docSnap => { allPosts.push({ id: docSnap.id, ...docSnap.data() }); });
+// داخل startPostsListener - تم تعديل منطق الترتيب
+allPosts.sort((a, b) => {
+    const now = new Date().getTime();
+    const oneHour = 60 * 60 * 1000;
+    
+    // منطق Sticker: يعمل فقط لو المنشور لم يتخطى الساعة
+    const isStickerA = a.userBadge === 'sticker' && (now - (a.createdAt?.toDate().getTime() || 0) < oneHour);
+    const isStickerB = b.userBadge === 'sticker' && (now - (b.createdAt?.toDate().getTime() || 0) < oneHour);
+    
+    // منطق Infinity: له الأولوية القصوى دائماً
+    const isInfinityA = a.userBadge === 'infinity';
+    const isInfinityB = b.userBadge === 'infinity';
 
-        allPosts.sort((a, b) => {
-            const now = new Date().getTime();
-            const oneHour = 60 * 60 * 1000;
-            const isStickerA = a.userBadge === 'sticker' && (now - (a.createdAt?.toDate().getTime() || 0) < oneHour);
-            const isStickerB = b.userBadge === 'sticker' && (now - (b.createdAt?.toDate().getTime() || 0) < oneHour);
-            const priorityA = (isStickerA || a.userBadge === 'infinity') ? 1 : 0;
-            const priorityB = (isStickerB || b.userBadge === 'infinity') ? 1 : 0;
-            if (priorityA !== priorityB) return priorityB - priorityA;
-            return (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0);
-        });
+    const priorityA = isInfinityA ? 2 : (isStickerA ? 1 : 0);
+    const priorityB = isInfinityB ? 2 : (isStickerB ? 1 : 0);
+
+    if (priorityA !== priorityB) return priorityB - priorityA;
+    return (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0);
+});
 
         allPosts.forEach((post) => {
             const postId = post.id;
