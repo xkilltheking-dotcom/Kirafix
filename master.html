@@ -953,6 +953,7 @@ function startPostsListener() {
         container.innerHTML = "";
         const allPosts = [];
         snap.forEach(docSnap => { allPosts.push({ id: docSnap.id, ...docSnap.data() }); });
+
 // داخل startPostsListener - تم تعديل منطق الترتيب
 allPosts.sort((a, b) => {
     const now = new Date().getTime();
