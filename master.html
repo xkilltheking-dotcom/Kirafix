@@ -1004,7 +1004,7 @@ allPosts.sort((a, b) => {
                         </div>
                     </div>
                     <div class="post-text" style="margin-bottom:12px; line-height:1.5;">${post.text || ""}</div>
-                    ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ""}
+                   ${post.image ? `<img src="${post.image}" style="width:100%; max-height:400px; object-fit:cover; border-radius:10px; margin-bottom:10px;">` : ""}
                     ${post.video ? `<video src="${post.video}" controls style="width:100%; border-radius:10px; margin-bottom:10px;"></video>` : ""}
                     <div class="post-stats">
                         <span>👍 ${likes.length} ${ui.like}</span>
