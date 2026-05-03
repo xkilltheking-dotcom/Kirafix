@@ -654,7 +654,19 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = "index.html"; 
         return; 
     }
-    listenForNotifications(user.uid); 
+
+    // تشغيل مراقب المنشورات فوراً لضمان ظهورها للمستخدم الجديد
+    let postsListenerStarted = false;
+    let lastActiveColor = null;
+    let unsubscribePosts = null;
+    
+    // استدعاء الدالة مباشرة هنا
+    if (!postsListenerStarted) {
+        postsListenerStarted = true;
+        unsubscribePosts = startPostsListener();
+    }
+
+    listenForNotifications(user.uid);
     // مراقب التنبيهات العالمية - يوضع داخل onAuthStateChanged
 onSnapshot(collection(db, "global_alerts"), (snapshot) => {
     snapshot.docChanges().forEach((change) => {
