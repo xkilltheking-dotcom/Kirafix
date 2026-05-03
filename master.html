@@ -750,6 +750,17 @@ style.innerHTML = `
             let postsListenerStarted = false;
             let lastActiveColor = null;
             let unsubscribePosts = null;
+                if (userDoc.exists()) {
+        currentUserData = userDoc.data();
+
+        // 🔥 FIX: تشغيل البوستات فوراً للمستخدم الجديد
+        startPostsListener();
+
+        const userImg = currentUserData.image || DEFAULT_USER_IMG;
+
+        if(document.getElementById("navProfilePic"))
+            document.getElementById("navProfilePic").src = userImg;
+    }
 
             onSnapshot(userDocRef, (docSnap) => {
                 if (docSnap.exists()) {
