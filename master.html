@@ -799,7 +799,7 @@ style.innerHTML = `
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
-    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+    const savedLang = localStorage.getItem('kirafix-lang') || 'en';
     applyMainLanguage(savedLang);
 
     setTimeout(() => {
