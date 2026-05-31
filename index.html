@@ -753,18 +753,16 @@ onAuthStateChanged(auth, async (user) => {
 
         return;
     }
-    window.addEventListener("load", () => {
-    const loader = document.getElementById("loadingScreen");
+const loader = document.getElementById("loadingScreen");
+
+setTimeout(() => {
+    loader.style.opacity = "0";
 
     setTimeout(() => {
-        loader.style.opacity = "0";
+        loader.style.display = "none";
+    }, 800);
 
-        setTimeout(() => {
-            loader.style.display = "none";
-        }, 800);
-
-    }, 1000);
-});
+}, 1000);
 
     // تشغيل مراقب المنشورات فوراً لضمان ظهورها للمستخدم الجديد
     let postsListenerStarted = false;
