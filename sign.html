@@ -167,8 +167,8 @@
     onAuthStateChanged(auth, (user) => {
         if (user) {
             // التحقق من أننا لسنا بالفعل في صفحة master قبل الانتقال منعاً للتكرار
-            if (!window.location.pathname.includes("master.html")) {
-                window.location.replace("master.html");
+            if (!window.location.pathname.includes("index.html")) {
+                window.location.replace("index.html");
             }
         } else {
             signupForm.style.opacity = "1";
@@ -213,12 +213,12 @@
                 const reader = new FileReader();
                 reader.onload = async function(e) {
                     await saveUserToFirestore(user, e.target.result);
-                    window.location.replace("master.html");
+                    window.location.replace("index.html");
                 };
                 reader.readAsDataURL(file);
             } else {
                 await saveUserToFirestore(user);
-                window.location.replace("master.html");
+                window.location.replace("index.html");
             }
         } catch (error) {
             alert(error.message);
@@ -229,7 +229,7 @@
         try {
             const result = await signInWithPopup(auth, provider);
             await saveUserToFirestore(result.user);
-            window.location.replace("master.html");
+            window.location.replace("index.html");
         } catch (error) {
             console.error("Google Sign-In Error:", error);
             alert("فشل التسجيل باستخدام جوجل: " + error.message);
