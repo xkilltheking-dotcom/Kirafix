@@ -750,16 +750,21 @@ function applyMainLanguage(lang) {
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         currentUserData = null;
-            setTimeout(() => {
-        const loader = document.getElementById("loadingScreen");
-        if(loader) { 
-            loader.style.opacity = "0"; 
-            setTimeout(() => { loader.style.display = "none"; }, 600); 
-        }
-    }, 1500); 
-});
+
         return;
     }
+    window.addEventListener("load", () => {
+    const loader = document.getElementById("loadingScreen");
+
+    setTimeout(() => {
+        loader.style.opacity = "0";
+
+        setTimeout(() => {
+            loader.style.display = "none";
+        }, 800);
+
+    }, 1000);
+});
 
     // تشغيل مراقب المنشورات فوراً لضمان ظهورها للمستخدم الجديد
     let postsListenerStarted = false;
