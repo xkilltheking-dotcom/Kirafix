@@ -750,10 +750,7 @@ function applyMainLanguage(lang) {
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         currentUserData = null;
-
-        return;
-    }
-const loader = document.getElementById("loadingScreen");
+        const loader = document.getElementById("loadingScreen");
 
 setTimeout(() => {
     loader.style.opacity = "0";
@@ -763,6 +760,10 @@ setTimeout(() => {
     }, 800);
 
 }, 1000);
+
+        return;
+    }
+
 
     // تشغيل مراقب المنشورات فوراً لضمان ظهورها للمستخدم الجديد
     let postsListenerStarted = false;
