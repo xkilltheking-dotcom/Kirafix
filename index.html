@@ -163,20 +163,22 @@
     const btn = document.getElementById("sign");
     const googleBtn = document.getElementById("googleSign");
 
+    // فحص آمن لمنع الـ Refresh اللانهائي
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            window.location.replace("master.html");
+            // التحقق من أننا لسنا بالفعل في صفحة master قبل الانتقال منعاً للتكرار
+            if (!window.location.pathname.includes("master.html")) {
+                window.location.replace("master.html");
+            }
         } else {
             signupForm.style.opacity = "1";
         }
     });
 
-    // دالة مساعدة لحفظ بيانات المستخدم في Firestore
     async function saveUserToFirestore(user, customImage = null) {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
 
-        // لا نقوم بمسح البيانات إذا كان المستخدم موجوداً بالفعل (خاصة مع جوجل)
         if (!userSnap.exists()) {
             await setDoc(userRef, {
                 name: user.displayName || user.email.split('@')[0],
@@ -192,7 +194,6 @@
         }
     }
 
-    // التسجيل العادي بالإيميل
     btn.addEventListener("click", async (event) => {
         event.preventDefault();
         const email = document.getElementById("email").value;
@@ -224,7 +225,6 @@
         }
     });
 
-    // التسجيل باستخدام جوجل
     googleBtn.addEventListener("click", async () => {
         try {
             const result = await signInWithPopup(auth, provider);
