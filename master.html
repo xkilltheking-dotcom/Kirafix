@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Kirafix: Your Ultimate Marketplace to Buy and Sell Everything.
 Discover the best deals or turn your unwanted items into cash. Post your ad for free and reach thousands of buyers in just a few clicks.">
-    <title>Kirafix Ads - Home</title>
+    <title>Kirafix - Home</title>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-B2YTWX9PZL"></script>
 <script>
@@ -377,82 +377,6 @@ body.dark-mode .user-badge {
     text-decoration: underline;
     text-underline-offset: 2px;
 }
-        .login-modal{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.65);
-    backdrop-filter:blur(6px);
-    display:none;
-    justify-content:center;
-    align-items:center;
-    z-index:99999;
-}
-
-.login-box{
-    width:90%;
-    max-width:400px;
-    background:white;
-    border-radius:24px;
-    padding:30px;
-    text-align:center;
-    position:relative;
-    animation:pop .3s ease;
-}
-
-@keyframes pop{
-    from{
-        transform:scale(.8);
-        opacity:0;
-    }
-    to{
-        transform:scale(1);
-        opacity:1;
-    }
-}
-
-.close-login{
-    position:absolute;
-    top:10px;
-    left:10px;
-    border:none;
-    background:none;
-    font-size:28px;
-    cursor:pointer;
-}
-
-.login-logo{
-    width:70px;
-    height:70px;
-    margin:auto;
-    border-radius:50%;
-    background:linear-gradient(135deg,#ffd700,#b8860b);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:32px;
-    font-weight:bold;
-    color:white;
-}
-
-.google-btn{
-    width:100%;
-    border:none;
-    background:#fff;
-    border:1px solid #ddd;
-    border-radius:12px;
-    padding:12px;
-    margin-top:20px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    cursor:pointer;
-    font-weight:bold;
-}
-
-.google-btn img{
-    width:22px;
-}
     </style>
 </head>
 <body>
@@ -539,31 +463,10 @@ body.dark-mode .user-badge {
     <div id="postsContainer"></div>
 </section>
     <div id="msg-toast" style="display: none;"></div>
-    <div id="loginModal" class="login-modal">
-    <div class="login-box">
-        <button id="closeLoginModal" class="close-login">&times;</button>
-
-        <div class="login-logo">K</div>
-
-        <h2>Welcome to Kirafix</h2>
-        <p>سجل الدخول للمتابعة</p>
-
-        <button id="googleLoginBtn" class="google-btn">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg">
-            تسجيل الدخول بواسطة Google
-        </button>
-    </div>
-</div>
-</body>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import {
-    getAuth,
-    onAuthStateChanged,
-    GoogleAuthProvider,
-    signInWithPopup
-} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment, getDocs , setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
 
 // --- إعدادات الرفع الخارجية ---
@@ -585,12 +488,11 @@ const firebaseConfig = {
     projectId: "kirafix-a0ed2",
     storageBucket: "kirafix-a0ed2.firebasestorage.app",
     messagingSenderId: "1038377831293",
-    appId: "1:1038377831293:web:c4763c6157addb25a1da14"
+    appId: "1:103837103837:web:c4763c6157addb25a1da14"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
 const db = getFirestore(app);
 const storage = getStorage(app);
 const DEFAULT_USER_IMG = "af80e23deeb127837d30554452546196.jpg"; 
@@ -748,35 +650,11 @@ function applyMainLanguage(lang) {
 }
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-        currentUserData = null;
-        const loader = document.getElementById("loadingScreen");
-
-setTimeout(() => {
-    loader.style.opacity = "0";
-
-    setTimeout(() => {
-        loader.style.display = "none";
-    }, 800);
-
-}, 1000);
-
-        return;
+    if (!user) { 
+        window.location.href = "index.html"; 
+        return; 
     }
-
-
-    // تشغيل مراقب المنشورات فوراً لضمان ظهورها للمستخدم الجديد
-    let postsListenerStarted = false;
-    let lastActiveColor = null;
-    let unsubscribePosts = null;
-    
-    // استدعاء الدالة مباشرة هنا
-    if (!postsListenerStarted) {
-        postsListenerStarted = true;
-        unsubscribePosts = startPostsListener();
-    }
-
-    listenForNotifications(user.uid);
+    listenForNotifications(user.uid); 
     // مراقب التنبيهات العالمية - يوضع داخل onAuthStateChanged
 onSnapshot(collection(db, "global_alerts"), (snapshot) => {
     snapshot.docChanges().forEach((change) => {
@@ -872,17 +750,6 @@ style.innerHTML = `
             let postsListenerStarted = false;
             let lastActiveColor = null;
             let unsubscribePosts = null;
-                if (userDoc.exists()) {
-        currentUserData = userDoc.data();
-
-        // 🔥 FIX: تشغيل البوستات فوراً للمستخدم الجديد
-        startPostsListener();
-
-        const userImg = currentUserData.image || DEFAULT_USER_IMG;
-
-        if(document.getElementById("navProfilePic"))
-            document.getElementById("navProfilePic").src = userImg;
-    }
 
             onSnapshot(userDocRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -909,10 +776,17 @@ style.innerHTML = `
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
-    const savedLang = localStorage.getItem('kirafix-lang') || 'en';
+    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
     applyMainLanguage(savedLang);
 
-
+    setTimeout(() => {
+        const loader = document.getElementById("loadingScreen");
+        if(loader) { 
+            loader.style.opacity = "0"; 
+            setTimeout(() => { loader.style.display = "none"; }, 600); 
+        }
+    }, 1500); 
+});
 
 document.getElementById("but").onclick = () => {
     const box = document.getElementById("composerBox");
@@ -1079,7 +953,6 @@ function startPostsListener() {
         container.innerHTML = "";
         const allPosts = [];
         snap.forEach(docSnap => { allPosts.push({ id: docSnap.id, ...docSnap.data() }); });
-
 // داخل startPostsListener - تم تعديل منطق الترتيب
 allPosts.sort((a, b) => {
     const now = new Date().getTime();
@@ -1290,56 +1163,6 @@ if (menuBtn && sideNav && closeBtn) {
     closeBtn.onclick = () => { sideNav.classList.remove("active"); };
     document.addEventListener('click', (event) => { if (!sideNav.contains(event.target) && event.target !== menuBtn) { sideNav.classList.remove("active"); } });
 }
-    const loginModal = document.getElementById("loginModal");
-
-function showLoginModal(){
-    loginModal.style.display = "flex";
-}
-
-document.getElementById("closeLoginModal").onclick = () =>{
-    loginModal.style.display = "none";
-};
-
-document.getElementById("googleLoginBtn").onclick = async () =>{
-    try{
-        const result = await signInWithPopup(auth, provider);
-
-        const user = result.user;
-
-        const userRef = doc(db,"users",user.uid);
-
-        const userSnap = await getDoc(userRef);
-
-        if(!userSnap.exists()){
-            await setDoc(userRef,{
-                uid:user.uid,
-                email:user.email,
-                name:user.displayName,
-                image:user.photoURL,
-                coins:0,
-                createdAt:serverTimestamp()
-            });
-        }
-
-        loginModal.style.display = "none";
-
-    }catch(err){
-        console.error(err);
-        alert("فشل تسجيل الدخول");
-    }
-};
-    document.addEventListener("click",(e)=>{
-
-    if(auth.currentUser) return;
-
-    const ignored =
-        e.target.closest("#loginModal");
-
-    if(ignored) return;
-
-    showLoginModal();
-
-});
 </script>
 
 </body>
