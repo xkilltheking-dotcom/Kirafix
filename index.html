@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="google-site-verification" content="JXzcyBmzUjljC3t9a7IpIrffA31XH4WjhkOn50RY-7I" />
+
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <link rel="apple-touch-icon" href="favicon.png">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8931713233690013"
+     crossorigin="anonymous"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1716612886637494"
+     crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="auth.css">
+    <style>
+        body {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        #signupForm {
+            width: 100%;
+            max-width: 400px;
+            background-color:transparent;
+            backdrop-filter: blur(25px);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        /* ستايل زرار جوجل */
+        #googleSign {
+            background-color: white;
+            color: #444;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        #googleSign:hover { background-color: #f9f9f9; }
+        #googleSign img { width: 20px; }
+    </style>
+    <!-- ===== BASIC SEO ===== -->
+<title>Kirafix Ads - Marketplace to Buy & Sell Everything</title>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="title" content="Kirafix - Buy & Sell Everything Online">
+<meta name="description" content="Kirafix is a modern marketplace where you can buy and sell phones, cars, electronics, fashion, gaming items and more easily.">
+<meta name="keywords" content="marketplace, buy and sell, used phones, cars for sale, electronics, gaming, online shopping, Kirafix">
+<meta name="author" content="Kirafix">
+
+<!-- ===== GOOGLE SEO ===== -->
+<meta name="robots" content="index, follow">
+<meta name="googlebot" content="index, follow">
+
+<!-- ===== THEME COLOR ===== -->
+<meta name="theme-color" content="#0f172a">
+
+<!-- ===== OPEN GRAPH / SOCIAL MEDIA ===== -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kirafix.pages.dev/master">
+<meta property="og:title" content="Kirafix Marketplace">
+<meta property="og:description" content="Buy & Sell Everything Easily on Kirafix.">
+<meta property="og:image" content="https://kirafix.pages.dev/master/logo.png">
+
+<!-- ===== TWITTER ===== -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Kirafix Marketplace">
+<meta name="twitter:description" content="Buy & Sell Everything Easily on Kirafix.">
+<meta name="twitter:image" content="https://kirafix.pages.dev/master/logo.png">
+
+
+<!-- ===== CANONICAL URL ===== -->
+<link rel="canonical" href="https://kirafix.pages.dev/master">
+
+<!-- ===== PRECONNECT FOR SPEED ===== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- ===== STRUCTURED DATA / GOOGLE RICH RESULTS ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Kirafix",
+  "url": "https://kirafix.pages.dev/master",
+  "description": "Marketplace for buying and selling everything online.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://kirafix.pages.dev/master/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+</head>
+
+<body>
+    <amp-auto-ads type="adsense"
+        data-ad-client="ca-pub-8931713233690013">
+</amp-auto-ads>
+
+    <div class="logo" style="position: absolute; top: 20px;">Kirafix</div>
+
+    <form class="login" id="signupForm" style="opacity: 0; transition: opacity 0.5s;">
+        <div class="input-box">
+            <img src="مستخدم.png" class="icon">
+            <input type="email" placeholder="Email" id="email" required>
+        </div>
+
+        <div class="input-box">
+            <img src="free-privacy-icon-XEipJc_qROTI-512x512.png" class="icon">
+            <input type="password" placeholder="Password" id="password" required>
+        </div>
+
+        <div class="input-box">
+            <span>Upload profile picture</span>
+            <label class="file-label">
+                <span class="plus">+</span>
+                <input type="file" id="profilePic" accept="image/*">
+            </label>
+        </div>
+
+        <button type="button" id="sign">Sign Up</button>
+
+        <button type="button" id="googleSign">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg">
+            Continue with Google
+        </button>
+
+        <div class="login-link">
+            Already have an account? 
+            <a href="Kirafix.html">Log In</a>
+        </div>
+        <div class="creator">Kirafix Creator</div>
+    </form>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { 
+        getAuth, 
+        createUserWithEmailAndPassword, 
+        onAuthStateChanged, 
+        GoogleAuthProvider, 
+        signInWithPopup 
+    } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
+        authDomain: "kirafix-a0ed2.firebaseapp.com",
+        projectId: "kirafix-a0ed2",
+        storageBucket: "kirafix-a0ed2.firebasestorage.app",
+        messagingSenderId: "1038377831293",
+        appId: "1:103837103837:web:c4763c6157addb25a1da14"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    const signupForm = document.getElementById("signupForm");
+    const btn = document.getElementById("sign");
+    const googleBtn = document.getElementById("googleSign");
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            window.location.replace("master.html");
+        } else {
+            signupForm.style.opacity = "1";
+        }
+    });
+
+    // دالة مساعدة لحفظ بيانات المستخدم في Firestore
+    async function saveUserToFirestore(user, customImage = null) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        // لا نقوم بمسح البيانات إذا كان المستخدم موجوداً بالفعل (خاصة مع جوجل)
+        if (!userSnap.exists()) {
+            await setDoc(userRef, {
+                name: user.displayName || user.email.split('@')[0],
+                username: "user" + Math.floor(Math.random() * 10000),
+                email: user.email,
+                bio: "أهلاً بك في كيرفيكس!",
+                image: customImage || user.photoURL || "af80e23deeb127837d30554452546196.jpg",
+                followers: [],
+                following: [],
+                uid: user.uid,
+                createdAt: serverTimestamp()
+            });
+        }
+    }
+
+    // التسجيل العادي بالإيميل
+    btn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const file = document.getElementById("profilePic").files[0];
+
+        if (!email || !password) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    await saveUserToFirestore(user, e.target.result);
+                    window.location.replace("master.html");
+                };
+                reader.readAsDataURL(file);
+            } else {
+                await saveUserToFirestore(user);
+                window.location.replace("master.html");
+            }
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+
+    // التسجيل باستخدام جوجل
+    googleBtn.addEventListener("click", async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            await saveUserToFirestore(result.user);
+            window.location.replace("master.html");
+        } catch (error) {
+            console.error("Google Sign-In Error:", error);
+            alert("فشل التسجيل باستخدام جوجل: " + error.message);
+        }
+    });
+</script>
+</body>
+</html>
