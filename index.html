@@ -750,6 +750,14 @@ function applyMainLanguage(lang) {
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         currentUserData = null;
+            setTimeout(() => {
+        const loader = document.getElementById("loadingScreen");
+        if(loader) { 
+            loader.style.opacity = "0"; 
+            setTimeout(() => { loader.style.display = "none"; }, 600); 
+        }
+    }, 1500); 
+});
         return;
     }
 
@@ -900,14 +908,7 @@ style.innerHTML = `
     const savedLang = localStorage.getItem('kirafix-lang') || 'en';
     applyMainLanguage(savedLang);
 
-    setTimeout(() => {
-        const loader = document.getElementById("loadingScreen");
-        if(loader) { 
-            loader.style.opacity = "0"; 
-            setTimeout(() => { loader.style.display = "none"; }, 600); 
-        }
-    }, 1500); 
-});
+
 
 document.getElementById("but").onclick = () => {
     const box = document.getElementById("composerBox");
