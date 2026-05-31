@@ -6,6 +6,7 @@
     <meta name="description" content="Kirafix: Your Ultimate Marketplace to Buy and Sell Everything.
 Discover the best deals or turn your unwanted items into cash. Post your ad for free and reach thousands of buyers in just a few clicks.">
     <title>Kirafix - Home</title>
+    <title>Kirafix Ads - Home</title>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-B2YTWX9PZL"></script>
 <script>
@@ -654,7 +655,19 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = "index.html"; 
         return; 
     }
-    listenForNotifications(user.uid); 
+
+    // تشغيل مراقب المنشورات فوراً لضمان ظهورها للمستخدم الجديد
+    let postsListenerStarted = false;
+    let lastActiveColor = null;
+    let unsubscribePosts = null;
+
+    // استدعاء الدالة مباشرة هنا
+    if (!postsListenerStarted) {
+        postsListenerStarted = true;
+        unsubscribePosts = startPostsListener();
+    }
+
+    listenForNotifications(user.uid);
     // مراقب التنبيهات العالمية - يوضع داخل onAuthStateChanged
 onSnapshot(collection(db, "global_alerts"), (snapshot) => {
     snapshot.docChanges().forEach((change) => {
@@ -750,6 +763,17 @@ style.innerHTML = `
             let postsListenerStarted = false;
             let lastActiveColor = null;
             let unsubscribePosts = null;
+                if (userDoc.exists()) {
+        currentUserData = userDoc.data();
+
+        // 🔥 FIX: تشغيل البوستات فوراً للمستخدم الجديد
+        startPostsListener();
+
+        const userImg = currentUserData.image || DEFAULT_USER_IMG;
+
+        if(document.getElementById("navProfilePic"))
+            document.getElementById("navProfilePic").src = userImg;
+    }
 
             onSnapshot(userDocRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -776,7 +800,7 @@ style.innerHTML = `
 
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
-    const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
+    const savedLang = localStorage.getItem('kirafix-lang') || 'en';
     applyMainLanguage(savedLang);
 
     setTimeout(() => {
@@ -899,7 +923,7 @@ document.getElementById("se").onclick = async () => {
         selectedFile = null; fileType = null; 
         btn.disabled = false; btn.innerText = "نشر";
         document.getElementById("composerBox").style.display = "none";
-        
+
     } catch (error) { 
         console.error(error); 
         alert("مشكلة في النشر: " + error.message); 
@@ -911,15 +935,15 @@ document.getElementById("se").onclick = async () => {
 function timeAgo(timestamp) {
     if (!timestamp) return "الآن";
     const seconds = Math.floor((new Date() - timestamp.toDate()) / 1000);
-    
+
     if (seconds < 60) return "الآن";
-    
+
     let interval = Math.floor(seconds / 60);
     if (interval < 60) return "منذ " + interval + " دقيقة";
-    
+
     interval = Math.floor(seconds / 3600);
     if (interval < 24) return "منذ " + interval + " ساعة";
-    
+
     // حساب الأيام
     interval = Math.floor(seconds / 86400);
     if (interval < 30) {
@@ -928,7 +952,7 @@ function timeAgo(timestamp) {
         if (interval <= 10) return "منذ " + interval + " أيام";
         return "منذ " + interval + " يومًا";
     }
-    
+
     // حساب الشهور
     interval = Math.floor(seconds / 2592000); // 30 يوم
     if (interval < 12) {
@@ -937,7 +961,7 @@ function timeAgo(timestamp) {
         if (interval <= 10) return "منذ " + interval + " أشهر";
         return "منذ " + interval + " شهرًا";
     }
-    
+
     // حساب السنين
     interval = Math.floor(seconds / 31536000); // 365 يوم
     if (interval === 1) return "منذ سنة";
@@ -953,15 +977,16 @@ function startPostsListener() {
         container.innerHTML = "";
         const allPosts = [];
         snap.forEach(docSnap => { allPosts.push({ id: docSnap.id, ...docSnap.data() }); });
+
 // داخل startPostsListener - تم تعديل منطق الترتيب
 allPosts.sort((a, b) => {
     const now = new Date().getTime();
     const oneHour = 60 * 60 * 1000;
-    
+
     // منطق Sticker: يعمل فقط لو المنشور لم يتخطى الساعة
     const isStickerA = a.userBadge === 'sticker' && (now - (a.createdAt?.toDate().getTime() || 0) < oneHour);
     const isStickerB = b.userBadge === 'sticker' && (now - (b.createdAt?.toDate().getTime() || 0) < oneHour);
-    
+
     // منطق Infinity: له الأولوية القصوى دائماً
     const isInfinityA = a.userBadge === 'infinity';
     const isInfinityB = b.userBadge === 'infinity';
