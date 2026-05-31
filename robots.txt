@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://kirafix.pages.dev/master/sitemap.xml
