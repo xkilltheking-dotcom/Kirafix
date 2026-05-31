@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <meta name="google-site-verification" content="JXzcyBmzUjljC3t9a7IpIrffA31XH4WjhkOn50RY-7I" />
 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1716612886637494" crossorigin="anonymous"></script>
-
     <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="apple-touch-icon" href="favicon.png">
     
+    <link rel="apple-touch-icon" href="favicon.png">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8931713233690013"
+     crossorigin="anonymous"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1716612886637494"
+     crossorigin="anonymous"></script>
     <link rel="stylesheet" href="auth.css">
     <style>
         body {
@@ -52,46 +51,58 @@
     </style>
     <!-- ===== BASIC SEO ===== -->
 <title>Kirafix Ads - Marketplace to Buy & Sell Everything</title>
-    <meta name="title" content="Kirafix Ads - Buy & Sell Everything Online">
-    <meta name="description" content="Kirafix is a modern marketplace where you can buy and sell phones, cars, electronics, fashion, gaming items and more easily.">
-    <meta name="keywords" content="marketplace, buy and sell, used phones, cars for sale, electronics, gaming, online shopping, Kirafix">
-    <meta name="author" content="Kirafix">
 
-    <meta name="robots" content="index, follow">
-    <meta name="googlebot" content="index, follow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="theme-color" content="#0f172a">
+<meta name="title" content="Kirafix - Buy & Sell Everything Online">
+<meta name="description" content="Kirafix is a modern marketplace where you can buy and sell phones, cars, electronics, fashion, gaming items and more easily.">
+<meta name="keywords" content="marketplace, buy and sell, used phones, cars for sale, electronics, gaming, online shopping, Kirafix">
+<meta name="author" content="Kirafix">
 
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://kirafix.pages.dev/master">
-    <meta property="og:title" content="Kirafix Marketplace">
-    <meta property="og:description" content="Buy & Sell Everything Easily on Kirafix.">
-    <meta property="og:image" content="https://kirafix.pages.dev/master/logo.png">
+<!-- ===== GOOGLE SEO ===== -->
+<meta name="robots" content="index, follow">
+<meta name="googlebot" content="index, follow">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Kirafix Marketplace">
-    <meta name="twitter:description" content="Buy & Sell Everything Easily on Kirafix.">
-    <meta name="twitter:image" content="https://kirafix.pages.dev/master/logo.png">
+<!-- ===== THEME COLOR ===== -->
+<meta name="theme-color" content="#0f172a">
 
-    <link rel="canonical" href="https://kirafix.pages.dev/master">
+<!-- ===== OPEN GRAPH / SOCIAL MEDIA ===== -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kirafix.pages.dev/master">
+<meta property="og:title" content="Kirafix Marketplace">
+<meta property="og:description" content="Buy & Sell Everything Easily on Kirafix.">
+<meta property="og:image" content="https://kirafix.pages.dev/master/logo.png">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- ===== TWITTER ===== -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Kirafix Marketplace">
+<meta name="twitter:description" content="Buy & Sell Everything Easily on Kirafix.">
+<meta name="twitter:image" content="https://kirafix.pages.dev/master/logo.png">
 
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Kirafix",
-      "url": "https://kirafix.pages.dev/master",
-      "description": "Marketplace for buying and selling everything online.",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://kirafix.pages.dev/master/search?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
-    </script>
+
+<!-- ===== CANONICAL URL ===== -->
+<link rel="canonical" href="https://kirafix.pages.dev/master">
+
+<!-- ===== PRECONNECT FOR SPEED ===== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- ===== STRUCTURED DATA / GOOGLE RICH RESULTS ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Kirafix",
+  "url": "https://kirafix.pages.dev/master",
+  "description": "Marketplace for buying and selling everything online.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://kirafix.pages.dev/master/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
 </head>
 
 <body>
@@ -163,22 +174,20 @@
     const btn = document.getElementById("sign");
     const googleBtn = document.getElementById("googleSign");
 
-    // فحص آمن لمنع الـ Refresh اللانهائي
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // التحقق من أننا لسنا بالفعل في صفحة master قبل الانتقال منعاً للتكرار
-            if (!window.location.pathname.includes("index.html")) {
-                window.location.replace("index.html");
-            }
+            window.location.replace("master.html");
         } else {
             signupForm.style.opacity = "1";
         }
     });
 
+    // دالة مساعدة لحفظ بيانات المستخدم في Firestore
     async function saveUserToFirestore(user, customImage = null) {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
 
+        // لا نقوم بمسح البيانات إذا كان المستخدم موجوداً بالفعل (خاصة مع جوجل)
         if (!userSnap.exists()) {
             await setDoc(userRef, {
                 name: user.displayName || user.email.split('@')[0],
@@ -194,6 +203,7 @@
         }
     }
 
+    // التسجيل العادي بالإيميل
     btn.addEventListener("click", async (event) => {
         event.preventDefault();
         const email = document.getElementById("email").value;
@@ -213,23 +223,24 @@
                 const reader = new FileReader();
                 reader.onload = async function(e) {
                     await saveUserToFirestore(user, e.target.result);
-                    window.location.replace("index.html");
+                    window.location.replace("master.html");
                 };
                 reader.readAsDataURL(file);
             } else {
                 await saveUserToFirestore(user);
-                window.location.replace("index.html");
+                window.location.replace("master.html");
             }
         } catch (error) {
             alert(error.message);
         }
     });
 
+    // التسجيل باستخدام جوجل
     googleBtn.addEventListener("click", async () => {
         try {
             const result = await signInWithPopup(auth, provider);
             await saveUserToFirestore(result.user);
-            window.location.replace("index.html");
+            window.location.replace("master.html");
         } catch (error) {
             console.error("Google Sign-In Error:", error);
             alert("فشل التسجيل باستخدام جوجل: " + error.message);
