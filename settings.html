@@ -202,14 +202,14 @@
 
     // برمجة زر تسجيل الدخول
     loginBtn.onclick = () => {
-        window.location.href = "Kirafix.html"; // التوجيه لصفحة تسجيل الدخول الخاصة بك
+        window.location.href = "sign.html"; // التوجيه لصفحة تسجيل الدخول الخاصة بك
     };
 
     // برمجة زر تسجيل الخروج
     logoutBtn.onclick = async () => {
         try {
             await signOut(auth);
-            window.location.href = "Kirafix.html"; // بعد الخروج يتم نقله لصفحة تسجيل الدخول تلقائياً
+            window.location.href = "sign.html"; // بعد الخروج يتم نقله لصفحة تسجيل الدخول تلقائياً
         } catch (error) {
             console.error("Error signing out: ", error);
             alert("حدث خطأ أثناء تسجيل الخروج");
