@@ -854,9 +854,6 @@ if (user) {
                 if (userDoc.exists()) {
         currentUserData = userDoc.data();
 
-        // 🔥 FIX: تشغيل البوستات فوراً للمستخدم الجديد
-        startPostsListener();
-
         const userImg = currentUserData.image || DEFAULT_USER_IMG;
 
         if(document.getElementById("navProfilePic"))
