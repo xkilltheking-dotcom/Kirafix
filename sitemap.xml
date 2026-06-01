@@ -1,24 +1,32 @@
-<?xml version="1.0" encoding="UTF-8"?> 
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"> 
-<url>
-  <loc>https://kirafix.pages.dev/profile.html</loc>
-</url>
-<url>
-  <loc>https://kirafix.pages.dev/kirastore.html</loc>
-</url>
-<url>
-  <loc>https://kirafix.pages.dev/contact.html</loc>
-</url>
-<url>
-  <loc>https://kirafix.pages.dev/privacy.html</loc>
-</url>
-<url>
-  <loc>https://kirafix.pages.dev/about.html</loc>
-</url>
-<url>
-  <loc>https://kirafix.pages.dev/Kirafix.html</loc>
-</url>
-<url>
-  <loc>https://kirafix.pages.dev/index.html</loc>
-</url>
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://kirafix.pages.dev/profile.html</loc>
+  </url>
+
+  <url>
+    <loc>https://kirafix.pages.dev/kirastore.html</loc>
+  </url>
+
+  <url>
+    <loc>https://kirafix.pages.dev/contact.html</loc>
+  </url>
+
+  <url>
+    <loc>https://kirafix.pages.dev/privacy.html</loc>
+  </url>
+
+  <url>
+    <loc>https://kirafix.pages.dev/about.html</loc>
+  </url>
+
+  <url>
+    <loc>https://kirafix.pages.dev/Kirafix.html</loc>
+  </url>
+
+  <url>
+    <loc>https://kirafix.pages.dev/index.html</loc>
+  </url>
+
 </urlset>
