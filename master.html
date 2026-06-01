@@ -378,6 +378,59 @@ body.dark-mode .user-badge {
     text-decoration: underline;
     text-underline-offset: 2px;
 }
+        .login-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    backdrop-filter:blur(5px);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:999999;
+}
+
+.login-box{
+    background:white;
+    width:90%;
+    max-width:400px;
+    border-radius:20px;
+    padding:25px;
+    text-align:center;
+    animation:pop .25s ease;
+}
+
+@keyframes pop{
+    from{
+        transform:scale(.9);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+.login-icon{
+    font-size:50px;
+    margin-bottom:10px;
+}
+
+#googleLoginBtn{
+    width:100%;
+    border:none;
+    padding:14px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+}
+
+#googleLoginBtn img{
+    width:22px;
+}
     </style>
 </head>
 <body>
@@ -464,9 +517,38 @@ body.dark-mode .user-badge {
     <div id="postsContainer"></div>
 </section>
     <div id="msg-toast" style="display: none;"></div>
+    <div id="loginModal" class="login-modal">
+
+  <div class="login-box">
+
+      <div class="login-icon">
+          🔐
+      </div>
+
+      <h2>سجل دخولك</h2>
+
+      <p>
+          يجب تسجيل الدخول للتفاعل مع المنشورات
+      </p>
+
+      <button id="googleLoginBtn">
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg">
+          المتابعة باستخدام Google
+      </button>
+
+  </div>
+
+</div>
+</body>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import {
+    getAuth,
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup
+}
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
 
@@ -553,6 +635,7 @@ window.toggleComments = (postId) => {
 };
 
 window.sendComment = async (postId) => {
+    if(!requireLogin()) return;
     const input = document.getElementById(`input-${postId}`);
     const text = input.value.trim();
     if (!text || !auth.currentUser) return;
@@ -614,7 +697,7 @@ const viewObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.6 });
 
 window.toggleLike = async (postId, hasLiked) => {
-    if(!auth.currentUser) return;
+    if(!requireLogin()) return;
     const postRef = doc(db, "posts", postId);
     try {
         if (hasLiked) { 
@@ -651,9 +734,10 @@ function applyMainLanguage(lang) {
 }
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { 
-        window.location.href = "index.html"; 
-        return; 
+    if(user){
+        console.log("User Logged In");
+    }else{
+        console.log("Guest Mode");
     }
 
     // تشغيل مراقب المنشورات فوراً لضمان ظهورها للمستخدم الجديد
@@ -813,8 +897,15 @@ style.innerHTML = `
 });
 
 document.getElementById("but").onclick = () => {
+
+    if(!requireLogin()) return;
+
     const box = document.getElementById("composerBox");
-    box.style.display = box.style.display === "none" ? "block" : "none";
+
+    box.style.display =
+    box.style.display === "none"
+        ? "block"
+        : "none";
 };
 
 const imgInput = document.getElementById("imgInput");
@@ -861,6 +952,7 @@ videoInput.onchange = (e) => {
 };
 
 document.getElementById("se").onclick = async () => {
+    if(!requireLogin()) return;
     const text = document.getElementById("tex").value;
     const btn = document.getElementById("se");
     if (!text && !selectedFile) { alert("اكتب حاجة أو اختار ميديا!"); return; }
@@ -1188,6 +1280,35 @@ if (menuBtn && sideNav && closeBtn) {
     closeBtn.onclick = () => { sideNav.classList.remove("active"); };
     document.addEventListener('click', (event) => { if (!sideNav.contains(event.target) && event.target !== menuBtn) { sideNav.classList.remove("active"); } });
 }
+    const provider = new GoogleAuthProvider();
+
+async function loginWithGoogle() {
+    try {
+        await signInWithPopup(auth, provider);
+        hideLoginModal();
+    } catch (err) {
+        console.error(err);
+    }
+}
+    function showLoginModal(){
+    document.getElementById("loginModal").style.display = "flex";
+}
+
+function hideLoginModal(){
+    document.getElementById("loginModal").style.display = "none";
+}
+    function requireLogin(){
+
+    if(auth.currentUser){
+        return true;
+    }
+
+    showLoginModal();
+    return false;
+}
+
+document.getElementById("googleLoginBtn")
+.addEventListener("click", loginWithGoogle);
 </script>
 
 </body>
