@@ -378,58 +378,130 @@ body.dark-mode .user-badge {
     text-decoration: underline;
     text-underline-offset: 2px;
 }
-        .login-modal{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.6);
-    backdrop-filter:blur(5px);
-    display:none;
-    justify-content:center;
-    align-items:center;
-    z-index:999999;
+/* الحاوية الخلفية للمودال */
+.login-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4); /* لون داكن ناعم بدلاً من الأسود الصريح */
+    backdrop-filter: blur(12px); /* زيادة التشويش ليعطي فخامة */
+    -webkit-backdrop-filter: blur(12px);
+    display: none; /* يتم التحكم به عبر الجافا سكريبت flex أو none */
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
 }
 
-.login-box{
-    background:white;
-    width:90%;
-    max-width:400px;
-    border-radius:20px;
-    padding:25px;
-    text-align:center;
-    animation:pop .25s ease;
+/* صندوق تسجيل الدخول */
+.login-box {
+    background: #ffffff;
+    width: 90%;
+    max-width: 380px;
+    border-radius: 24px; /* حواف أنعم وأحدث */
+    padding: 35px 25px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15), 
+                0 0 0 1px rgba(15, 23, 42, 0.05); /* تأثير حد خارجي ناعم جداً */
+    animation: premiumPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; /* حركة مرنة احترافية */
 }
 
-@keyframes pop{
-    from{
-        transform:scale(.9);
-        opacity:0;
+/* زر الإغلاق الذكي */
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 22px;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.close-modal:hover {
+    color: #475569;
+}
+
+/* الأيقونة وتأثير النبض خلفها */
+.login-icon {
+    font-size: 40px;
+    margin-bottom: 20px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 80px;
+    background: #f1f5f9;
+    border-radius: 50%;
+    position: relative;
+}
+.icon-pulse {
+    animation: iconFloat 3s ease-in-out infinite;
+}
+
+/* النصوص والعناوين */
+.login-box h2 {
+    color: #0f172a;
+    font-size: 22px;
+    margin: 0 0 10px 0;
+    font-weight: 700;
+}
+
+.login-box p {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 25px 0;
+}
+
+/* زرار جوجل العبقري */
+#googleLoginBtn {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #334155;
+    padding: 12px 16px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.25s ease;
+}
+
+/* تأثيرات التفاعل مع الزر */
+#googleLoginBtn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+#googleLoginBtn:active {
+    transform: translateY(1px);
+}
+
+#googleLoginBtn img {
+    width: 22px;
+    height: 22px;
+}
+
+/* الإنيميشنز */
+@keyframes premiumPop {
+    from {
+        transform: scale(0.92) translateY(15px);
+        opacity: 0;
     }
-    to{
-        transform:scale(1);
-        opacity:1;
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
     }
 }
 
-.login-icon{
-    font-size:50px;
-    margin-bottom:10px;
-}
-
-#googleLoginBtn{
-    width:100%;
-    border:none;
-    padding:14px;
-    border-radius:12px;
-    cursor:pointer;
-    font-weight:bold;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-}
-
-#googleLoginBtn img{
-    width:22px;
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
 }
     </style>
 </head>
@@ -517,24 +589,24 @@ body.dark-mode .user-badge {
     <div id="postsContainer"></div>
 </section>
     <div id="msg-toast" style="display: none;"></div>
-    <div id="loginModal" class="login-modal">
 
-  <div class="login-box">
+<div class="login-modal" id="loginModal">
+    <div class="login-box">
+        <div class="close-modal" onclick="document.getElementById('loginModal').style.display='none'">&times;</div>
+        
+        <div class="login-icon">
+            <div class="icon-pulse">🔐</div>
+        </div>
 
-      <div class="login-icon">
-          🔐
-      </div>
+        <h2>تسجيل الدخول مطلوب</h2>
+        <p>انضم إلى مجتمعنا للتفاعل مع المنشورات ومشاركة آرائك.</p>
 
-      <h2>سجل دخولك</h2>
-
-      <p>
-          يجب تسجيل الدخول للتفاعل مع المنشورات
-      </p>
-
-      <button id="googleLoginBtn">
-          <img src="https://www.svgrepo.com/show/475656/google-color.svg">
-          المتابعة باستخدام Google
-      </button>
+        <button id="googleLoginBtn">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+            المتابعة باستخدام Google
+        </button>
+    </div>
+</div>
 
   </div>
 
