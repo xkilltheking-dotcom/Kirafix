@@ -750,8 +750,9 @@ onAuthStateChanged(auth, async (user) => {
         postsListenerStarted = true;
         unsubscribePosts = startPostsListener();
     }
-
+if (user) {
     listenForNotifications(user.uid);
+}
     // مراقب التنبيهات العالمية - يوضع داخل onAuthStateChanged
 onSnapshot(collection(db, "global_alerts"), (snapshot) => {
     snapshot.docChanges().forEach((change) => {
@@ -833,7 +834,10 @@ style.innerHTML = `
         document.head.appendChild(style);
     }
 
+if (user) {
+
     const userDocRef = doc(db, "users", user.uid);
+
     try {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
@@ -881,7 +885,7 @@ style.innerHTML = `
     } catch (error) { 
         console.error("Firebase Error:", error); 
     }
-
+    }
     const savedDark = localStorage.getItem('kirafix-dark') === 'true';
     if (savedDark) document.body.classList.add('dark-mode');
     const savedLang = localStorage.getItem('kirafix-lang') || 'en';
