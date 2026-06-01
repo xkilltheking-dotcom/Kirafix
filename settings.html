@@ -177,14 +177,25 @@
         localStorage.setItem('kirafix-dark', isDark);
     };
 
-    logoutBtn.onclick = async () => {
-        try {
-            await signOut(auth);
-            window.location.href = "login.html";
-        } catch (error) {
-            console.error("Error: ", error);
-        }
-    };
+logoutBtn.onclick = async () => {
+try {
+await signOut(auth);
+
+```
+    // حذف أي بيانات قديمة محفوظة محلياً (لو موجودة)
+    localStorage.removeItem("user");
+    localStorage.removeItem("loggedIn");
+    sessionStorage.clear();
+
+    // الرجوع للرئيسية
+    window.location.href = "index.html";
+} catch (error) {
+    console.error("Error: ", error);
+}
+```
+
+};
+
 
     // تحميل الإعدادات
     const savedLang = localStorage.getItem('kirafix-lang') || 'ar';
