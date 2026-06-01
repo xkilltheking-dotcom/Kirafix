@@ -1093,7 +1093,7 @@ allPosts.sort((a, b) => {
 
         allPosts.forEach((post) => {
             const postId = post.id;
-            const currentUid = auth.currentUser?.uid;
+            const currentUid = auth.currentUser ? auth.currentUser.uid : null;
             const likes = Array.isArray(post.likes) ? post.likes : [];
             const views = Array.isArray(post.views) ? post.views : [];
             const hasLiked = likes.includes(currentUid);
