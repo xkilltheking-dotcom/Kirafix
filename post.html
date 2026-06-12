@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f3f4f6;
+    margin:0;
+    padding:20px;
+}
+.post-box{
+    max-width:600px;
+    margin:auto;
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+img,video{
+    width:100%;
+    border-radius:10px;
+    margin-top:10px;
+}
+.user{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.user img{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+}
+.small{
+    color:gray;
+    font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<div id="post" class="post-box">Loading...</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWy9qalIHPX872E",
+    authDomain: "kirafix-a0ed2.firebaseapp.com",
+    projectId: "kirafix-a0ed2",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// 🔥 نجيب ID من الرابط
+const urlParams = new URLSearchParams(window.location.search);
+const postId = urlParams.get("id");
+
+async function loadPost(){
+    const container = document.getElementById("post");
+
+    if(!postId){
+        container.innerHTML = "No Post ID";
+        return;
+    }
+
+    const ref = doc(db, "posts", postId);
+    const snap = await getDoc(ref);
+
+    if(!snap.exists()){
+        container.innerHTML = "Post not found";
+        return;
+    }
+
+    const post = snap.data();
+
+    container.innerHTML = `
+        <div class="user">
+            <img src="${post.userImage}">
+            <div>
+                <div><b>${post.userName}</b></div>
+                <div class="small">${post.email}</div>
+            </div>
+        </div>
+
+        <p style="margin-top:10px;">${post.text || ""}</p>
+
+        ${post.image ? `<img src="${post.image}">` : ""}
+        ${post.video ? `<video controls src="${post.video}"></video>` : ""}
+    `;
+}
+
+loadPost();
+</script>
+
+</body>
+</html>
