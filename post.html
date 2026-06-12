@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
+<title>Kirafix Post</title>
+<meta name="description" content="">
+<meta property="og:title" content="">
+<meta property="og:description" content="">
+<meta property="og:image" content="">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Post</title>
+
 
 <style>
 body{
@@ -49,27 +54,16 @@ img,video{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-// --- إعدادات الرفع الخارجية ---
-const IMGBB_API_KEY = "a870d9c05acad152564a134e6f4228c9"; 
-const CLOUDINARY_UPLOAD_PRESET = "kirafix_posts";
-const CLOUDINARY_CLOUD_NAME = "dno9n87sc";
-const messageSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3'); 
-    
 const firebaseConfig = {
     apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
     authDomain: "kirafix-a0ed2.firebaseapp.com",
     projectId: "kirafix-a0ed2",
-    storageBucket: "kirafix-a0ed2.firebasestorage.app",
-    messagingSenderId: "1038377831293",
-    appId: "1:103837103837:web:c4763c6157addb25a1da14"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 🔥 نجيب ID من الرابط
-const urlParams = new URLSearchParams(window.location.search);
-const postId = urlParams.get("id");
+const postId = new URLSearchParams(window.location.search).get("id");
 
 async function loadPost(){
     const container = document.getElementById("post");
@@ -89,6 +83,25 @@ async function loadPost(){
 
     const post = snap.data();
 
+    // ✅ SEO META FIX
+    document.title = post.text?.slice(0, 60) || "Kirafix Post";
+
+    const desc = post.text?.slice(0, 160) || "";
+
+    const setMeta = (name, content) => {
+        let el = document.querySelector(name);
+        if(el) el.content = content;
+    };
+
+    setMeta('meta[name="description"]', desc);
+    setMeta('meta[property="og:title"]', post.userName || "Kirafix");
+    setMeta('meta[property="og:description"]', desc);
+
+    if(post.image){
+        setMeta('meta[property="og:image"]', post.image);
+    }
+
+    // ✔ render page
     container.innerHTML = `
         <div class="user">
             <img src="${post.userImage}">
