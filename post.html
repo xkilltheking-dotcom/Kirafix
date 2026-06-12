@@ -54,6 +54,11 @@ img,video{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
+const IMGBB_API_KEY = "a870d9c05acad152564a134e6f4228c9"; 
+const CLOUDINARY_UPLOAD_PRESET = "kirafix_posts";
+const CLOUDINARY_CLOUD_NAME = "dno9n87sc";
+const messageSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');     
+
 const firebaseConfig = {
     apiKey: "AIzaSyCMH9WZIHPYYtnAhCUjRWyq9alIHPX872E",
     authDomain: "kirafix-a0ed2.firebaseapp.com",
